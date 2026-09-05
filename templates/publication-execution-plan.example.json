@@ -1,0 +1,19 @@
+{
+  "releaseTargetId": "rt_zhihu",
+  "route": "WECHATSYNC_STAGED_FINALIZE",
+  "draftStagerId": "wechatsync-mcp-v1",
+  "finalizerId": "zhihu-finalizer-v1",
+  "finalizerStrategy": "IN_PAGE_WEB_API",
+  "requiredFields": [
+    "title",
+    "body",
+    "cover"
+  ],
+  "verificationPolicy": {
+    "requirePublicUrl": true,
+    "verifyTitle": true,
+    "verifyFingerprint": true
+  },
+  "fallbackRoute": null,
+  "note": "Fallback that creates a second remote article is not automatic."
+}

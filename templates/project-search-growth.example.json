@@ -1,0 +1,60 @@
+{
+  "searchGrowthTarget": {
+    "brandAliases": [
+      "JovaAI",
+      "艾氪智能"
+    ],
+    "productTargets": [
+      "询报价智能体"
+    ],
+    "icps": [
+      "制造企业",
+      "产业链链主企业"
+    ],
+    "personas": [
+      "CIO",
+      "采购负责人",
+      "业务负责人"
+    ],
+    "conversionGoals": [
+      "book_demo",
+      "contact"
+    ]
+  },
+  "marketProfiles": [
+    {
+      "id": "cn-baidu-desktop",
+      "engine": "BAIDU",
+      "locationName": "China",
+      "languageCode": "zh-CN",
+      "device": "DESKTOP",
+      "primary": true
+    },
+    {
+      "id": "us-google-desktop",
+      "engine": "GOOGLE",
+      "locationName": "United States",
+      "languageCode": "en",
+      "device": "DESKTOP",
+      "primary": false
+    }
+  ],
+  "entities": [
+    {
+      "type": "BRAND",
+      "canonicalName": "JovaAI",
+      "aliases": [
+        "JovaAI",
+        "艾氪智能"
+      ]
+    },
+    {
+      "type": "PRODUCT",
+      "canonicalName": "询报价智能体",
+      "aliases": [
+        "询报价智能体",
+        "RFQ Agent"
+      ]
+    }
+  ]
+}

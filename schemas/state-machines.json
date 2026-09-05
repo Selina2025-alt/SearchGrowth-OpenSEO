@@ -1,0 +1,144 @@
+{
+  "release": {
+    "initial": "DRAFT",
+    "terminal": [
+      "COMPLETED",
+      "PARTIAL",
+      "CANCELLED"
+    ],
+    "transitions": {
+      "DRAFT": [
+        "DRY_RUN_READY",
+        "CANCELLED"
+      ],
+      "DRY_RUN_READY": [
+        "READY_FOR_APPROVAL",
+        "DRAFT",
+        "CANCELLED"
+      ],
+      "READY_FOR_APPROVAL": [
+        "APPROVED",
+        "DRAFT",
+        "CANCELLED"
+      ],
+      "APPROVED": [
+        "EXECUTING",
+        "PAUSED",
+        "CANCELLED"
+      ],
+      "EXECUTING": [
+        "COMPLETED",
+        "PARTIAL",
+        "PAUSED"
+      ],
+      "PAUSED": [
+        "EXECUTING",
+        "CANCELLED"
+      ]
+    }
+  },
+  "publicPublishingJob": {
+    "initial": "PLANNED",
+    "terminal": [
+      "PUBLIC_VERIFIED",
+      "REJECTED",
+      "EXECUTION_FAILED",
+      "VERIFY_FAILED",
+      "CANCELLED"
+    ],
+    "transitions": {
+      "PLANNED": [
+        "PREFLIGHT",
+        "CANCELLED"
+      ],
+      "PREFLIGHT": [
+        "EXECUTION_READY",
+        "PUBLISH_FIELDS_REQUIRED",
+        "AUTH_REQUIRED",
+        "EXECUTION_FAILED"
+      ],
+      "EXECUTION_READY": [
+        "STAGING_DRAFT",
+        "VALIDATING",
+        "SUBMITTING",
+        "CANCELLED"
+      ],
+      "STAGING_DRAFT": [
+        "DRAFT_CREATED",
+        "AUTH_REQUIRED",
+        "EXECUTION_FAILED",
+        "REMOTE_STATE_UNKNOWN"
+      ],
+      "DRAFT_CREATED": [
+        "DRAFT_VERIFIED",
+        "EXECUTION_FAILED"
+      ],
+      "DRAFT_VERIFIED": [
+        "FINALIZE_READY"
+      ],
+      "FINALIZE_READY": [
+        "FINALIZING",
+        "AUTH_REQUIRED"
+      ],
+      "FINALIZING": [
+        "PUBLISH_SUBMITTED",
+        "REMOTE_STATE_UNKNOWN",
+        "AUTH_REQUIRED",
+        "REJECTED",
+        "EXECUTION_FAILED"
+      ],
+      "VALIDATING": [
+        "DRY_RUN_PASSED",
+        "PUBLISH_FIELDS_REQUIRED",
+        "EXECUTION_FAILED"
+      ],
+      "DRY_RUN_PASSED": [
+        "SUBMITTING"
+      ],
+      "SUBMITTING": [
+        "ACCEPTED_REMOTE_TASK",
+        "PUBLISH_SUBMITTED",
+        "REMOTE_STATE_UNKNOWN",
+        "EXECUTION_FAILED"
+      ],
+      "ACCEPTED_REMOTE_TASK": [
+        "PUBLISH_SUBMITTED",
+        "PUBLIC_VERIFYING",
+        "REMOTE_STATE_UNKNOWN",
+        "REJECTED",
+        "EXECUTION_FAILED"
+      ],
+      "PUBLISH_SUBMITTED": [
+        "PUBLIC_VERIFYING",
+        "REMOTE_STATE_UNKNOWN",
+        "REJECTED"
+      ],
+      "PUBLIC_VERIFYING": [
+        "PUBLIC_VERIFIED",
+        "VERIFY_FAILED",
+        "REMOTE_STATE_UNKNOWN"
+      ],
+      "AUTH_REQUIRED": [
+        "PREFLIGHT",
+        "FINALIZE_READY",
+        "VALIDATING",
+        "CANCELLED"
+      ],
+      "PUBLISH_FIELDS_REQUIRED": [
+        "PREFLIGHT",
+        "CANCELLED"
+      ],
+      "RATE_LIMITED": [
+        "PREFLIGHT",
+        "CANCELLED"
+      ],
+      "REMOTE_STATE_UNKNOWN": [
+        "PUBLISH_SUBMITTED",
+        "PUBLIC_VERIFYING",
+        "PUBLIC_VERIFIED",
+        "EXECUTION_FAILED",
+        "VERIFY_FAILED"
+      ]
+    }
+  }
+}

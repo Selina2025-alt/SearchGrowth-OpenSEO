@@ -1,0 +1,22 @@
+[
+  {
+    "a": "https://example.com/a?utm_source=zhihu#x",
+    "b": "https://example.com/a",
+    "same": true
+  },
+  {
+    "a": "https://EXAMPLE.com/a/",
+    "b": "https://example.com/a",
+    "same": true
+  },
+  {
+    "a": "https://example.com/a?id=1",
+    "b": "https://example.com/a?id=2",
+    "same": false
+  },
+  {
+    "a": "https://example.com/a?gclid=x&id=1",
+    "b": "https://example.com/a?id=1",
+    "same": true
+  }
+]

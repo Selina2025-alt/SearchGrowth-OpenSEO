@@ -1,0 +1,41 @@
+{
+  "releaseVersion": 1,
+  "strategy": "WEBSITE_FIRST",
+  "contentPackageVersionId": "cpv_example",
+  "targets": [
+    {
+      "platform": "website",
+      "intent": "PUBLIC",
+      "route": "OWNED_SITE",
+      "required": true
+    },
+    {
+      "platform": "zhihu",
+      "intent": "PUBLIC",
+      "route": "WECHATSYNC_STAGED_FINALIZE",
+      "required": true
+    },
+    {
+      "platform": "juejin",
+      "intent": "PUBLIC",
+      "route": "WECHATSYNC_STAGED_FINALIZE",
+      "required": true
+    },
+    {
+      "platform": "csdn",
+      "intent": "PUBLIC",
+      "route": "WECHATSYNC_STAGED_FINALIZE",
+      "required": true
+    },
+    {
+      "platform": "baijiahao",
+      "intent": "PUBLIC",
+      "route": "YXER_NATIVE",
+      "required": false
+    }
+  ],
+  "utmPolicy": {
+    "medium": "organic_distribution",
+    "campaign": "sg_<release_short_id>"
+  }
+}

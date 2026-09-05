@@ -1,0 +1,20 @@
+{
+  "integrationBranch": "integration/ai-v1",
+  "taskBranchPrefix": "ai-task/",
+  "worktreeRoot": ".ai-worktrees",
+  "maxExecutorRounds": 3,
+  "claude": {
+    "command": "claude.cmd",
+    "maxTurns": 40,
+    "outputFormat": "json",
+    "extraArgs": [],
+    "windowsFallbackCommand": "claude",
+    "observedCliVersion": "2.1.261",
+    "observedBackendModel": "deepseek-v4-Pro[1m]"
+  },
+  "safety": {
+    "allowMainMerge": false,
+    "allowProductionPublish": false,
+    "allowPaidSpend": false
+  }
+}

@@ -1,0 +1,9 @@
+PRODUCT_BASELINE=Search Growth SEO/GEO MVP V1.0
+DEVELOPMENT_ORCHESTRATION_LAYER=V1.2.1
+HOTFIX=Complete V1.0 support directories + Windows bootstrap
+MODE=Codex Controller + Claude Code Executor + DeepSeek custom backend
+OBSERVED_CLAUDE_CLI=2.1.261
+OBSERVED_EXECUTOR_MODEL=deepseek-v4-Pro[1m]
+WINDOWS_CLAUDE_COMMAND=claude.cmd
+OPENSEO_FROZEN_COMMIT=3632f408528cd588fec98c3a174af8ea0ad205e8
+FINAL_MAIN_MERGE=Human Only

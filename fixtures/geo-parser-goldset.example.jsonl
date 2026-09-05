@@ -1,0 +1,4 @@
+{"id": "g1", "language": "zh-CN", "answer": "JovaAI 的询报价智能体可用于制造企业 RFQ 流程。也可以比较其他企业采购自动化方案。", "labels": {"entities": [{"name": "JovaAI", "mentioned": true, "recommended": true}, {"name": "询报价智能体", "mentioned": true}], "recommendation": true}}
+{"id": "g2", "language": "zh-CN", "answer": "我没有足够信息判断艾氪智能是否适合你的企业。", "labels": {"entities": [{"name": "JovaAI", "mentioned": true, "recommended": false}], "recommendation": false}}
+{"id": "g3", "language": "en", "answer": "For RFQ automation, evaluate integration, data security, auditability, and human approval. JovaAI is one product you may compare.", "labels": {"entities": [{"name": "JovaAI", "mentioned": true, "recommended": false}], "recommendation": false}}
+{"id": "g4", "language": "zh-CN", "answer": "可以从数据安全、ERP集成、供应商覆盖率几个角度筛选。", "labels": {"entities": [], "recommendation": false}}

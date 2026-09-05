@@ -1,0 +1,5 @@
+﻿topic,prompt_text,prompt_type,persona,buying_stage,market_profile_id,language,business_fit,priority
+RFQ automation,制造企业如何用 AI 自动处理 RFQ？,scenario,采购负责人,research,cn-baidu-desktop,zh-CN,100,90
+RFQ automation,有哪些适合制造企业的 AI 询报价解决方案？,recommendation,CIO,compare,cn-baidu-desktop,zh-CN,100,100
+AI security,企业采购 Agent 会不会泄露供应商价格？,security,CIO,validate,cn-baidu-desktop,zh-CN,100,100
+RFQ automation,What are AI RFQ automation solutions for manufacturers?,recommendation,Procurement Leader,compare,us-google-desktop,en,100,90

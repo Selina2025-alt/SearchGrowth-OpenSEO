@@ -1,0 +1,401 @@
+openapi: 3.1.0
+info:
+  title: Search Growth V1.0 External & Local Bridge API
+  version: 1.0.0
+  description: >
+    Stable contracts for external/local executors. Internal OpenSEO calls may
+    continue using current server-function patterns.
+servers:
+  - url: https://search-growth.example.invalid
+
+components:
+  securitySchemes:
+    AppSession:
+      type: apiKey
+      in: cookie
+      name: session
+    BridgeBearer:
+      type: http
+      scheme: bearer
+  parameters:
+    ProjectId:
+      in: path
+      name: projectId
+      required: true
+      schema: { type: string }
+    ReleaseId:
+      in: path
+      name: releaseId
+      required: true
+      schema: { type: string }
+    JobId:
+      in: path
+      name: jobId
+      required: true
+      schema: { type: string }
+  schemas:
+    Error:
+      type: object
+      required: [code, message, correlationId]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        correlationId: { type: string }
+    DataQuality:
+      type: object
+      required: [status, warnings]
+      properties:
+        status:
+          enum: [COMPLETE, DEGRADED, INSUFFICIENT]
+        warnings:
+          type: array
+          items: { type: string }
+    SearchGrowthTarget:
+      type: object
+      required: [brandAliases, productTargets, icps, personas, conversionGoals]
+      properties:
+        brandAliases:
+          type: array
+          items: { type: string }
+        productTargets:
+          type: array
+          items: { type: string }
+        icps:
+          type: array
+          items: { type: string }
+        personas:
+          type: array
+          items: { type: string }
+        conversionGoals:
+          type: array
+          items: { type: string }
+    MeasurementBatchRequest:
+      type: object
+      required: [promptIds, repeats, surfaceIds]
+      properties:
+        promptIds:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items: { type: string }
+        repeats:
+          type: integer
+          minimum: 1
+          maximum: 5
+        surfaceIds:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items: { type: string }
+    MeasurementBatchResponse:
+      type: object
+      required: [batchId, plannedRuns, state]
+      properties:
+        batchId: { type: string }
+        plannedRuns: { type: integer }
+        estimatedCost: { type: number }
+        state:
+          enum: [PLANNED, REQUIRES_COST_APPROVAL, RUNNING, COMPLETED, PARTIAL, FAILED]
+    ReleaseApprovalRequest:
+      type: object
+      required: [expectedBundleHash]
+      properties:
+        expectedBundleHash:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+    ReleaseDryRunResponse:
+      type: object
+      required: [ok, bundleHash, targetResults]
+      properties:
+        ok: { type: boolean }
+        bundleHash: { type: string }
+        warnings:
+          type: array
+          items: { type: string }
+        errors:
+          type: array
+          items: { type: string }
+        targetResults:
+          type: array
+          items:
+            type: object
+            required: [targetId, ok]
+            properties:
+              targetId: { type: string }
+              ok: { type: boolean }
+              route: { type: string }
+              executorId: { type: string }
+              warnings: { type: array, items: { type: string } }
+              errors: { type: array, items: { type: string } }
+    BridgePairRequest:
+      type: object
+      required: [pairCode, protocolVersion, bridgeVersion]
+      properties:
+        pairCode: { type: string }
+        protocolVersion: { type: integer, minimum: 1 }
+        bridgeVersion: { type: string }
+        executorVersions:
+          type: object
+          additionalProperties: { type: string }
+    BridgePairResponse:
+      type: object
+      required: [bridgeId, token, expiresAt, minProtocolVersion, maxProtocolVersion]
+      properties:
+        bridgeId: { type: string }
+        token: { type: string }
+        expiresAt: { type: string, format: date-time }
+        minProtocolVersion: { type: integer }
+        maxProtocolVersion: { type: integer }
+    BridgeHeartbeatRequest:
+      type: object
+      required: [protocolVersion, bridgeVersion, executors]
+      properties:
+        protocolVersion: { type: integer }
+        bridgeVersion: { type: string }
+        executors:
+          type: array
+          items:
+            type: object
+            required: [id, version, healthy]
+            properties:
+              id: { type: string }
+              version: { type: string }
+              healthy: { type: boolean }
+              detail: { type: string }
+    BridgeJob:
+      type: object
+      required: [jobId, releaseTargetId, executorId, status, expectedContentHash, leaseSeconds]
+      properties:
+        jobId: { type: string }
+        releaseTargetId: { type: string }
+        executorId: { type: string }
+        executorVersion: { type: string }
+        status: { type: string }
+        expectedContentHash: { type: string }
+        leaseSeconds: { type: integer }
+        plan:
+          type: object
+          additionalProperties: true
+        content:
+          type: object
+          additionalProperties: true
+        assets:
+          type: array
+          items:
+            type: object
+            required: [assetId, sha256, mimeType]
+            properties:
+              assetId: { type: string }
+              sha256: { type: string }
+              mimeType: { type: string }
+    BridgeClaimResponse:
+      type: object
+      required: [claimed, leaseExpiresAt]
+      properties:
+        claimed: { type: boolean }
+        leaseExpiresAt: { type: string, format: date-time }
+    BridgeReceiptRequest:
+      type: object
+      required:
+        [jobId, releaseTargetId, status, contentHash, mediaHashes, executorId, executorVersion]
+      properties:
+        jobId: { type: string }
+        releaseTargetId: { type: string }
+        status:
+          enum:
+            [DRAFT_CREATED, DRAFT_VERIFIED, ACCEPTED_REMOTE_TASK, PUBLISH_SUBMITTED,
+             PUBLIC_VERIFIED, AUTH_REQUIRED, REMOTE_STATE_UNKNOWN, REJECTED,
+             EXECUTION_FAILED, VERIFY_FAILED]
+        externalDraftId: { type: string }
+        externalTaskId: { type: string }
+        externalContentId: { type: string }
+        publicUrl: { type: string, format: uri }
+        contentHash: { type: string }
+        mediaHashes:
+          type: array
+          items: { type: string }
+        executorId: { type: string }
+        executorVersion: { type: string }
+        safeErrorCode: { type: string }
+        safeMessage: { type: string }
+        verification:
+          type: object
+          additionalProperties: true
+    RuntimeControlRequest:
+      type: object
+      required: [value]
+      properties:
+        value:
+          oneOf:
+            - { type: boolean }
+            - { type: number }
+            - { type: string }
+        reason: { type: string }
+
+paths:
+  /api/projects/{projectId}/search-growth-target:
+    get:
+      security: [{ AppSession: [] }]
+      parameters: [{ $ref: '#/components/parameters/ProjectId' }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SearchGrowthTarget' }
+    put:
+      security: [{ AppSession: [] }]
+      parameters: [{ $ref: '#/components/parameters/ProjectId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SearchGrowthTarget' }
+      responses:
+        '200': { description: Updated }
+
+  /api/projects/{projectId}/geo/measurement-batches:
+    post:
+      security: [{ AppSession: [] }]
+      parameters: [{ $ref: '#/components/parameters/ProjectId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MeasurementBatchRequest' }
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeasurementBatchResponse' }
+
+  /api/release-bundles/{releaseId}/dry-run:
+    post:
+      security: [{ AppSession: [] }]
+      parameters: [{ $ref: '#/components/parameters/ReleaseId' }]
+      responses:
+        '200':
+          description: Dry Run
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReleaseDryRunResponse' }
+
+  /api/release-bundles/{releaseId}/approve:
+    post:
+      security: [{ AppSession: [] }]
+      parameters: [{ $ref: '#/components/parameters/ReleaseId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReleaseApprovalRequest' }
+      responses:
+        '200': { description: Approved }
+        '409':
+          description: Bundle changed or invalid state
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/release-bundles/{releaseId}/execute:
+    post:
+      security: [{ AppSession: [] }]
+      parameters: [{ $ref: '#/components/parameters/ReleaseId' }]
+      responses:
+        '202': { description: Execution started }
+
+  /api/runtime-controls/{key}:
+    put:
+      security: [{ AppSession: [] }]
+      parameters:
+        - in: path
+          name: key
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RuntimeControlRequest' }
+      responses:
+        '200': { description: Updated }
+
+  /api/publisher-bridge/pair:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BridgePairRequest' }
+      responses:
+        '200':
+          description: Paired
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BridgePairResponse' }
+
+  /api/publisher-bridge/heartbeat:
+    post:
+      security: [{ BridgeBearer: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BridgeHeartbeatRequest' }
+      responses:
+        '204': { description: Recorded }
+
+  /api/publisher-bridge/jobs:
+    get:
+      security: [{ BridgeBearer: [] }]
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 20, default: 5 }
+      responses:
+        '200':
+          description: Authorized jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BridgeJob' }
+
+  /api/publisher-bridge/jobs/{jobId}/claim:
+    post:
+      security: [{ BridgeBearer: [] }]
+      parameters: [{ $ref: '#/components/parameters/JobId' }]
+      responses:
+        '200':
+          description: Claimed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BridgeClaimResponse' }
+        '409': { description: Already leased }
+
+  /api/publisher-bridge/jobs/{jobId}/asset/{assetId}:
+    get:
+      security: [{ BridgeBearer: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/JobId' }
+        - in: path
+          name: assetId
+          required: true
+          schema: { type: string }
+      responses:
+        '302': { description: Short-lived controlled asset download }
+        '404': { description: Asset not authorized for this job }
+
+  /api/publisher-bridge/jobs/{jobId}/receipt:
+    post:
+      security: [{ BridgeBearer: [] }]
+      parameters: [{ $ref: '#/components/parameters/JobId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BridgeReceiptRequest' }
+      responses:
+        '201': { description: Receipt accepted }
+        '409': { description: Conflicting or invalid transition }

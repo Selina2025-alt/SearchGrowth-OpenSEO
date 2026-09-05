@@ -1,0 +1,17 @@
+{
+  "publishResponse": {
+    "ok": true,
+    "taskSetId": "task_set_example"
+  },
+  "detailsResponse": {
+    "tasks": [
+      {
+        "platform": "example-platform",
+        "stageStatus": "fail",
+        "errorMessage": "platform push failed"
+      }
+    ]
+  },
+  "expectedSearchGrowthState": "EXECUTION_FAILED",
+  "note": "The publish response is task acceptance, not publication success."
+}

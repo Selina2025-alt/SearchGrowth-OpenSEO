@@ -1,0 +1,10 @@
+{
+  "allow_external_test_publish": false,
+  "allowed_test_platforms": [],
+  "allowed_test_accounts_note": "",
+  "allow_paid_spend": false,
+  "approved_monthly_external_api_budget": 0,
+  "allow_production_publish": false,
+  "allow_destructive_production_actions": false,
+  "allow_scope_change": false
+}
