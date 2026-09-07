@@ -1,40 +1,14 @@
 {
   "release": {
     "initial": "DRAFT",
-    "terminal": [
-      "COMPLETED",
-      "PARTIAL",
-      "CANCELLED"
-    ],
+    "terminal": ["COMPLETED", "PARTIAL", "CANCELLED"],
     "transitions": {
-      "DRAFT": [
-        "DRY_RUN_READY",
-        "CANCELLED"
-      ],
-      "DRY_RUN_READY": [
-        "READY_FOR_APPROVAL",
-        "DRAFT",
-        "CANCELLED"
-      ],
-      "READY_FOR_APPROVAL": [
-        "APPROVED",
-        "DRAFT",
-        "CANCELLED"
-      ],
-      "APPROVED": [
-        "EXECUTING",
-        "PAUSED",
-        "CANCELLED"
-      ],
-      "EXECUTING": [
-        "COMPLETED",
-        "PARTIAL",
-        "PAUSED"
-      ],
-      "PAUSED": [
-        "EXECUTING",
-        "CANCELLED"
-      ]
+      "DRAFT": ["DRY_RUN_READY", "CANCELLED"],
+      "DRY_RUN_READY": ["READY_FOR_APPROVAL", "DRAFT", "CANCELLED"],
+      "READY_FOR_APPROVAL": ["APPROVED", "DRAFT", "CANCELLED"],
+      "APPROVED": ["EXECUTING", "PAUSED", "CANCELLED"],
+      "EXECUTING": ["COMPLETED", "PARTIAL", "PAUSED"],
+      "PAUSED": ["EXECUTING", "CANCELLED"]
     }
   },
   "publicPublishingJob": {
@@ -47,10 +21,7 @@
       "CANCELLED"
     ],
     "transitions": {
-      "PLANNED": [
-        "PREFLIGHT",
-        "CANCELLED"
-      ],
+      "PLANNED": ["PREFLIGHT", "CANCELLED"],
       "PREFLIGHT": [
         "EXECUTION_READY",
         "PUBLISH_FIELDS_REQUIRED",
@@ -69,17 +40,9 @@
         "EXECUTION_FAILED",
         "REMOTE_STATE_UNKNOWN"
       ],
-      "DRAFT_CREATED": [
-        "DRAFT_VERIFIED",
-        "EXECUTION_FAILED"
-      ],
-      "DRAFT_VERIFIED": [
-        "FINALIZE_READY"
-      ],
-      "FINALIZE_READY": [
-        "FINALIZING",
-        "AUTH_REQUIRED"
-      ],
+      "DRAFT_CREATED": ["DRAFT_VERIFIED", "EXECUTION_FAILED"],
+      "DRAFT_VERIFIED": ["FINALIZE_READY"],
+      "FINALIZE_READY": ["FINALIZING", "AUTH_REQUIRED"],
       "FINALIZING": [
         "PUBLISH_SUBMITTED",
         "REMOTE_STATE_UNKNOWN",
@@ -92,9 +55,7 @@
         "PUBLISH_FIELDS_REQUIRED",
         "EXECUTION_FAILED"
       ],
-      "DRY_RUN_PASSED": [
-        "SUBMITTING"
-      ],
+      "DRY_RUN_PASSED": ["SUBMITTING"],
       "SUBMITTING": [
         "ACCEPTED_REMOTE_TASK",
         "PUBLISH_SUBMITTED",
@@ -124,14 +85,8 @@
         "VALIDATING",
         "CANCELLED"
       ],
-      "PUBLISH_FIELDS_REQUIRED": [
-        "PREFLIGHT",
-        "CANCELLED"
-      ],
-      "RATE_LIMITED": [
-        "PREFLIGHT",
-        "CANCELLED"
-      ],
+      "PUBLISH_FIELDS_REQUIRED": ["PREFLIGHT", "CANCELLED"],
+      "RATE_LIMITED": ["PREFLIGHT", "CANCELLED"],
       "REMOTE_STATE_UNKNOWN": [
         "PUBLISH_SUBMITTED",
         "PUBLIC_VERIFYING",

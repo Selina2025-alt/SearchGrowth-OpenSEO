@@ -1,0 +1,6 @@
+
+> open-seo@0.1.7 lint D:\company project\SearchGrowth-OpenSEO\.ai-worktrees\T000-M0
+> oxlint . --type-aware
+
+Found 0 warnings and 0 errors.
+Finished in 6.5s on 843 files using 16 threads.

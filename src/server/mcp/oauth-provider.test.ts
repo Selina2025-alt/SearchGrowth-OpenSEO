@@ -178,6 +178,8 @@ describe("OpenSEO OAuth provider configuration", () => {
     mocks.purges.length = 0;
   });
 
+  // Cold-importing the provider graph can exceed the 5s default on a slow
+  // Windows checkout; assertions are unchanged, only the deadline moves.
   it("binds tokens and protected-resource metadata to the canonical MCP URL", async () => {
     const { createOpenSeoOAuthProvider } = await import("./oauth-provider");
     const provider = createOpenSeoOAuthProvider(() => new Response("app"));
@@ -195,8 +197,9 @@ describe("OpenSEO OAuth provider configuration", () => {
       "mcp",
     ]);
     expect(mocks.options[0]?.clientRegistrationTTL).toBe(60 * 60 * 24 * 365);
-  });
+  }, 30_000);
 
+  // Same cold-import cost as above; only the deadline is raised.
   it("purges OAuth KV data without needing a prior request", async () => {
     const { createOpenSeoOAuthProvider } = await import("./oauth-provider");
     const provider = createOpenSeoOAuthProvider(() => new Response("app"));
@@ -210,7 +213,7 @@ describe("OpenSEO OAuth provider configuration", () => {
     expect(mocks.options[0]?.resourceMetadata).toMatchObject({
       resource: "https://app.openseo.so/mcp",
     });
-  });
+  }, 30_000);
 
   it("rejects token exchanges that drop the required MCP scope", async () => {
     const { OAuthError } = await import("@cloudflare/workers-oauth-provider");

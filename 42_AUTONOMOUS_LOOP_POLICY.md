@@ -1,6 +1,7 @@
 # Autonomous Loop Policy
 
 Codex may automatically:
+
 - create task packets;
 - create task branches/worktrees;
 - invoke Claude CLI;

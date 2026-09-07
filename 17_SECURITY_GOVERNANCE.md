@@ -3,11 +3,13 @@
 ## 1. Trust Boundaries
 
 Trusted：
+
 - server domain logic；
 - DB；
 - configured deployment secrets。
 
 Semi-trusted：
+
 - DataForSEO；
 - AI providers；
 - Postiz；
@@ -15,6 +17,7 @@ Semi-trusted：
 - CMS API。
 
 Untrusted：
+
 - crawled web；
 - generated/imported HTML；
 - arbitrary external URLs；
@@ -24,6 +27,7 @@ Untrusted：
 ## 2. SSRF
 
 所有 server outbound URL 走 `SafeOutboundUrl`：
+
 - block localhost/private/link-local/metadata；
 - allow http/https only；
 - DNS resolve 后再次检查；
@@ -42,6 +46,7 @@ Untrusted：
 Retrieved web content 永远标记 untrusted data。
 
 不执行网页中的：
+
 - instructions；
 - tool calls；
 - publish requests；
@@ -50,6 +55,7 @@ Retrieved web content 永远标记 untrusted data。
 ## 5. Credentials
 
 P0 内部/单组织：
+
 - cloud API keys：deployment secrets；
 - browser sessions：local only；
 - yxer API key：Local Bridge/运营机 secure config；
@@ -79,6 +85,7 @@ P0 内部/单组织：
 ## 8. Approval
 
 普通渠道：
+
 - Evidence Gate；
 - Release Dry Run；
 - one human approval；
@@ -89,6 +96,7 @@ P0 内部/单组织：
 ## 9. Runtime Kill Switch
 
 DB `runtime_controls`：
+
 - global publishing pause；
 - platform pause；
 - reason/actor/time。
@@ -98,6 +106,7 @@ DB `runtime_controls`：
 ## 10. Audit
 
 Append-only：
+
 - actor；
 - project；
 - action；
@@ -111,6 +120,7 @@ Append-only：
 ## 11. Rate & Blast Radius
 
 配置：
+
 - MAX_RELEASE_TARGETS；
 - MAX_RELEASES_PER_DAY；
 - MAX_POSTS_PER_PLATFORM_PER_DAY；
@@ -124,6 +134,7 @@ PUBLIC_MARKETING / INTERNAL / RESTRICTED。
 ## 13. Retention Default
 
 建议初始：
+
 - provider debug raw payload：30d；
 - AI raw answers：180d，可配置；
 - structured metrics：长期；

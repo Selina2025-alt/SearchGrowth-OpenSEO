@@ -32,6 +32,10 @@
     // Alchemy state/bundle artifacts (gitignored)
     "!.alchemy/**",
     "!badseo/**",
+    // Reference-only contracts/canonical schemas are documentation artifacts
+    // with no importer, not part of the app module graph.
+    "!reference-implementations/**",
+    "!schemas/**",
   ],
   "ignore": ["drizzle-prod.config.ts"],
   // Disable Drizzle plugin - it tries to load drizzle.config.ts which imports cloudflare:workers

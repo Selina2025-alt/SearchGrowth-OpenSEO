@@ -9,6 +9,7 @@
 定位：`SOCIAL_AUTO_UPLOAD_NATIVE`。
 
 使用方式：
+
 - 独立 Python/Playwright worker；
 - 通过 Local Bridge 调 CLI/固定入口；
 - cookie/storage state 留本地；
@@ -58,6 +59,7 @@ Content variant 在 Release Dry Run 前就完成适配。
 ## 7. Published Receipt
 
 保存：
+
 - platform/account；
 - content/media hashes；
 - external id；

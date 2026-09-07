@@ -22,7 +22,11 @@ export interface DraftInspection {
 }
 
 export type FinalizeOutcome =
-  | { kind: "PUBLISH_SUBMITTED"; externalContentId?: string; publicUrl?: string }
+  | {
+      kind: "PUBLISH_SUBMITTED";
+      externalContentId?: string;
+      publicUrl?: string;
+    }
   | { kind: "PUBLIC_VERIFIED"; externalContentId?: string; publicUrl: string }
   | { kind: "AUTH_REQUIRED"; message: string }
   | { kind: "REMOTE_STATE_UNKNOWN"; message: string }
@@ -37,7 +41,9 @@ export interface SameDraftFinalizer {
 
   health(): Promise<{ ok: boolean; reason?: string }>;
   inspectDraft(input: SameDraftFinalizerInput): Promise<DraftInspection>;
-  validatePublishFields(input: SameDraftFinalizerInput): Promise<{ ok: boolean; errors: string[] }>;
+  validatePublishFields(
+    input: SameDraftFinalizerInput,
+  ): Promise<{ ok: boolean; errors: string[] }>;
 
   /**
    * MUST mutate the exact draft supplied.

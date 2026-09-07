@@ -32,6 +32,7 @@ Business Target
 > **只有 `PUBLIC_VERIFIED` 才算发布成功。**
 
 以下都不算：
+
 - “命令执行成功”；
 - “taskSetId 创建成功”；
 - “草稿已生成”；
@@ -43,17 +44,20 @@ Business Target
 ## 2. V1.0 核心架构决策
 
 ### Host
+
 - `every-app/open-seo`
 - 冻结基线 commit：`3632f408528cd588fec98c3a174af8ea0ad205e8`
 - OpenSEO 已有能力优先复用，不平行重建。
 
 ### Agent 模型
+
 - **1 个 Search Growth Agent**；
 - 通过 Skill 调专业能力；
 - Tool 做数据/执行；
 - Workflow 保证状态、审批、重试、回滚和审计。
 
 ### 发布模型
+
 V1.0 不再使用一个过度抽象的 `publish(content)`。
 
 ```text
@@ -87,6 +91,7 @@ Canonical Content
 Wechatsync 是 **Draft Stager**，不是最终发布成功口径。
 
 ### 蚁小二 yxer
+
 - 作为 **外部 Coverage Accelerator / Native Publisher**；
 - 不复制、不修改其未声明 License 的源码；
 - 通过 CLI 契约调用；
@@ -133,6 +138,7 @@ Wechatsync 是 **Draft Stager**，不是最终发布成功口径。
 34. `34_FIRST_CODEX_TASK.md`
 
 Supporting engineering artifacts:
+
 - `schemas/` — domain types, OpenAPI, state machines, migration reference
 - `scripts/` — SkillHub/yxer/Wechatsync install & smoke scripts
 - `reference-implementations/` — safe executor/finalizer/state patterns
@@ -144,7 +150,6 @@ Supporting engineering artifacts:
 
 ---
 
-
 ## 3.1 yxer 本次验证状态
 
 已经完成源码、Release、README、Issue 和发布工作流的接口级核验；明确确认 yxer 可作为外部发布 Executor 使用。
@@ -152,7 +157,6 @@ Supporting engineering artifacts:
 当前 ChatGPT 执行容器因外网 DNS/包下载受限，**没有伪称已经安装成功**。V1.0 把真实安装和 smoke 固化成 Windows 脚本，必须在运营/开发机执行并将结果写入 `CONNECTOR_BASELINE.md`。
 
 关键语义已经锁死：`yxer publish → taskSetId` 只是远程任务被接受，不能视为公开发布成功；必须查询终态并做 Public Verification。
-
 
 ## 4. 代码实现顺序
 
@@ -209,6 +213,7 @@ The product baseline remains **V1.0**. The development pack now includes an orch
 - **Human** as final Product Owner and production authority.
 
 Start with root `AGENTS.md`, `CLAUDE.md`, then read:
+
 - `35_AI_DUAL_AGENT_ORCHESTRATION.md`
 - `38_HUMAN_GATES.md`
 - `39_AI_ENVIRONMENT_SETUP.md`
@@ -229,4 +234,3 @@ claude.cmd -p ... → EXECUTOR_OK
 ```
 
 The CLI output also referenced `deepseek-v4-Pro[1m]`, so the custom model route is visible to the CLI. Bare `claude` is blocked by PowerShell because it resolves to `claude.ps1`; V1.2 orchestration therefore auto-prefers `claude.cmd`. stderr warnings are stored separately from JSON stdout.
-

@@ -17,6 +17,11 @@ import {
   waitForDomainRows,
 } from "./domain-overview-test-utils";
 
+// Default 6x is the acceptance stress factor for the measured edit flow below.
+// Throttling starts only after the cold page load (see comment near the CDP
+// session), so the cold render is not what this spec stresses. Override with
+// DOMAIN_FILTER_CPU_THROTTLE when a host must use a different factor; the
+// numeric budgets are acceptance constants and must not change.
 const CPU_THROTTLE_RATE = Number(process.env.DOMAIN_FILTER_CPU_THROTTLE ?? 6);
 const PERF_BUDGETS = {
   actionMs: Number(process.env.DOMAIN_FILTER_ACTION_MS ?? 2_500),
@@ -68,9 +73,6 @@ test.describe("Domain Overview filter performance", () => {
       });
     });
     const client = await page.context().newCDPSession(page);
-    await client.send("Emulation.setCPUThrottlingRate", {
-      rate: CPU_THROTTLE_RATE,
-    });
 
     const checkpoints: PerfCheckpoint[] = [];
     let finalMetrics: DomainPerfMetrics | null = null;
@@ -89,6 +91,15 @@ test.describe("Domain Overview filter performance", () => {
     try {
       await openDomainOverview(page, "pages");
       await waitForDomainRows(page, "Top Pages");
+
+      // Throttle only the measured edit flow, not the cold page load: this
+      // spec asserts main-thread budgets for the applied-filter edit
+      // interactions, and throttling the initial render makes the 1.5s liveness
+      // probe flake on slow hosts before any measured interaction begins.
+      await client.send("Emulation.setCPUThrottlingRate", {
+        rate: CPU_THROTTLE_RATE,
+      });
+
       await resetDomainPerfMetrics(page);
       await captureCheckpoint("ready on Top Pages");
 

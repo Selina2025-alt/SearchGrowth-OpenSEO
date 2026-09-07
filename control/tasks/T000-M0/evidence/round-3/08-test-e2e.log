@@ -1,0 +1,643 @@
+
+> open-seo@0.1.7 test:e2e D:\company project\SearchGrowth-OpenSEO\.ai-worktrees\T000-M0
+> playwright test
+
+[2m[WebServer] [22m(node:120116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:121924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:121424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:121424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+  x   1 e2e\domain-overview-filters.perf.spec.ts:48:3 › Domain Overview filter performance › captures main-thread stalls in the applied-filter edit flow (39.5s)
+(node:121776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:121776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+  x   2 e2e\domain-overview-filters.spec.ts:15:3 › Domain Overview filters › closing an inactive search tab does not select it (50.2s)
+(node:122084) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:122084) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+  x   3 e2e\domain-overview-filters.spec.ts:45:3 › Domain Overview filters › closing the active search tab removes it and selects the neighbor (50.2s)
+(node:120476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:120476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+  x   4 e2e\domain-overview-filters.spec.ts:77:3 › Domain Overview filters › keyword filters stay responsive after applying Traffic min and editing Volume max (46.3s)
+(node:125380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:125380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/config.ts?tss-serverfn-split:3:76 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: AppError: Missing Cloudflare Access configuration: set TEAM_DOMAIN and POLICY_AUD on the deployment. See docs/SELF_HOSTING_CLOUDFLARE.md.
+[2m[WebServer] [22m    at resolveCloudflareAccessContext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/cloudflareAccess.ts:54:11)
+[2m[WebServer] [22m    at resolveUserContextFromHeaders (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensure-user/resolve.ts:21:10)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/ensureUser.ts:22:25
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at next (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:32)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/middleware/errorHandling.ts:58:18
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:30)
+[2m[WebServer] [22m    at executeMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:362:10)
+[2m[WebServer] [22m    at Object.assign.__executeServer (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:201:34)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/serverFunctions/projects.ts?tss-serverfn-split:18:72 {
+[2m[WebServer] [22m  code: 'AUTH_CONFIG_MISSING',
+[2m[WebServer] [22m  details: undefined
+[2m[WebServer] [22m}
+  x   5 e2e\domain-overview-filters.spec.ts:103:3 › Domain Overview filters › page filters stay responsive after applying Traffic min and editing Keywords max (37.2s)
+  x   6 e2e\domain-overview-filters.spec.ts:129:3 › Domain Overview filters › clearing page filters does not clear keyword filters (0ms)
+  -   7 e2e\domain-overview-filters.spec.ts:170:3 › Domain Overview filters › submitting a new domain clears the previous domain filters
+  -   8 e2e\domain-overview-filters.spec.ts:204:3 › Domain Overview filters › saved filter defaults apply only when the URL has no tab filters
+  x   9 e2e\keyword-research-navigation.spec.ts:15:3 › Keyword Research navigation › Back to Recent searches clears the active keyword tab query (0ms)
+  -  10 e2e\keyword-research-navigation.spec.ts:45:3 › Keyword Research navigation › clicking keyword tabs keeps the clicked tab and URL in sync
+  -  11 e2e\keyword-research-navigation.spec.ts:81:3 › Keyword Research navigation › closing the active middle keyword tab removes it and selects the next tab
+ ELIFECYCLE  Command failed with exit code 4294967295.

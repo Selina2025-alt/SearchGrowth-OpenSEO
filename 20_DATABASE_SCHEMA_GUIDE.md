@@ -5,6 +5,7 @@
 ## 1. 新增核心表
 
 ### Search/Demand
+
 - search_growth_targets
 - search_market_profiles
 - search_topics
@@ -14,15 +15,18 @@
 - search_prompts
 
 ### GEO
+
 - geo_observation_runs
 - geo_observation_parses
 - geo_entity_mentions
 - geo_citations
 
 ### Opportunity
+
 - growth_opportunities
 
 ### Evidence/Content
+
 - source_refs
 - claims
 - content_packages
@@ -30,10 +34,12 @@
 - content_variants
 
 ### Media
+
 - media_assets
 - published_media_refs
 
 ### Release/Distribution
+
 - release_bundles
 - release_targets
 - publication_execution_plans
@@ -45,17 +51,20 @@
 - publication_receipts
 
 ### Search/Experiment
+
 - indexing_observations
 - experiments
 - experiment_snapshots
 
 ### Governance
+
 - search_growth_audit_events
 - runtime_controls
 
 ## 2. 不复制的表
 
 不创建第二套：
+
 - projects；
 - competitors；
 - key pages；
@@ -66,6 +75,7 @@
 ## 3. Immutable Tables
 
 默认 append-only/immutable：
+
 - geo_observation_runs；
 - geo_observation_parses（记录不改，current pointer逻辑另处理）；
 - content_package_versions；
@@ -77,6 +87,7 @@
 ## 4. Uniqueness
 
 关键：
+
 - normalized prompt per project/market/version policy；
 - citation per run+normalized URL；
 - content version no；

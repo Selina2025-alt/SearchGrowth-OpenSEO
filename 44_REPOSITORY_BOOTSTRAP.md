@@ -1,9 +1,11 @@
 # Repository Bootstrap
 
 ## Important
+
 The development pack is a specification/control package, not the OpenSEO source repository by itself.
 
 For direct dual-agent operation, the **actual OpenSEO fork repository** must contain:
+
 - the V1.0 devpack docs;
 - root `AGENTS.md`;
 - root `CLAUDE.md`;
@@ -24,6 +26,7 @@ Codex should then run the environment probe and take over M0/M0.5.
 ## If you do not yet have a fork
 
 Codex may perform the clone/bootstrap during M0 if:
+
 - it is running locally;
 - network/Git access is allowed;
 - no paid/destructive action is required.
@@ -37,6 +40,7 @@ Before the first Claude task, Codex should create/verify `integration/ai-v1` and
 This ensures every task worktree automatically receives the same AGENTS/CLAUDE/spec context.
 
 ## Do not
+
 - start autonomous work in a folder containing only the ZIP and no source repository;
 - let Codex Cloud assume it can control a local VS Code extension;
 - copy reference migration SQL directly into production without M0 mapping.
@@ -50,4 +54,3 @@ powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-openseo-windows.ps1
 ```
 
 Then open the generated `SearchGrowth-OpenSEO` repository. Do not continue M0 in the docs-only folder.
-

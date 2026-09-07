@@ -1,0 +1,64 @@
+
+> open-seo@0.1.7 test:e2e D:\company project\SearchGrowth-OpenSEO\.ai-worktrees\T000-M0
+> playwright test
+
+[2m[WebServer] [22m(node:156128) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:155704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:155704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   1 e2e\domain-overview-filters.perf.spec.ts:48:3 › Domain Overview filter performance › captures main-thread stalls in the applied-filter edit flow (1.1m)
+(node:121928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:121928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   2 e2e\domain-overview-filters.spec.ts:15:3 › Domain Overview filters › closing an inactive search tab does not select it (17.1s)
+(node:160868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:160868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   3 e2e\domain-overview-filters.spec.ts:45:3 › Domain Overview filters › closing the active search tab removes it and selects the neighbor (11.5s)
+(node:158472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:158472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  4 e2e\domain-overview-filters.spec.ts:77:3 › Domain Overview filters › keyword filters stay responsive after applying Traffic min and editing Volume max (6.0s)
+  x   5 e2e\domain-overview-filters.spec.ts:103:3 › Domain Overview filters › page filters stay responsive after applying Traffic min and editing Keywords max (9.1s)
+(node:127180) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:127180) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   6 e2e\domain-overview-filters.spec.ts:129:3 › Domain Overview filters › clearing page filters does not clear keyword filters (13.8s)
+(node:161848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:161848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   7 e2e\domain-overview-filters.spec.ts:170:3 › Domain Overview filters › submitting a new domain clears the previous domain filters (23.6s)
+(node:160800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:160800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   8 e2e\domain-overview-filters.spec.ts:204:3 › Domain Overview filters › saved filter defaults apply only when the URL has no tab filters (11.4s)
+(node:161560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:161560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m[35mLOG[39m [94m/src/middleware/errorHandling.ts:72:7[39m
+[2m[WebServer] [22m →  server.function error: Error: Missing required environment variable: DATAFORSEO_API_KEY
+[2m[WebServer] [22m    at getRequiredEnvValue (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/server/lib/runtime-env.ts:35:11)
+[2m[WebServer] [22m    at D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/server/lib/dataforseo/core.ts:69:20
+[2m[WebServer] [22m    at requestDataforseo (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/server/lib/dataforseo/core.ts:175:20)
+[2m[WebServer] [22m    at fetchLiveSerp (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/server/lib/dataforseo/serp.ts:92:20)
+[2m[WebServer] [22m    at meterDataforseoCall (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/server/lib/dataforseo/client.ts:158:20)
+[2m[WebServer] [22m    at Object.getSerpLiveAnalysis [as getSerpAnalysis] (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/src/server/features/keywords/services/research/serp.ts:98:21)
+[2m[WebServer] [22m    at server (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:944:24)
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:24)
+[2m[WebServer] [22m    at userNext (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:312:26)
+[2m[WebServer] [22m    at callNextMiddleware (D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0/node_modules/.pnpm/@tanstack+start-client-core@1.170.12/node_modules/@tanstack/start-client-core/src/createServerFn.ts:322:24)
+ ELIFECYCLE  Command failed with exit code 4294967295.

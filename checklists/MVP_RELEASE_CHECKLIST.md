@@ -1,6 +1,7 @@
 # MVP Release Checklist
 
 ## Data
+
 - [ ] Fresh GEO sampling regression
 - [ ] Raw/Parse versioning
 - [ ] Surface isolation
@@ -8,6 +9,7 @@
 - [ ] score profiles deterministic
 
 ## Search
+
 - [ ] PageFit
 - [ ] OwnedSite NEW_PAGE
 - [ ] OwnedSite REFRESH_PAGE concurrency
@@ -16,6 +18,7 @@
 - [ ] crawler access audit
 
 ## Content
+
 - [ ] Claim/source traceability
 - [ ] immutable content
 - [ ] WebPageSpec
@@ -24,6 +27,7 @@
 - [ ] PublishedMediaRef
 
 ## Publishing
+
 - [ ] Release hash
 - [ ] Dry Run
 - [ ] One Approval
@@ -38,6 +42,7 @@
 - [ ] PUBLIC_VERIFIED only
 
 ## Safety
+
 - [ ] remote unknown
 - [ ] duplicate prevention
 - [ ] bridge protocol/scope
@@ -47,6 +52,7 @@
 - [ ] prompt injection
 
 ## Feedback
+
 - [ ] URLIdentity
 - [ ] Citation→Receipt
 - [ ] UTM/GA4
@@ -54,6 +60,7 @@
 - [ ] Next Action
 
 ## Full E2E
+
 - [ ] ≥5 public verified targets for China scope
 - [ ] GLOBAL adds ≥1 overseas target
 - [ ] one release completes feedback loop

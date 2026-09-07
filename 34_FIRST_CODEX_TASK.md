@@ -15,5 +15,6 @@ Give Codex the whole V1.0 pack plus this instruction:
 
 Reason:
 V1.0 intentionally eliminates the two highest-risk sources of rework first:
+
 - hidden mismatch with the OpenSEO source;
 - hidden mismatch with real publishing platforms.

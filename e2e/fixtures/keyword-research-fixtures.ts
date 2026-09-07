@@ -1,4 +1,4 @@
-import type { KeywordResearchRow } from "@/types/keywords";
+import type { KeywordResearchRow, SerpResultItem } from "@/types/keywords";
 import type { ResolvedResearchKeywordsInput } from "@/types/schemas/keywords";
 
 const MONTHLY_SEARCHES = [
@@ -31,6 +31,78 @@ function makeRow(
     intent: index % 3 === 0 ? "commercial" : "informational",
     ...overrides,
   };
+}
+
+/** Number of organic rows every fixture SERP returns (one full panel page). */
+const SERP_FIXTURE_ITEM_COUNT = 10;
+const SERP_FIXTURE_SUFFIXES = [
+  "guide",
+  "tools",
+  "examples",
+  "checklist",
+  "for beginners",
+  "alternatives",
+  "best practices",
+  "pricing",
+  "reviews",
+  "templates",
+] as const;
+
+function slugifyKeyword(keyword: string): string {
+  return (
+    keyword
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "keyword"
+  );
+}
+
+function makeSerpItem(keyword: string, rank: number): SerpResultItem {
+  const slug = slugifyKeyword(keyword);
+  // .test is a reserved TLD that never resolves, so fixture URLs are safe even
+  // if a test ever navigates one.
+  const domain = rank === 1 ? `${slug}.test` : `example-${rank}.test`;
+  const suffixIndex = (rank - 1) % SERP_FIXTURE_SUFFIXES.length;
+  const suffix = SERP_FIXTURE_SUFFIXES[suffixIndex];
+  const url =
+    rank === 1
+      ? `https://${domain}/`
+      : `https://${domain}/${slug}-${suffix.replace(/ /g, "-")}`;
+  const title = rank === 1 ? keyword : `${keyword} ${suffix}`;
+  return {
+    rank,
+    title,
+    url,
+    domain,
+    description: `Deterministic fixture SERP result ${rank} for "${keyword}".`,
+    etv: rank === 1 ? 5200 : 5200 - (rank - 1) * 500,
+    estimatedPaidTrafficCost: Number(
+      (rank === 1 ? 428.5 : 428.5 - (rank - 1) * 36.2).toFixed(2),
+    ),
+    referringDomains: rank === 1 ? 2100 : 2100 - (rank - 1) * 190,
+    backlinks: rank === 1 ? 48_000 : 48_000 - (rank - 1) * 3_900,
+    isNew: false,
+    rankChange: null,
+  };
+}
+
+/**
+ * Deterministic SERP snapshot for E2E fixture mode. Mirrors the real
+ * getSerpAnalysis response contract ({@link SerpResultItem} rows plus the
+ * requested depth) so fixture output is indistinguishable in shape from a live
+ * DataForSEO snapshot — it is just local and repeatable.
+ */
+export function getSerpAnalysisFixture(input: {
+  keyword: string;
+  depth?: number;
+}) {
+  const requestedKeyword = input.keyword.trim().toLowerCase();
+  const depth = input.depth ?? 20;
+  const items = Array.from({ length: SERP_FIXTURE_ITEM_COUNT }, (_, index) =>
+    makeSerpItem(input.keyword, index + 1),
+  );
+  return { requestedKeyword, items, depth };
 }
 
 export function getKeywordResearchFixture(data: ResolvedResearchKeywordsInput) {

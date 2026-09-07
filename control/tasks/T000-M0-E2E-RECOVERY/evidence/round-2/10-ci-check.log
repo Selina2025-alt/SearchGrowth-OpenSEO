@@ -1,0 +1,11 @@
+
+> open-seo@0.1.7 ci:check D:\company project\SearchGrowth-OpenSEO\.ai-worktrees\T000-M0
+> prettier --check . && knip && tsc --noEmit && tsc --noEmit -p badseo/tsconfig.json && oxlint . --type-aware && pnpm sync-plugin-skills && node scripts/check-plugin-skills-sync.mjs
+
+Checking formatting...
+All matched files use Prettier code style!
+Found 0 warnings and 0 errors.
+Finished in 6.4s on 843 files using 16 threads.
+$ node scripts/sync-plugin-skills.mjs
+Synced 9 skills into plugins/openseo/skills/
+plugin skill sync clean: plugins/openseo/skills

@@ -28,6 +28,7 @@ PLANNED
 ```
 
 ### Wechatsync route
+
 ```text
 EXECUTION_READY
 → STAGING_DRAFT
@@ -39,6 +40,7 @@ EXECUTION_READY
 ```
 
 ### yxer route
+
 ```text
 EXECUTION_READY
 → VALIDATING
@@ -50,6 +52,7 @@ EXECUTION_READY
 ```
 
 异常：
+
 - AUTH_REQUIRED
 - PUBLISH_FIELDS_REQUIRED
 - RATE_LIMITED
@@ -85,6 +88,7 @@ QUEUED
 ```
 
 字段：
+
 - leased_by；
 - lease_expires_at；
 - attempts；
@@ -93,6 +97,7 @@ QUEUED
 ## 6. Unknown Remote State
 
 如果请求已发送但 response 不确定：
+
 - status `REMOTE_STATE_UNKNOWN`；
 - 进入 reconcile；
 - 不回到 SUBMITTING 重新发。
@@ -100,18 +105,22 @@ QUEUED
 ## 7. Workflow Responsibilities
 
 ### GeoMeasurementWorkflow
+
 bounded batches；单 sample failure 不丢全 batch。
 
 ### ReleaseOrchestrationWorkflow
+
 - assert approved/pause；
 - create jobs；
 - 不长期等待 Local Bridge；
 - job receipts/reconciler推进 Release completion。
 
 ### ExperimentRecheckWorkflow
+
 fresh measurement + GSC/GA4 windows + index snapshot。
 
 ### Watchdog
+
 - stale lease；
 - stuck RUNNING；
 - orphan accepted task；

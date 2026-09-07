@@ -1,0 +1,6 @@
+
+> open-seo@0.1.7 format:check D:\company project\SearchGrowth-OpenSEO\.ai-worktrees\T000-M0
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!

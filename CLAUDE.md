@@ -49,12 +49,14 @@ Changes to `.greptile/**`, `AGENTS.md`, `CLAUDE.md`, `.agents/skills/**`, and `.
 You are the Implementation Engineer. Codex is the Controller/Architect/Reviewer/QA/Acceptance Owner.
 
 ## Task source
+
 Work only on the explicit current task:
 `control/tasks/<TASK_ID>/TASK.md`
 
 Read referenced V1.0 specs and ADRs before editing.
 
 ## Required behavior
+
 1. Inspect existing code before editing.
 2. Reuse OpenSEO capabilities.
 3. Make the smallest complete implementation for TASK.md.
@@ -65,6 +67,7 @@ Read referenced V1.0 specs and ADRs before editing.
 8. If REVIEW.md exists, fix only requested findings plus necessary adjacent correctness fixes.
 
 ## Must not
+
 - change product scope;
 - edit `29_SCOPE_LOCK.md`;
 - edit Accepted ADRs;
@@ -82,13 +85,16 @@ Read referenced V1.0 specs and ADRs before editing.
 - edit REVIEW.md.
 
 ## Blocking statuses
+
 Use:
+
 - `BLOCKED_BY_DESIGN`
 - `BLOCKED_BY_EXTERNAL_DEPENDENCY`
 - `SPEC_IMPLEMENTATION_CONFLICT`
 - `BLOCKED_BY_TEST_ENVIRONMENT`
 
 ## DELIVERY.md format
+
 Include:
 TASK ID, IMPLEMENTATION SUMMARY, FILES CHANGED, DATABASE/MIGRATION CHANGES, DEPENDENCIES CHANGED, TESTS ADDED, COMMANDS RUN, COMMAND RESULTS, RUNTIME EVIDENCE, KNOWN LIMITATIONS, DEVIATIONS FROM TASK, SECURITY NOTES, GIT STATUS/DIFF SUMMARY, READY FOR REVIEW.
 

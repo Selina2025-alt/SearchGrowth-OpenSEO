@@ -14,9 +14,11 @@
 ## 3. Finalizer Strategy
 
 ### IN_PAGE_WEB_API
+
 在用户正常登录的目标站点同源上下文中调用编辑器自己使用的 Web API。
 
 适合：
+
 - 知乎；
 - 掘金；
 - CSDN 等通过 smoke 认证的核心平台。
@@ -24,7 +26,9 @@
 注意：这些是认证后的 Web Editor API，不宣传为稳定的公开 Developer API。
 
 ### FIXED_DOM
+
 打开明确 draft URL，执行固定 DOM 逻辑：
+
 - 检查 title/draft id；
 - 填补 publish-only fields；
 - 点击明确 publish action；
@@ -37,6 +41,7 @@
 推荐本地小组件：`Publisher Companion`。
 
 职责：
+
 - 与 Local Bridge 通讯；
 - 运行静态注册 Finalizer；
 - 使用当前 Chrome 正常登录态；
@@ -45,6 +50,7 @@
 **Server 不可下发任意 JavaScript。**
 
 Job 只包含：
+
 ```text
 finalizer_id
 platform
@@ -60,7 +66,7 @@ publish_fields
 interface SameDraftFinalizer {
   id: string;
   platform: string;
-  strategy: 'IN_PAGE_WEB_API'|'FIXED_DOM';
+  strategy: "IN_PAGE_WEB_API" | "FIXED_DOM";
   inspectDraft(ref): Promise<DraftInspection>;
   requirements(ref): Promise<PublishRequirements>;
   dryRun(input): Promise<FinalizerDryRun>;
@@ -73,6 +79,7 @@ interface SameDraftFinalizer {
 ## 6. 第一批认证目标
 
 建议顺序：
+
 1. 知乎；
 2. 掘金；
 3. CSDN。
@@ -91,6 +98,7 @@ DRAFT_VERIFIED
 ```
 
 异常：
+
 - AUTH_REQUIRED
 - PUBLISH_FIELDS_REQUIRED
 - RATE_LIMITED
@@ -102,6 +110,7 @@ DRAFT_VERIFIED
 ## 8. Remote Unknown
 
 如果 finalize 请求 timeout：
+
 - 不再次 finalize；
 - reconcile draft state；
 - 查 public list / known URL / fingerprint；
@@ -111,6 +120,7 @@ DRAFT_VERIFIED
 ## 9. Verification Profiles
 
 每个平台固定：
+
 - public URL regex；
 - edit/draft URL blacklist；
 - title check；
@@ -133,6 +143,7 @@ IMPLEMENTED
 ## 11. Repair
 
 平台 UI/API 变化：
+
 - 自动将该 Finalizer `DEGRADED/DISABLED`；
 - 其它平台不受影响；
 - 修复后重新 smoke/certify。
