@@ -10,6 +10,10 @@ MAX ROUNDS: 3
 
 Round 1 ended at the 100-turn limit after producing a focused partial schema/migration/test diff but before any acceptance command or DELIVERY. Continue from that diff. The isolated worktree has no `node_modules`, so Round 2 is explicitly authorized to run one locked install. Do not redo broad discovery or retry commands denied in Round 1; use Read/Glob/Grep and the approved Git commands for inspection.
 
+## ROUND 3 FINAL FIX CONTEXT
+
+Round 2 delivered a nearly complete slice. Fix only the two REVIEW findings: require `location_code` and `country` everywhere and replace the Global/null test profile with a concrete market; then rerun the final matrix. The Controller has supplied the formatting-only `.ai-orchestrator/config.json` correction that previously blocked format/CI. Do not edit that control file. This is the final executor round.
+
 ## GOAL
 
 Add the normalized, project-scoped `SearchMarketProfile` persistence foundation for both SQLite/D1 and Postgres. This task ends at the schema/domain boundary; API, UI, Topic, Entity, Prompt, GEO, and connector work are separate tasks.
@@ -32,7 +36,7 @@ Own the complete loop: `inspect → modify → test → inspect failure → fix 
 ## IN SCOPE
 
 1. Add one normalized `search_market_profiles` table to the existing OpenSEO schema in both supported dialects.
-2. Represent these required domain fields without JSON encoding: `id`, `project_id`, `name`, `search_engine`, `location_code`, `location_name`, `language_code`, `device`, `country`, `primary`, and `active`. Follow repository naming conventions; an `is_primary` storage column mapped to an idiomatic property is acceptable.
+2. Represent these required, non-null domain fields without JSON encoding: `id`, `project_id`, `name`, `search_engine`, `location_code`, `location_name`, `language_code`, `device`, `country`, `primary`, and `active`. Follow repository naming conventions; an `is_primary` storage column mapped to an idiomatic property is acceptable.
 3. Constrain `search_engine` to `GOOGLE | BAIDU | BING | OTHER` and `device` to `DESKTOP | MOBILE` using the repository's established cross-dialect pattern. Validate untrusted/domain values with Zod at the domain boundary.
 4. Bind every profile to the existing OpenSEO Project through an explicit foreign key and add only indexes/uniqueness rules justified by current repository conventions and the V1.0 documents. Do not invent a second Project model or encode relations in JSON.
 5. Add forward migrations for both SQLite/D1 and Postgres using the next repository-supported migration identifiers and syntax.
@@ -77,14 +81,15 @@ Run independently and save concise sanitized logs under `control/tasks/T100-M1-M
 3. `corepack pnpm install --frozen-lockfile` (Round 2 only; lockfile and manifests must remain unchanged)
 4. `corepack pnpm exec prettier --write <only task-touched source/test/migration files>`
 5. `corepack pnpm run db:migrate:local`
-6. `corepack pnpm exec vitest run <focused schema/parity/market tests>`
-7. `corepack pnpm format:check`
-8. `corepack pnpm types:check`
-9. `corepack pnpm lint`
-10. `corepack pnpm test`
-11. `corepack pnpm build`
-12. `corepack pnpm ci:check`
-13. Read-only Git inspection: `git status`, `git diff`, `git log`, `git show`, `git ls-files`, `git rev-parse`.
+6. `corepack pnpm run db:generate` (Round 3 final metadata-consistency check; it must report no additional schema change after the existing unmerged migration/snapshot is corrected)
+7. `corepack pnpm exec vitest run <focused schema/parity/market tests>`
+8. `corepack pnpm format:check`
+9. `corepack pnpm types:check`
+10. `corepack pnpm lint`
+11. `corepack pnpm test`
+12. `corepack pnpm build`
+13. `corepack pnpm ci:check`
+14. Read-only Git inspection: `git status`, `git diff`, `git log`, `git show`, `git ls-files`, `git rev-parse`.
 
 Do not add/update packages or run commands not listed here. Do not use `--dangerously-skip-permissions`.
 

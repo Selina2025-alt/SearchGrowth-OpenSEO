@@ -8,10 +8,10 @@ CURRENT TASK: T100-M1-MARKET-PROFILE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: e2c7b9bcc0659e3ae641431ac5a6c9b34d873d9b
 LAST REVIEW: T000-M0-E2E-RECOVERY ROUND 2 PASS; T000-M0 FINAL PASS AND MERGED
-CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T100 Round 1 produced a focused partial schema/migration/test diff but exhausted 100 turns before tests or DELIVERY. Codex wrote a single infrastructure-focused BLOCKED review and authorized one locked install for the empty isolated worktree.
-CURRENT BLOCKER: Round 1 has no acceptance evidence or DELIVERY because the worktree lacked dependencies and the original task prohibited installation. M0.5 external Human Gates remain separate.
-NEXT EXACT ACTION: Dispatch T100 fix round 2 with the refreshed TASK/REVIEW and locked-install grant; wait for terminal DELIVERY; then inspect only the schema/migration diff, parity and market-fixture evidence, and security/scope boundaries.
+CURRENT ROUND: 3 / 3
+LAST COMPLETED ACTION: T100 Round 2 delivered both dialect schemas/migrations and green focused/full tests, types, lint, and build. Codex review found nullable location/country plus a Global/null fixture, and a Controller-owned config formatting failure that kept format/CI red.
+CURRENT BLOCKER: SearchMarketProfile currently accepts missing `location_code`/`country` and normalizes a Global placeholder, contrary to the required explicit market identity. Required aggregate CI is also not yet green; Controller has prepared the formatting-only config correction.
+NEXT EXACT ACTION: Supply the formatted config to the task worktree and dispatch final fix round 3. Claude must require explicit location/country, replace the Global fixture, verify migration metadata, run the complete final matrix, and deliver normally.
 
 ## COMPLETED
 
@@ -22,7 +22,7 @@ NEXT EXACT ACTION: Dispatch T100 fix round 2 with the refreshed TASK/REVIEW and 
 
 ## IN PROGRESS
 
-T100-M1-MARKET-PROFILE-SCHEMA round 2 is ready for Claude fix dispatch.
+T100-M1-MARKET-PROFILE-SCHEMA final round 3 is ready for Claude fix dispatch.
 
 ## BLOCKED
 
