@@ -1,0 +1,13 @@
+
+ RUN  v3.2.6 D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T102-M1-TOPIC-KEYWORD-REFS-SCHEMA
+
+ ✓ src/db/search-market-profile.test.ts (3 tests) 72ms
+ ✓ src/db/search-topic.test.ts (7 tests) 87ms
+ ✓ src/db/search-topic-keyword-ref.test.ts (8 tests) 71ms
+ ✓ src/db/schema-parity.test.ts (194 tests) 203ms
+
+ Test Files  4 passed (4)
+      Tests  212 passed (212)
+   Start at  17:41:49
+   Duration  19.48s (transform 826ms, setup 0ms, collect 25.49s, tests 433ms, environment 1ms, prepare 4.17s)
+

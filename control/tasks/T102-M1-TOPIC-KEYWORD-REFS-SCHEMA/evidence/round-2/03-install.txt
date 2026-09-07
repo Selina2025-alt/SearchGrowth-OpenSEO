@@ -1,0 +1,18 @@
+corepack pnpm install --frozen-lockfile
+exit 0
+Lockfile is up to date, resolution step is skipped
+Already up to date
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @mongodb-js/zstd@7.0.0, core-js-pure@3.49.0,        │
+│   core-js@3.49.0, esbuild@0.18.20, esbuild@0.25.12, esbuild@0.28.1,          │
+│   msgpackr-extract@3.0.4, node-liblzma@2.2.0, sharp@0.34.5,                  │
+│   workerd@1.20260625.1, workerd@1.20260704.1.                                │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Done in 3.2s using pnpm v10.30.1
+
+package.json and pnpm-lock.yaml unchanged (git status --porcelain empty).

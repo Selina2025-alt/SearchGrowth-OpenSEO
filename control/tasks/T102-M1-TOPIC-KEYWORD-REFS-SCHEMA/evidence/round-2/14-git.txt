@@ -1,0 +1,52 @@
+git status
+----------
+On branch ai-task/T102-M1-TOPIC-KEYWORD-REFS-SCHEMA
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   control/tasks/T102-M1-TOPIC-KEYWORD-REFS-SCHEMA/TASK.md
+	modified:   drizzle-pg/meta/_journal.json
+	modified:   drizzle/meta/_journal.json
+	modified:   src/db/app.schema.ts
+	modified:   src/db/pg/app.schema.ts
+	modified:   src/db/pg/search-growth.schema.ts
+	modified:   src/db/schema.ts
+	modified:   src/db/search-growth.schema.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	control/tasks/T102-M1-TOPIC-KEYWORD-REFS-SCHEMA/REVIEW.md
+	control/tasks/T102-M1-TOPIC-KEYWORD-REFS-SCHEMA/evidence/
+	drizzle-pg/0025_search_topic_keyword_refs.sql
+	drizzle-pg/meta/0025_snapshot.json
+	drizzle/0047_search_topic_keyword_refs.sql
+	drizzle/meta/0047_snapshot.json
+	src/db/search-topic-keyword-ref.test.ts
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+git diff --stat
+---------------
+ .../T102-M1-TOPIC-KEYWORD-REFS-SCHEMA/TASK.md      |  4 ++
+ drizzle-pg/meta/_journal.json                      |  7 +++
+ drizzle/meta/_journal.json                         |  7 +++
+ src/db/app.schema.ts                               |  8 +++
+ src/db/pg/app.schema.ts                            |  8 +++
+ src/db/pg/search-growth.schema.ts                  | 54 +++++++++++++++-
+ src/db/schema.ts                                   |  1 +
+ src/db/search-growth.schema.ts                     | 73 +++++++++++++++++++++-
+ 8 files changed, 160 insertions(+), 2 deletions(-)
+
+git log --oneline -5
+---------------------
+0e26461 chore: accept topic schema and schedule keyword refs
+16ce86f merge: accept SearchTopic schema foundation
+afbb8aa chore: accept SearchTopic round 2
+7057728 feat: add SearchTopic schema foundation
+6daf3e3 chore: prepare SearchTopic integrity fix round
+
+Notes
+-----
+No commit/merge performed. Branch is the task worktree ai-task/T102-M1-TOPIC-KEYWORD-REFS-SCHEMA.
+REVIEW.md and TASK.md round-2 text are Controller-owned; not edited by the executor.
+package.json / pnpm-lock.yaml unchanged (empty git status for both).

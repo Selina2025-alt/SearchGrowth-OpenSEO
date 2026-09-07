@@ -76,6 +76,7 @@ export const {
   projects,
   searchMarketProfiles,
   searchTopics,
+  searchTopicKeywordRefs,
   savedKeywords,
   savedKeywordTags,
   savedKeywordTagAssignments,

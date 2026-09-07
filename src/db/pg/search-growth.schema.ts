@@ -8,7 +8,7 @@ import {
   text,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { projects } from "./app.schema";
+import { projects, savedKeywords } from "./app.schema";
 
 // Timestamps are stored as *text* (same column shape as the SQLite schema);
 // see the note in pg/app.schema.ts. `isoNow` matches `new Date().toISOString()`
@@ -148,5 +148,57 @@ export const searchTopics = pgTable(
       "search_topics_merge_target_not_self",
       sql`(${table.mergedIntoTopicId} IS NULL OR ${table.mergedIntoTopicId} <> ${table.id})`,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `search_topic_keyword_refs` table
+// in ../search-growth.schema.ts (keep the two files structurally identical).
+//
+// A topic maps to existing OpenSEO saved keywords WITHOUT copying keyword text,
+// market fields, ranks, tags or any other keyword entity: each row stores only
+// the canonical saved_keywords.id reference. Same-project integrity is enforced
+// by two composite foreign keys that carry the mapping row's own project_id as
+// their leading column ((project_id, topic_id) -> search_topics(project_id, id)
+// and (project_id, open_seo_keyword_ref) -> saved_keywords(project_id, id)), so
+// the DB rejects a topic and a saved keyword that belong to different projects.
+// One mapping per (topic_id, open_seo_keyword_ref) is the V1.0 uniqueness rule;
+// deleting a topic, saved keyword, or whole project cascades to the mapping.
+// ============================================================================
+
+export const searchTopicKeywordRefs = pgTable(
+  "search_topic_keyword_refs",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    topicId: text("topic_id").notNull(),
+    openSeoKeywordRef: text("open_seo_keyword_ref").notNull(),
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-project composite FK to the topic: the mapping's project_id must
+    // equal the topic's project_id. Deleting a topic removes its mappings.
+    foreignKey({
+      columns: [table.projectId, table.topicId],
+      foreignColumns: [searchTopics.projectId, searchTopics.id],
+    }).onDelete("cascade"),
+    // Same-project composite FK to the canonical saved keyword: the mapping's
+    // project_id must equal the saved keyword's project_id. Deleting a saved
+    // keyword removes its mappings. The referenced (project_id, id) pair is
+    // unique via the supporting `saved_keywords_project_id_id_idx` index this
+    // FK requires (added to app.schema.ts; no business uniqueness changes).
+    foreignKey({
+      columns: [table.projectId, table.openSeoKeywordRef],
+      foreignColumns: [savedKeywords.projectId, savedKeywords.id],
+    }).onDelete("cascade"),
+    // V1.0 uniqueness: one mapping per (topic_id, open_seo_keyword_ref).
+    uniqueIndex("search_topic_keyword_refs_unique_topic_keyword_idx").on(
+      table.topicId,
+      table.openSeoKeywordRef,
+    ),
+    // keyword -> topic reads (the unique index above already leads with topic_id).
+    index("search_topic_keyword_refs_keyword_idx").on(table.openSeoKeywordRef),
   ],
 );

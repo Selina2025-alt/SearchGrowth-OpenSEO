@@ -1,0 +1,107 @@
+
+> open-seo@0.1.7 db:generate D:\company project\SearchGrowth-OpenSEO\.ai-worktrees\T102-M1-TOPIC-KEYWORD-REFS-SCHEMA
+> npm run db:generate:d1 && npm run db:generate:pg
+
+npm warn Unknown env config "audit-config". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "minimum-release-age". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "npm-globalconfig". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "overrides". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "_jsr-registry". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> open-seo@0.1.7 db:generate:d1
+> drizzle-kit generate
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file 'D:\company project\SearchGrowth-OpenSEO\.ai-worktrees\T102-M1-TOPIC-KEYWORD-REFS-SCHEMA\drizzle.config.ts'
+37 tables
+backlink_snapshots 12 columns 1 indexes 1 fks
+keyword_metrics 12 columns 2 indexes 1 fks
+organization_activation_state 4 columns 0 indexes 1 fks
+project_activation_state 5 columns 0 indexes 1 fks
+projects 8 columns 2 indexes 1 fks
+rank_check_runs 10 columns 3 indexes 2 fks
+rank_snapshots 9 columns 2 indexes 1 fks
+rank_tracking_configs 14 columns 3 indexes 1 fks
+rank_tracking_keywords 8 columns 1 indexes 1 fks
+saved_keyword_tag_assignments 3 columns 2 indexes 2 fks
+saved_keyword_tags 6 columns 2 indexes 1 fks
+saved_keywords 6 columns 3 indexes 1 fks
+user_onboarding_answers 11 columns 1 indexes 2 fks
+search_market_profiles 13 columns 1 indexes 1 fks
+search_topic_keyword_refs 5 columns 2 indexes 3 fks
+search_topics 9 columns 2 indexes 2 fks
+project_competitors 7 columns 1 indexes 1 fks
+project_context_sections 6 columns 0 indexes 1 fks
+project_key_pages 8 columns 1 indexes 1 fks
+project_research_log 6 columns 1 indexes 1 fks
+audit_issues 7 columns 2 indexes 2 fks
+audit_lighthouse_results 15 columns 2 indexes 2 fks
+audit_pages 35 columns 1 indexes 1 fks
+audits 18 columns 2 indexes 1 fks
+sam_sessions 7 columns 1 indexes 2 fks
+account 13 columns 2 indexes 1 fks
+apikey 22 columns 3 indexes 0 fks
+invitation 8 columns 2 indexes 2 fks
+member 5 columns 3 indexes 2 fks
+organization 6 columns 2 indexes 0 fks
+session 9 columns 2 indexes 1 fks
+user 9 columns 1 indexes 0 fks
+verification 6 columns 2 indexes 0 fks
+billing_customer_status 8 columns 0 indexes 1 fks
+ga4_connections 12 columns 3 indexes 2 fks
+gsc_connections 9 columns 2 indexes 2 fks
+telemetry_state 6 columns 0 indexes 0 fks
+
+No schema changes, nothing to migrate 😴
+npm warn Unknown env config "audit-config". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "minimum-release-age". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "npm-globalconfig". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "overrides". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "_jsr-registry". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> open-seo@0.1.7 db:generate:pg
+> drizzle-kit generate --config drizzle-pg.config.ts
+
+Reading config file 'D:\company project\SearchGrowth-OpenSEO\.ai-worktrees\T102-M1-TOPIC-KEYWORD-REFS-SCHEMA\drizzle-pg.config.ts'
+37 tables
+backlink_snapshots 12 columns 1 indexes 1 fks
+keyword_metrics 12 columns 2 indexes 1 fks
+organization_activation_state 4 columns 0 indexes 1 fks
+project_activation_state 5 columns 0 indexes 1 fks
+projects 8 columns 2 indexes 1 fks
+rank_check_runs 10 columns 3 indexes 2 fks
+rank_snapshots 9 columns 2 indexes 1 fks
+rank_tracking_configs 14 columns 3 indexes 1 fks
+rank_tracking_keywords 8 columns 1 indexes 1 fks
+saved_keyword_tag_assignments 3 columns 2 indexes 2 fks
+saved_keyword_tags 6 columns 2 indexes 1 fks
+saved_keywords 6 columns 3 indexes 1 fks
+user_onboarding_answers 11 columns 1 indexes 2 fks
+search_market_profiles 13 columns 1 indexes 1 fks
+search_topic_keyword_refs 5 columns 2 indexes 3 fks
+search_topics 9 columns 2 indexes 2 fks
+project_competitors 7 columns 1 indexes 1 fks
+project_context_sections 6 columns 0 indexes 1 fks
+project_key_pages 8 columns 1 indexes 1 fks
+project_research_log 6 columns 1 indexes 1 fks
+audit_issues 7 columns 2 indexes 2 fks
+audit_lighthouse_results 15 columns 2 indexes 2 fks
+audit_pages 35 columns 1 indexes 1 fks
+audits 18 columns 2 indexes 1 fks
+sam_sessions 7 columns 1 indexes 2 fks
+account 13 columns 2 indexes 1 fks
+apikey 22 columns 3 indexes 0 fks
+invitation 8 columns 2 indexes 2 fks
+member 5 columns 3 indexes 2 fks
+organization 6 columns 1 indexes 0 fks
+session 9 columns 1 indexes 1 fks
+user 9 columns 0 indexes 0 fks
+verification 6 columns 2 indexes 0 fks
+billing_customer_status 8 columns 0 indexes 1 fks
+ga4_connections 12 columns 3 indexes 2 fks
+gsc_connections 9 columns 2 indexes 2 fks
+telemetry_state 6 columns 0 indexes 0 fks
+
+No schema changes, nothing to migrate 😴

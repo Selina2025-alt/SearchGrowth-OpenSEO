@@ -1,0 +1,3 @@
+node --version
+exit 0
+v24.16.0
