@@ -6,6 +6,10 @@ OWNER: Claude Code + DeepSeek Implementation Engineer
 CONTROLLER: Codex
 MAX ROUNDS: 3
 
+## ROUND 2 FIX CONTEXT
+
+Round 1 reached the executor maximum-turn limit before DELIVERY and left a partial implementation in the task worktree. Resume from the existing worktree, inspect the current diff, finish only this TASK, repair any task-local issues, run the approved gates, and write DELIVERY. Do not restart or broaden scope. The Controller has recorded the execution failure in `REVIEW.md`; this is executor round 2 of 3.
+
 ## GOAL
 
 Add the normalized, same-Project mapping from an accepted `SearchTopic` to the existing canonical OpenSEO saved keyword record. This task closes the V1.0 `Topic稳定` mapping evidence without duplicating keyword storage or adding CRUD/UI.
