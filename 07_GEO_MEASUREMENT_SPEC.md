@@ -16,6 +16,7 @@
 Measurement run 必须绕过 OpenSEO Prompt Explorer 的应用层缓存。
 
 同 prompt/model 3 repeats：
+
 - provider adapter 实际调用 3 次；
 - 3 个独立 run；
 - 记录 provider request id；
@@ -45,17 +46,20 @@ Raw run 不更新。
 Parser v1/v2/v3 通过 `geo_observation_parses` 版本化。
 
 Deterministic 优先：
+
 - exact/domain/alias mentions；
 - citation URL parse；
 - known entities。
 
 LLM parser 只用于：
+
 - recommendation语义；
 - nuanced sentiment/accuracy。
 
 ## 6. Parser Gold Set
 
 MVP 准备至少 30–50 条中英文 AI 回答人工标注：
+
 - entity mention；
 - recommendation；
 - position；
@@ -74,6 +78,7 @@ Parser Agreement 目标 ≥90%，否则 Recommendation Rate 不进入主仪表�
 - Accuracy
 
 全部必须带：
+
 - surface filter；
 - market profile；
 - model/version；
@@ -84,6 +89,7 @@ Parser Agreement 目标 ≥90%，否则 Recommendation Rate 不进入主仪表�
 ## 8. Citation ↔ Publication
 
 Citation URL normalized 后：
+
 1. match own domains；
 2. match `publication_receipts.published_url`；
 3. 若命中外部平台我们自己的发布记录 → `CONTROLLED_PUBLICATION`。
@@ -93,6 +99,7 @@ Citation URL normalized 后：
 ## 9. Consumer AI
 
 没有稳定/授权自动接口的平台：
+
 - 可以 Manual/Semi-auto Observation；
 - P1 可做本地固定浏览器采样；
 - 不绕平台限制、不做 stealth。

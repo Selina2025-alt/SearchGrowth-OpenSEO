@@ -7,6 +7,7 @@
 ## 2. Technical Blockers 优先于普通分数
 
 例如：
+
 - site-wide block；
 - key page noindex；
 - canonical conflict；
@@ -18,6 +19,7 @@
 ## 3. Score Profiles
 
 ### A. EXISTING_GOOGLE_PAGE
+
 有 GSC/GA4 且可使用 OpenSEO SearchOpportunity：
 
 ```text
@@ -30,6 +32,7 @@ Execution Ease           15
 ```
 
 ### B. EXISTING_SEARCH_PAGE_PARTIAL
+
 没有完整 GA4/GSC：
 
 ```text
@@ -43,6 +46,7 @@ Execution Ease           10
 ```
 
 ### C. NEW_TOPIC
+
 没有 existing page：
 
 ```text
@@ -55,6 +59,7 @@ Execution Ease           10
 ```
 
 ### D. GEO_DISTRIBUTION
+
 内容已有，但引用/分发不足：
 
 ```text
@@ -67,17 +72,20 @@ Execution Ease           10
 ```
 
 ### E. EVIDENCE_ONLY
+
 不强行用统一 score；优先级由：
+
 - claim importance；
 - evidence missing severity；
 - affected topics/pages；
-确定。
+  确定。
 
 ## 4. Missing Data
 
 `missing != 0`。
 
 不允许：
+
 - 没有 GA4 就把 GA4 score 设 0；
 - 没有 GEO 就认为 GEO gap=100。
 
@@ -101,6 +109,7 @@ warnings: [
 ## 6. PageFit Service
 
 输入：
+
 - Topic；
 - intent；
 - existing pages；
@@ -109,6 +118,7 @@ warnings: [
 - canonical。
 
 输出：
+
 - action；
 - candidate page；
 - reason；
@@ -118,9 +128,10 @@ warnings: [
 ## 7. 推荐动作
 
 Opportunity 最终必须输出具体 Action，例如：
+
 - Refresh `/solutions/rfq`；
 - 新建 security FAQ；
 - 对现有页面补 3 个 approved claims；
 - 发布至知乎/CSDN/头条形成 citation surface；
 - 修复 noindex；
-而不是“提升内容质量”。
+  而不是“提升内容质量”。

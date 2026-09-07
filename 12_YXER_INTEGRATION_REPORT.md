@@ -9,6 +9,7 @@ V1.0 把 yxer 定位为：
 > **外部 Coverage Accelerator / Native Publishing Executor**
 
 最有价值的能力：
+
 - 账号 discovery；
 - platform schema / prepare；
 - 资源上传；
@@ -56,6 +57,7 @@ yxer doctor
 Search Growth 生产运行不依赖 SkillHub 在线。
 
 开发包提供：
+
 - `scripts/install-skillhub-cli.sh`
 - `scripts/install-yxer-windows.ps1`
 - `scripts/smoke-yxer-windows.ps1`
@@ -65,6 +67,7 @@ Search Growth 生产运行不依赖 SkillHub 在线。
 ## 3. 本次 ChatGPT 执行环境实际尝试
 
 当前执行容器曾核验：
+
 - Node.js：可用；
 - npm：可用；
 - Go：可用，但低于 yxer 源码 README 当前要求的 Go 1.25；
@@ -72,6 +75,7 @@ Search Growth 生产运行不依赖 SkillHub 在线。
 - 初始没有 `yxer`。
 
 实际尝试：
+
 1. 读取 SkillHub install URL；
 2. 通过执行容器访问安装源；
 3. `npm view @yixiaoermail/cli ...`。
@@ -87,12 +91,14 @@ Search Growth 生产运行不依赖 SkillHub 在线。
 ## 4. 版本事实
 
 调研时：
+
 - GitHub repository：`yixiaoer888/yixiaoer-skill`
 - GitHub Latest Release：`v3.2.15`（2026-09-03）
 - Repository README 推荐 npm 安装；
 - npm 搜索缓存曾出现较旧版本，说明 registry/index 与 GitHub Release 可能存在时间差。
 
 所以：
+
 - staging 先发现 candidate；
 - production 只使用 smoke 通过的 exact version；
 - 不允许 Search Growth runtime 自动 `yxer update`；
@@ -110,6 +116,7 @@ GitHub repository metadata 当前没有声明开源 License；
 不等于 yxer CLI 整个源码仓自动获得同样 License。
 
 所以 V1.0：
+
 1. 不复制 yxer source 到主仓；
 2. 不 fork 修改后随产品分发；
 3. 不把源码作为我们的内部 library；
@@ -217,6 +224,7 @@ accounts list
 ## 10. Remote Unknown
 
 如果：
+
 - HTTP/CLI timeout；
 - 进程中断；
 - taskSetId 未可靠返回；
@@ -228,6 +236,7 @@ accounts list
 `REMOTE_STATE_UNKNOWN`
 
 先：
+
 - query records/details（有已知 task 时）；
 - 查最近平台任务；
 - 公开内容 fingerprint；
@@ -240,6 +249,7 @@ accounts list
 ## 11. yxer 与 Wechatsync 不是前后串联的默认路线
 
 ### Route A
+
 ```text
 Wechatsync
 → Platform Draft
@@ -248,6 +258,7 @@ Wechatsync
 ```
 
 ### Route B
+
 ```text
 yxer Native
 → Remote Task
@@ -289,6 +300,7 @@ yxer Native
 **“直接调用，自己做可靠性控制”优于“改源码”。**
 
 我们自研的资产应是：
+
 - Release/ExecutionPlan；
 - yxer wrapper；
 - status semantics；

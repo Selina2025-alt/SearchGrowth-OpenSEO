@@ -7,6 +7,7 @@
 ## 2. 用户问题
 
 B2B 市场团队真正需要回答：
+
 - 目标客户在搜索引擎搜什么？
 - 在 ChatGPT/豆包/元宝/DeepSeek 等 AI 场景会怎么问？
 - 我们是否出现、被推荐、被引用？
@@ -19,6 +20,7 @@ B2B 市场团队真正需要回答：
 ## 3. MVP 用户角色
 
 ### Operator
+
 - 管 Search Growth Target；
 - 跑 Baseline；
 - 管 Prompt/Topic/Entity；
@@ -29,6 +31,7 @@ B2B 市场团队真正需要回答：
 - 看 Experiment。
 
 ### Admin
+
 - DataForSEO/GSC/GA4/AI Provider；
 - CMS/Postiz/Local Bridge；
 - Publisher Certification；
@@ -120,6 +123,7 @@ MVP 不做复杂 RBAC。
 ## 9. 关键页面
 
 ### Overview
+
 - Today’s Growth Opportunities
 - Critical technical blockers
 - AI Visibility summary
@@ -128,6 +132,7 @@ MVP 不做复杂 RBAC。
 - Recent experiments
 
 ### Discover
+
 - Topics
 - Keywords
 - Prompts
@@ -135,6 +140,7 @@ MVP 不做复杂 RBAC。
 - Market profiles
 
 ### Visibility
+
 - SEO
 - AI surface filters
 - Entity mentions
@@ -142,6 +148,7 @@ MVP 不做复杂 RBAC。
 - Controlled publication citations
 
 ### Opportunities
+
 - rank
 - score profile
 - data quality
@@ -149,6 +156,7 @@ MVP 不做复杂 RBAC。
 - recommended action
 
 ### Content
+
 - brief
 - claim/evidence
 - canonical Markdown
@@ -157,6 +165,7 @@ MVP 不做复杂 RBAC。
 - gate
 
 ### Distribution
+
 - execution plan
 - draft staging
 - finalizer
@@ -165,6 +174,7 @@ MVP 不做复杂 RBAC。
 - public URLs
 
 ### Monitor
+
 - index
 - GA4
 - GEO recheck
@@ -187,6 +197,7 @@ MVP 不做复杂 RBAC。
 ## 11. 成功指标
 
 产品指标：
+
 - Time to first baseline
 - Opportunity → release conversion
 - Public verified rate
@@ -196,4 +207,5 @@ MVP 不做复杂 RBAC。
 - Experiment completion rate
 
 业务结果指标只观察，不承诺：
+
 - pipeline/revenue 后续接 CRM 再补。

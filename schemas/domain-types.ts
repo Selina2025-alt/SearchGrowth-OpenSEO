@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- single-file reference of every V1.0 domain contract; splitting it would push cross-cutting types into many imports and make the reference harder to read */
 /**
  * Search Growth MVP V1.0 — reference domain contracts.
  * DESIGN ARTIFACT: adapt to the actual OpenSEO Zod/Drizzle conventions after M0.
@@ -344,7 +345,11 @@ export interface ContentVariant {
   rendererVersion: string;
 }
 
-export type TargetIntent = "DRAFT" | "PUBLIC" | "SUBMIT_FOR_REVIEW" | "PAID_SUBMIT";
+export type TargetIntent =
+  | "DRAFT"
+  | "PUBLIC"
+  | "SUBMIT_FOR_REVIEW"
+  | "PAID_SUBMIT";
 
 export type DistributionRoute =
   | "OWNED_SITE"
@@ -354,7 +359,11 @@ export type DistributionRoute =
   | "POSTIZ_NATIVE"
   | "PAID_MEDIA_SERVICE";
 
-export type FinalizerStrategy = "OFFICIAL_API" | "IN_PAGE_WEB_API" | "SERVICE_CLI" | "FIXED_DOM";
+export type FinalizerStrategy =
+  | "OFFICIAL_API"
+  | "IN_PAGE_WEB_API"
+  | "SERVICE_CLI"
+  | "FIXED_DOM";
 
 export interface ReleaseBundle {
   id: string;

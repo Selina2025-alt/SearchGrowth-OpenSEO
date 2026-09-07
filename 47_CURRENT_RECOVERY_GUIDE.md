@@ -16,6 +16,7 @@ A previous orchestration ZIP also accidentally omitted several support directori
 ## Do not do
 
 Do not:
+
 - ask Codex to continue M0 inside the current docs-only folder;
 - manually create an empty `.git` here and call it the source repo;
 - copy reference SQL into production source;
@@ -37,6 +38,7 @@ SearchGrowth-OpenSEO
 ```
 
 and will:
+
 - clone `every-app/open-seo`;
 - checkout frozen commit `3632f408528cd588fec98c3a174af8ea0ad205e8`;
 - create `integration/ai-v1`;

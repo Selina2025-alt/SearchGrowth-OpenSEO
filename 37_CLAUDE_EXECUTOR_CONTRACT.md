@@ -3,17 +3,20 @@
 Invocation is headless from the task worktree, normally with `claude -p`.
 
 Inputs:
+
 - root CLAUDE.md
 - current TASK.md
 - referenced specs/ADRs
 - existing code/tests
 
 Outputs:
+
 - code/tests/migrations/docs required by task
 - DELIVERY.md
 - optional raw run logs under `runs/`
 
 Cannot:
+
 - edit REVIEW.md
 - merge
 - change Scope Lock/ADRs

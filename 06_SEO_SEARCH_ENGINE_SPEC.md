@@ -17,12 +17,14 @@ Published
 ## 2. Google
 
 复用：
+
 - GSC performance；
 - URL inspection；
 - rank/DataForSEO；
 - GA4。
 
 普通文章：
+
 - sitemap；
 - internal link；
 - GSC observation。
@@ -32,6 +34,7 @@ Published
 ## 3. Baidu
 
 P0：
+
 - DataForSEO/当前可用 provider 的 Baidu SERP/rank contract smoke；
 - robots/sitemap/canonical；
 - 可获得合法站长接口时启用 submit/inspect adapter；
@@ -48,15 +51,20 @@ P0：
 ```ts
 interface SearchIndexAdapter {
   engine: SearchEngine;
-  capabilities(): Promise<{inspect:boolean; submit:boolean; sitemap:boolean}>;
-  inspect(url:string): Promise<IndexObservation>;
-  submit?(url:string): Promise<SubmissionResult>;
+  capabilities(): Promise<{
+    inspect: boolean;
+    submit: boolean;
+    sitemap: boolean;
+  }>;
+  inspect(url: string): Promise<IndexObservation>;
+  submit?(url: string): Promise<SubmissionResult>;
 }
 ```
 
 ## 6. Crawler Access Audit
 
 Technical baseline 还检查：
+
 - robots.txt；
 - noindex；
 - canonical；
@@ -69,6 +77,7 @@ Technical baseline 还检查：
 ## 7. PageFit / Cannibalization
 
 NEW_PAGE 前至少查询：
+
 - OpenSEO key pages；
 - GSC landing pages；
 - rank pages；
@@ -76,6 +85,7 @@ NEW_PAGE 前至少查询：
 - title/H1/topic intent。
 
 输出：
+
 - candidate URLs；
 - similarity/intent evidence；
 - action：NEW/REFRESH/MERGE。
@@ -83,6 +93,7 @@ NEW_PAGE 前至少查询：
 ## 8. OwnedSite Update
 
 REFRESH_PAGE：
+
 1. fetch current page/revision；
 2. 保存 Before Snapshot；
 3. diff；

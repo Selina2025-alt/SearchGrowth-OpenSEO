@@ -1,0 +1,11 @@
+
+ RUN  v3.2.6 D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T000-M0
+
+ ✓ src/shared/e2e-fixture-mode.test.ts (3 tests) 6ms
+ ✓ src/serverFunctions/keyword-research-fixtures.test.ts (3 tests) 10ms
+
+ Test Files  2 passed (2)
+      Tests  6 passed (6)
+   Start at  12:04:31
+   Duration  10.51s (transform 176ms, setup 0ms, collect 171ms, tests 16ms, environment 1ms, prepare 1.33s)
+

@@ -1,0 +1,29 @@
+
+> open-seo@0.1.7 test:e2e D:\company project\SearchGrowth-OpenSEO\.ai-worktrees\T000-M0
+> playwright test
+
+[2m[WebServer] [22m(node:180492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:186960) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:181616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:181616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[domain-filter-perf] {"maxInputDuration":926,"maxLongTaskDuration":519,"totalLongTaskDuration":1938,"maxRafGap":517,"longTaskCount":14,"rafGapCount":7,"inputEvents":[{"label":"Pages Traffic min char 1","duration":63},{"label":"Pages Traffic min char 2","duration":36},{"label":"Pages Traffic min","duration":675},{"label":"Pages Keywords max char 1","duration":30},{"label":"Pages Keywords max char 2","duration":37},{"label":"Pages Keywords max","duration":520},{"label":"Keywords Volume max char 1","duration":40},{"label":"Keywords Volume max char 2","duration":47},{"label":"Keywords Volume max char 3","duration":36},{"label":"Keywords Volume max char 4","duration":34},{"label":"Keywords Volume max","duration":926}]}
+  ok  1 e2e\domain-overview-filters.perf.spec.ts:52:3 › Domain Overview filter performance › captures main-thread stalls in the applied-filter edit flow (21.0s)
+  ok  2 e2e\domain-overview-filters.spec.ts:15:3 › Domain Overview filters › closing an inactive search tab does not select it (5.4s)
+  ok  3 e2e\domain-overview-filters.spec.ts:45:3 › Domain Overview filters › closing the active search tab removes it and selects the neighbor (5.9s)
+  ok  4 e2e\domain-overview-filters.spec.ts:77:3 › Domain Overview filters › keyword filters stay responsive after applying Traffic min and editing Volume max (4.8s)
+  ok  5 e2e\domain-overview-filters.spec.ts:103:3 › Domain Overview filters › page filters stay responsive after applying Traffic min and editing Keywords max (5.0s)
+  ok  6 e2e\domain-overview-filters.spec.ts:129:3 › Domain Overview filters › clearing page filters does not clear keyword filters (7.3s)
+  ok  7 e2e\domain-overview-filters.spec.ts:170:3 › Domain Overview filters › submitting a new domain clears the previous domain filters (5.6s)
+  ok  8 e2e\domain-overview-filters.spec.ts:204:3 › Domain Overview filters › saved filter defaults apply only when the URL has no tab filters (7.5s)
+  ok  9 e2e\keyword-research-navigation.spec.ts:15:3 › Keyword Research navigation › Back to Recent searches clears the active keyword tab query (4.5s)
+  ok 10 e2e\keyword-research-navigation.spec.ts:45:3 › Keyword Research navigation › clicking keyword tabs keeps the clicked tab and URL in sync (6.5s)
+  ok 11 e2e\keyword-research-navigation.spec.ts:81:3 › Keyword Research navigation › closing the active middle keyword tab removes it and selects the next tab (9.4s)
+
+  11 passed (2.1m)

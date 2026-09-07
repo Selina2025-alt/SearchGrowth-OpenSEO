@@ -2,10 +2,25 @@ import { spawn } from "node:child_process";
 
 type Json = Record<string, unknown>;
 
+// True only for JSON object documents (the Json type excludes arrays/scalars).
+function isJsonObject(value: unknown): value is Json {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+// Also admits arrays: findString/findUrl must descend into nested lists of
+// objects, and Object.entries treats an array's indices as string keys.
+function isJsonContainer(value: unknown): value is Json {
+  return typeof value === "object" && value !== null;
+}
+
 export class YxerProcessError extends Error {
   constructor(
     message: string,
-    public readonly code: "TIMEOUT" | "NON_ZERO_EXIT" | "INVALID_JSON" | "OUTPUT_TOO_LARGE",
+    public readonly code:
+      | "TIMEOUT"
+      | "NON_ZERO_EXIT"
+      | "INVALID_JSON"
+      | "OUTPUT_TOO_LARGE",
     public readonly safeOutput?: string,
   ) {
     super(message);
@@ -48,32 +63,46 @@ async function runYxer(
       else stderr += chunk.toString("utf8");
     };
 
-    child.stdout.on("data", (c) => add("stdout", c));
-    child.stderr.on("data", (c) => add("stderr", c));
+    child.stdout.on("data", (c: Buffer) => add("stdout", c));
+    child.stderr.on("data", (c: Buffer) => add("stderr", c));
 
     const timer = setTimeout(() => child.kill(), timeoutMs);
 
     child.on("error", (err) => {
       clearTimeout(timer);
-      reject(new YxerProcessError(`Failed to start yxer: ${err.message}`, "NON_ZERO_EXIT"));
+      reject(
+        new YxerProcessError(
+          `Failed to start yxer: ${err.message}`,
+          "NON_ZERO_EXIT",
+        ),
+      );
     });
 
     child.on("close", (code, signal) => {
       clearTimeout(timer);
       if (killedForSize) {
-        reject(new YxerProcessError("yxer output exceeded limit", "OUTPUT_TOO_LARGE"));
+        reject(
+          new YxerProcessError(
+            "yxer output exceeded limit",
+            "OUTPUT_TOO_LARGE",
+          ),
+        );
         return;
       }
       if (signal && code === null) {
-        reject(new YxerProcessError("yxer timed out or was terminated", "TIMEOUT"));
+        reject(
+          new YxerProcessError("yxer timed out or was terminated", "TIMEOUT"),
+        );
         return;
       }
       if (code !== 0) {
-        reject(new YxerProcessError(
-          `yxer exited ${code}`,
-          "NON_ZERO_EXIT",
-          sanitize(`${stdout}\n${stderr}`),
-        ));
+        reject(
+          new YxerProcessError(
+            `yxer exited ${code}`,
+            "NON_ZERO_EXIT",
+            sanitize(`${stdout}\n${stderr}`),
+          ),
+        );
         return;
       }
       resolve({ stdout, stderr });
@@ -83,23 +112,38 @@ async function runYxer(
 
 function sanitize(text: string): string {
   return text
-    .replace(/(authorization|api[-_ ]?key|token|cookie)\s*[:=]\s*\S+/gi, "$1=[REDACTED]")
+    .replace(
+      /(authorization|api[-_ ]?key|token|cookie)\s*[:=]\s*\S+/gi,
+      "$1=[REDACTED]",
+    )
     .slice(0, 20_000);
 }
 
 function parseJson(text: string): Json {
   const trimmed = text.trim();
+  const direct = tryParseJsonObject(trimmed);
+  if (direct) return direct;
+  // Some CLI versions may print notices. The production adapter must prefer
+  // commands that explicitly support --json and contract-test the exact version.
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+  if (start >= 0 && end > start) {
+    const nested = tryParseJsonObject(trimmed.slice(start, end + 1));
+    if (nested) return nested;
+  }
+  throw new YxerProcessError(
+    "yxer returned non-JSON (or non-object) output",
+    "INVALID_JSON",
+    sanitize(text),
+  );
+}
+
+function tryParseJsonObject(text: string): Json | undefined {
   try {
-    return JSON.parse(trimmed) as Json;
+    const parsed: unknown = JSON.parse(text);
+    return isJsonObject(parsed) ? parsed : undefined;
   } catch {
-    // Some CLI versions may print notices. The production adapter must prefer
-    // commands that explicitly support --json and contract-test the exact version.
-    const start = trimmed.indexOf("{");
-    const end = trimmed.lastIndexOf("}");
-    if (start >= 0 && end > start) {
-      try { return JSON.parse(trimmed.slice(start, end + 1)) as Json; } catch {}
-    }
-    throw new YxerProcessError("yxer returned non-JSON output", "INVALID_JSON", sanitize(text));
+    return undefined;
   }
 }
 
@@ -131,17 +175,30 @@ export class YxerExecutor {
 
   async accounts(platform: string): Promise<Json> {
     assertPlatform(platform);
-    const { stdout } = await runYxer(["accounts", "list", platform, "--status", "1", "--json"]);
+    const { stdout } = await runYxer([
+      "accounts",
+      "list",
+      platform,
+      "--status",
+      "1",
+      "--json",
+    ]);
     return parseJson(stdout);
   }
 
-  async prepare(platform: string, type: "article" | "imageText" | "video"): Promise<Json> {
+  async prepare(
+    platform: string,
+    type: "article" | "imageText" | "video",
+  ): Promise<Json> {
     assertPlatform(platform);
     const { stdout } = await runYxer(["prepare", platform, type]);
     return { text: sanitize(stdout) };
   }
 
-  async schemaFields(platform: string, type: "article" | "imageText" | "video"): Promise<Json> {
+  async schemaFields(
+    platform: string,
+    type: "article" | "imageText" | "video",
+  ): Promise<Json> {
     assertPlatform(platform);
     const { stdout } = await runYxer(["schema", "fields", platform, type]);
     return { text: sanitize(stdout) };
@@ -211,11 +268,10 @@ export class YxerExecutor {
       text.includes('"status":"failed"') ||
       text.includes('"success":false');
     const succeeded =
-      !failed && (
-        text.includes('"stagestatus":"success"') ||
+      !failed &&
+      (text.includes('"stagestatus":"success"') ||
         text.includes('"status":"success"') ||
-        text.includes('"status":"published"')
-      );
+        text.includes('"status":"published"'));
     const publicUrl = findUrl(raw);
 
     return {
@@ -234,21 +290,27 @@ function assertPlatform(platform: string): void {
   }
 }
 function assertOpaqueId(value: string): void {
-  if (!/^[A-Za-z0-9_\-:.]{1,256}$/.test(value)) throw new Error("Invalid opaque id");
+  if (!/^[A-Za-z0-9_\-:.]{1,256}$/.test(value))
+    throw new Error("Invalid opaque id");
 }
 
 function findString(obj: unknown, keys: string[]): string | undefined {
-  if (!obj || typeof obj !== "object") return;
-  for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+  if (!isJsonContainer(obj)) return;
+  for (const [k, v] of Object.entries(obj)) {
     if (keys.includes(k) && typeof v === "string" && v) return v;
     const nested = findString(v, keys);
     if (nested) return nested;
   }
 }
 function findUrl(obj: unknown): string | undefined {
-  if (!obj || typeof obj !== "object") return;
-  for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-    if (/(url|link)/i.test(k) && typeof v === "string" && /^https?:\/\//i.test(v)) return v;
+  if (!isJsonContainer(obj)) return;
+  for (const [k, v] of Object.entries(obj)) {
+    if (
+      /(url|link)/i.test(k) &&
+      typeof v === "string" &&
+      /^https?:\/\//i.test(v)
+    )
+      return v;
     const nested = findUrl(v);
     if (nested) return nested;
   }

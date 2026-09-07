@@ -95,14 +95,22 @@ components:
         plannedRuns: { type: integer }
         estimatedCost: { type: number }
         state:
-          enum: [PLANNED, REQUIRES_COST_APPROVAL, RUNNING, COMPLETED, PARTIAL, FAILED]
+          enum:
+            [
+              PLANNED,
+              REQUIRES_COST_APPROVAL,
+              RUNNING,
+              COMPLETED,
+              PARTIAL,
+              FAILED,
+            ]
     ReleaseApprovalRequest:
       type: object
       required: [expectedBundleHash]
       properties:
         expectedBundleHash:
           type: string
-          pattern: '^[a-f0-9]{64}$'
+          pattern: "^[a-f0-9]{64}$"
     ReleaseDryRunResponse:
       type: object
       required: [ok, bundleHash, targetResults]
@@ -139,7 +147,8 @@ components:
           additionalProperties: { type: string }
     BridgePairResponse:
       type: object
-      required: [bridgeId, token, expiresAt, minProtocolVersion, maxProtocolVersion]
+      required:
+        [bridgeId, token, expiresAt, minProtocolVersion, maxProtocolVersion]
       properties:
         bridgeId: { type: string }
         token: { type: string }
@@ -164,7 +173,15 @@ components:
               detail: { type: string }
     BridgeJob:
       type: object
-      required: [jobId, releaseTargetId, executorId, status, expectedContentHash, leaseSeconds]
+      required:
+        [
+          jobId,
+          releaseTargetId,
+          executorId,
+          status,
+          expectedContentHash,
+          leaseSeconds,
+        ]
       properties:
         jobId: { type: string }
         releaseTargetId: { type: string }
@@ -197,15 +214,32 @@ components:
     BridgeReceiptRequest:
       type: object
       required:
-        [jobId, releaseTargetId, status, contentHash, mediaHashes, executorId, executorVersion]
+        [
+          jobId,
+          releaseTargetId,
+          status,
+          contentHash,
+          mediaHashes,
+          executorId,
+          executorVersion,
+        ]
       properties:
         jobId: { type: string }
         releaseTargetId: { type: string }
         status:
           enum:
-            [DRAFT_CREATED, DRAFT_VERIFIED, ACCEPTED_REMOTE_TASK, PUBLISH_SUBMITTED,
-             PUBLIC_VERIFIED, AUTH_REQUIRED, REMOTE_STATE_UNKNOWN, REJECTED,
-             EXECUTION_FAILED, VERIFY_FAILED]
+            [
+              DRAFT_CREATED,
+              DRAFT_VERIFIED,
+              ACCEPTED_REMOTE_TASK,
+              PUBLISH_SUBMITTED,
+              PUBLIC_VERIFIED,
+              AUTH_REQUIRED,
+              REMOTE_STATE_UNKNOWN,
+              REJECTED,
+              EXECUTION_FAILED,
+              VERIFY_FAILED,
+            ]
         externalDraftId: { type: string }
         externalTaskId: { type: string }
         externalContentId: { type: string }
@@ -236,74 +270,74 @@ paths:
   /api/projects/{projectId}/search-growth-target:
     get:
       security: [{ AppSession: [] }]
-      parameters: [{ $ref: '#/components/parameters/ProjectId' }]
+      parameters: [{ $ref: "#/components/parameters/ProjectId" }]
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/SearchGrowthTarget' }
+              schema: { $ref: "#/components/schemas/SearchGrowthTarget" }
     put:
       security: [{ AppSession: [] }]
-      parameters: [{ $ref: '#/components/parameters/ProjectId' }]
+      parameters: [{ $ref: "#/components/parameters/ProjectId" }]
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/SearchGrowthTarget' }
+            schema: { $ref: "#/components/schemas/SearchGrowthTarget" }
       responses:
-        '200': { description: Updated }
+        "200": { description: Updated }
 
   /api/projects/{projectId}/geo/measurement-batches:
     post:
       security: [{ AppSession: [] }]
-      parameters: [{ $ref: '#/components/parameters/ProjectId' }]
+      parameters: [{ $ref: "#/components/parameters/ProjectId" }]
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/MeasurementBatchRequest' }
+            schema: { $ref: "#/components/schemas/MeasurementBatchRequest" }
       responses:
-        '202':
+        "202":
           description: Accepted
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/MeasurementBatchResponse' }
+              schema: { $ref: "#/components/schemas/MeasurementBatchResponse" }
 
   /api/release-bundles/{releaseId}/dry-run:
     post:
       security: [{ AppSession: [] }]
-      parameters: [{ $ref: '#/components/parameters/ReleaseId' }]
+      parameters: [{ $ref: "#/components/parameters/ReleaseId" }]
       responses:
-        '200':
+        "200":
           description: Dry Run
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/ReleaseDryRunResponse' }
+              schema: { $ref: "#/components/schemas/ReleaseDryRunResponse" }
 
   /api/release-bundles/{releaseId}/approve:
     post:
       security: [{ AppSession: [] }]
-      parameters: [{ $ref: '#/components/parameters/ReleaseId' }]
+      parameters: [{ $ref: "#/components/parameters/ReleaseId" }]
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/ReleaseApprovalRequest' }
+            schema: { $ref: "#/components/schemas/ReleaseApprovalRequest" }
       responses:
-        '200': { description: Approved }
-        '409':
+        "200": { description: Approved }
+        "409":
           description: Bundle changed or invalid state
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Error' }
+              schema: { $ref: "#/components/schemas/Error" }
 
   /api/release-bundles/{releaseId}/execute:
     post:
       security: [{ AppSession: [] }]
-      parameters: [{ $ref: '#/components/parameters/ReleaseId' }]
+      parameters: [{ $ref: "#/components/parameters/ReleaseId" }]
       responses:
-        '202': { description: Execution started }
+        "202": { description: Execution started }
 
   /api/runtime-controls/{key}:
     put:
@@ -317,9 +351,9 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/RuntimeControlRequest' }
+            schema: { $ref: "#/components/schemas/RuntimeControlRequest" }
       responses:
-        '200': { description: Updated }
+        "200": { description: Updated }
 
   /api/publisher-bridge/pair:
     post:
@@ -327,13 +361,13 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/BridgePairRequest' }
+            schema: { $ref: "#/components/schemas/BridgePairRequest" }
       responses:
-        '200':
+        "200":
           description: Paired
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/BridgePairResponse' }
+              schema: { $ref: "#/components/schemas/BridgePairResponse" }
 
   /api/publisher-bridge/heartbeat:
     post:
@@ -342,9 +376,9 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/BridgeHeartbeatRequest' }
+            schema: { $ref: "#/components/schemas/BridgeHeartbeatRequest" }
       responses:
-        '204': { description: Recorded }
+        "204": { description: Recorded }
 
   /api/publisher-bridge/jobs:
     get:
@@ -354,48 +388,48 @@ paths:
           name: limit
           schema: { type: integer, minimum: 1, maximum: 20, default: 5 }
       responses:
-        '200':
+        "200":
           description: Authorized jobs
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/BridgeJob' }
+                items: { $ref: "#/components/schemas/BridgeJob" }
 
   /api/publisher-bridge/jobs/{jobId}/claim:
     post:
       security: [{ BridgeBearer: [] }]
-      parameters: [{ $ref: '#/components/parameters/JobId' }]
+      parameters: [{ $ref: "#/components/parameters/JobId" }]
       responses:
-        '200':
+        "200":
           description: Claimed
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/BridgeClaimResponse' }
-        '409': { description: Already leased }
+              schema: { $ref: "#/components/schemas/BridgeClaimResponse" }
+        "409": { description: Already leased }
 
   /api/publisher-bridge/jobs/{jobId}/asset/{assetId}:
     get:
       security: [{ BridgeBearer: [] }]
       parameters:
-        - { $ref: '#/components/parameters/JobId' }
+        - { $ref: "#/components/parameters/JobId" }
         - in: path
           name: assetId
           required: true
           schema: { type: string }
       responses:
-        '302': { description: Short-lived controlled asset download }
-        '404': { description: Asset not authorized for this job }
+        "302": { description: Short-lived controlled asset download }
+        "404": { description: Asset not authorized for this job }
 
   /api/publisher-bridge/jobs/{jobId}/receipt:
     post:
       security: [{ BridgeBearer: [] }]
-      parameters: [{ $ref: '#/components/parameters/JobId' }]
+      parameters: [{ $ref: "#/components/parameters/JobId" }]
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/BridgeReceiptRequest' }
+            schema: { $ref: "#/components/schemas/BridgeReceiptRequest" }
       responses:
-        '201': { description: Receipt accepted }
-        '409': { description: Conflicting or invalid transition }
+        "201": { description: Receipt accepted }
+        "409": { description: Conflicting or invalid transition }

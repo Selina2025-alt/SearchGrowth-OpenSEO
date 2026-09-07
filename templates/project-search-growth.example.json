@@ -1,25 +1,10 @@
 {
   "searchGrowthTarget": {
-    "brandAliases": [
-      "JovaAI",
-      "艾氪智能"
-    ],
-    "productTargets": [
-      "询报价智能体"
-    ],
-    "icps": [
-      "制造企业",
-      "产业链链主企业"
-    ],
-    "personas": [
-      "CIO",
-      "采购负责人",
-      "业务负责人"
-    ],
-    "conversionGoals": [
-      "book_demo",
-      "contact"
-    ]
+    "brandAliases": ["JovaAI", "艾氪智能"],
+    "productTargets": ["询报价智能体"],
+    "icps": ["制造企业", "产业链链主企业"],
+    "personas": ["CIO", "采购负责人", "业务负责人"],
+    "conversionGoals": ["book_demo", "contact"]
   },
   "marketProfiles": [
     {
@@ -43,18 +28,12 @@
     {
       "type": "BRAND",
       "canonicalName": "JovaAI",
-      "aliases": [
-        "JovaAI",
-        "艾氪智能"
-      ]
+      "aliases": ["JovaAI", "艾氪智能"]
     },
     {
       "type": "PRODUCT",
       "canonicalName": "询报价智能体",
-      "aliases": [
-        "询报价智能体",
-        "RFQ Agent"
-      ]
+      "aliases": ["询报价智能体", "RFQ Agent"]
     }
   ]
 }

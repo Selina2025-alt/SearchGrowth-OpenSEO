@@ -14,9 +14,10 @@ import {
 import { KeywordResearchService } from "@/server/features/keywords/services/KeywordResearchService";
 import { requireProjectContext } from "@/serverFunctions/middleware";
 import { resolveMarket } from "@/shared/keyword-locations";
+import { isKeywordE2eFixtureMode } from "@/shared/e2e-fixture-mode";
 
 function shouldUseKeywordE2eFixtures() {
-  return import.meta.env.VITE_E2E_KEYWORD_FIXTURES === "1";
+  return isKeywordE2eFixtureMode();
 }
 
 async function getKeywordE2eFixtures() {
@@ -123,13 +124,16 @@ export const refreshSavedKeywordMetrics = createServerFn({ method: "POST" })
 export const getSerpAnalysis = createServerFn({ method: "POST" })
   .middleware(requireProjectContext)
   .validator(serpAnalysisSchema)
-  .handler(async ({ data, context }) =>
-    KeywordResearchService.getSerpAnalysis(
-      {
-        ...data,
-        ...resolveMarket(data, context.project),
-        projectId: context.projectId,
-      },
-      context,
-    ),
-  );
+  .handler(async ({ data, context }) => {
+    const input = {
+      ...data,
+      ...resolveMarket(data, context.project),
+      projectId: context.projectId,
+    };
+    if (shouldUseKeywordE2eFixtures()) {
+      const fixtures = await getKeywordE2eFixtures();
+      return fixtures.getSerpAnalysisFixture(input);
+    }
+
+    return KeywordResearchService.getSerpAnalysis(input, context);
+  });

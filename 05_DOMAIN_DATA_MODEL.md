@@ -43,6 +43,7 @@ status
 ```
 
 关系：
+
 ```text
 Topic
  ├─ existing OpenSEO keyword refs
@@ -65,6 +66,7 @@ active
 ```
 
 ### EntityAlias
+
 ```text
 entity_id
 text
@@ -141,6 +143,7 @@ is_current
 ```
 
 ### GeoEntityMention
+
 ```text
 parse_id
 entity_id
@@ -152,6 +155,7 @@ evidence_span_ref?
 ```
 
 ### GeoCitation
+
 ```text
 run_id / parse_id
 raw_url
@@ -164,6 +168,7 @@ matched_publication_receipt_id?
 ```
 
 `source_ownership`：
+
 - OWNED_DOMAIN
 - CONTROLLED_PUBLICATION
 - EARNED_THIRD_PARTY
@@ -193,6 +198,7 @@ recommended_action
 ## 9. Claim / SourceRef
 
 Claim：
+
 ```text
 claim_text
 status APPROVED|UNVERIFIED|EXPIRED|REJECTED
@@ -206,6 +212,7 @@ classification
 ```
 
 SourceRef：
+
 ```text
 type URL|INTERNAL_DOC|PRODUCT_FACT|RESEARCH
 ref
@@ -215,9 +222,11 @@ captured_at
 ## 10. Content
 
 ### ContentPackage
+
 主题容器。
 
 ### ContentVersion — Immutable
+
 ```text
 version_no
 canonical_markdown
@@ -231,12 +240,15 @@ gate_status
 ```
 
 ### ContentVariant
+
 平台原生版，不是全文简单复制。
 
 ## 11. Media
 
 ### MediaAsset
+
 R2 源资产：
+
 ```text
 sha256
 mime
@@ -246,6 +258,7 @@ classification
 ```
 
 ### PublishedMediaRef
+
 ```text
 asset_id
 platform
@@ -259,24 +272,33 @@ created_at
 ## 12. Release / Distribution
 
 ### ReleaseBundle — Immutable approval unit
+
 ### ReleaseTarget
+
 ### PublicationExecutionPlan
+
 ### PlatformDraft
+
 ### PublishingJob
+
 ### PublicationReceipt
 
 ## 13. Governance
 
 ### AuditEvent — append only
+
 ### RuntimeControl
+
 ### PublisherCertification
 
 ## 14. Experiment
 
 ### Experiment
+
 ### ExperimentSnapshot
 
 所有 snapshot 必须保存：
+
 - window start/end；
 - timezone；
 - model/surface versions；

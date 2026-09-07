@@ -13,6 +13,7 @@
 ## 2. External Local Bridge API
 
 必须 contract-grade OpenAPI，至少：
+
 - pair；
 - heartbeat；
 - list jobs；
@@ -25,6 +26,7 @@
 ## 3. Protocol Version
 
 Bridge：
+
 ```text
 protocol_version
 client_version
@@ -37,45 +39,53 @@ adapter_versions
 ## 4. Adapter Types
 
 ### AiObservationAdapter
+
 ```ts
 observe(FreshObservationInput): RawObservation
 ```
 
 ### SearchIndexAdapter
+
 ```ts
 inspect(url)
 submit?(url)
 ```
 
 ### OwnedSiteAdapter
+
 ```ts
-inspectPage(url)
-createPage(spec)
-updatePage(url,spec,expectedRevision)
-uploadMedia(asset)
-verifyPage(url)
+inspectPage(url);
+createPage(spec);
+updatePage(url, spec, expectedRevision);
+uploadMedia(asset);
+verifyPage(url);
 ```
 
 ### DraftStagerAdapter
+
 见 Wechatsync spec。
 
 ### SameDraftFinalizer
+
 见 Finalizer spec。
 
 ### NativePublisherExecutor
+
 用于 yxer/social/Postiz：
+
 ```ts
-capabilities()
-validate()
-dryRun()
-submit()
-reconcile()
-verifyPublic()
+capabilities();
+validate();
+dryRun();
+submit();
+reconcile();
+verifyPublic();
 ```
 
 ## 5. PublicationExecutionPlan
 
 Execution Plan 是 server 生成的 immutable snapshot，至少：
+
 - route；
 - adapter/finalizer id/version；
 - account；
@@ -90,6 +100,7 @@ Execution Plan 是 server 生成的 immutable snapshot，至少：
 ## 6. Errors
 
 统一：
+
 - code；
 - safeMessage；
 - retryClass；

@@ -1,6 +1,14 @@
 const TRACKING_KEYS = new Set([
-  "utm_source","utm_medium","utm_campaign","utm_term","utm_content",
-  "gclid","fbclid","msclkid","ref","source",
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "gclid",
+  "fbclid",
+  "msclkid",
+  "ref",
+  "source",
 ]);
 
 export interface UrlIdentity {
@@ -17,10 +25,15 @@ export function normalizePublicUrl(raw: string): UrlIdentity {
 
   u.hash = "";
   u.hostname = u.hostname.toLowerCase().replace(/\.$/, "");
-  if ((u.protocol === "https:" && u.port === "443") ||
-      (u.protocol === "http:" && u.port === "80")) u.port = "";
+  if (
+    (u.protocol === "https:" && u.port === "443") ||
+    (u.protocol === "http:" && u.port === "80")
+  )
+    u.port = "";
 
-  for (const key of [...u.searchParams.keys()]) {
+  // Snapshot keys before mutating: delete() during a live keys() iteration
+  // would skip entries that shift into the removed slot.
+  for (const key of Array.from(u.searchParams.keys())) {
     if (TRACKING_KEYS.has(key.toLowerCase())) u.searchParams.delete(key);
   }
   u.searchParams.sort();

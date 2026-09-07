@@ -15,5 +15,8 @@ dist/
 drizzle/
 drizzle-pg/
 planning/
+# per-task control channel between Controller and executor (TASK.md/REVIEW.md/
+# evidence) is regenerated each round and is not part of the repository baseline
+control/tasks/
 worker-configuration.d.ts
 web/

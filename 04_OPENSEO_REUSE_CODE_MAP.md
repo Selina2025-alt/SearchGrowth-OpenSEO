@@ -5,35 +5,38 @@
 
 ## 1. 直接复用
 
-| 能力 | 复用 | V1.0 行为 |
-|---|---|---|
-| Project | existing | 不新建第二套项目 |
-| Project Context | existing | 叙事定位/写作偏好继续用 |
-| Competitors | existing | 只加 Entity mapping |
-| Key Pages | existing | PageFit 输入 |
-| Keyword research | existing | Topic mapping，不复制关键词库 |
-| Rank Tracking | existing | MarketProfile 映射 |
-| Site Audit | existing | Technical blocker 输入 |
-| GSC | existing | SEO/Index/PageFit |
-| GA4 | existing | traffic/key-event/UTM |
-| AI Brand Lookup | existing | `AGGREGATED_SEARCH_DATA` surface |
-| Prompt Explorer | existing | 人工探索，不作为 fresh repeat measurement |
-| SearchOpportunityService | existing | EXISTING_GOOGLE_PAGE 的 seo signal |
-| Cloudflare Workflow pattern | existing | 长任务 |
-| Auth | existing | 新模块沿用 |
-| D1/PG pattern | existing | 新表双实现 |
-| MCP | existing | 可暴露 read/actions，但写操作仍走 Gate |
+| 能力                        | 复用     | V1.0 行为                                 |
+| --------------------------- | -------- | ----------------------------------------- |
+| Project                     | existing | 不新建第二套项目                          |
+| Project Context             | existing | 叙事定位/写作偏好继续用                   |
+| Competitors                 | existing | 只加 Entity mapping                       |
+| Key Pages                   | existing | PageFit 输入                              |
+| Keyword research            | existing | Topic mapping，不复制关键词库             |
+| Rank Tracking               | existing | MarketProfile 映射                        |
+| Site Audit                  | existing | Technical blocker 输入                    |
+| GSC                         | existing | SEO/Index/PageFit                         |
+| GA4                         | existing | traffic/key-event/UTM                     |
+| AI Brand Lookup             | existing | `AGGREGATED_SEARCH_DATA` surface          |
+| Prompt Explorer             | existing | 人工探索，不作为 fresh repeat measurement |
+| SearchOpportunityService    | existing | EXISTING_GOOGLE_PAGE 的 seo signal        |
+| Cloudflare Workflow pattern | existing | 长任务                                    |
+| Auth                        | existing | 新模块沿用                                |
+| D1/PG pattern               | existing | 新表双实现                                |
+| MCP                         | existing | 可暴露 read/actions，但写操作仍走 Gate    |
 
 ## 2. 必须避免的错误复用
 
 ### Prompt Explorer Cache
+
 若同 prompt/model 7 天命中同一 cache：
+
 - 可以用于交互探索；
 - **不可以**循环 3 次当作 3 个 GEO 样本。
 
 新建 `MeasurementSamplingService` fresh path。
 
 ### SearchOpportunityService
+
 现有逻辑偏“已有页面近线优化”，不要把它当全局 Topic Opportunity。
 
 作为 `seoExistingPageSignal` 输入。

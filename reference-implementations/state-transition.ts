@@ -18,7 +18,9 @@ export async function compareAndSetStatus(
   );
 
   if (result.affectedRows !== 1) {
-    throw new Error(`STATE_CONFLICT: ${table}/${id} expected=${expected} next=${next}`);
+    throw new Error(
+      `STATE_CONFLICT: ${table}/${id} expected=${expected} next=${next}`,
+    );
   }
 }
 

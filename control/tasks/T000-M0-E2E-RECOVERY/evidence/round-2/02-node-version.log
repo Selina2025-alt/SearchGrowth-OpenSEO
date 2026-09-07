@@ -1,0 +1,6 @@
+v24.16.0
+
+NOTE: Reused from `evidence/round-1/01-node-version.log`. The `node --version`
+probe was not rerun in round 2 because round-2 fixes (perf-spec default, ci:check
+gate, baseline report, artifact cleanup) do not change the Node runtime, and the
+round-2 pnpm/Playwright/vitest/build commands all executed on the same executor.

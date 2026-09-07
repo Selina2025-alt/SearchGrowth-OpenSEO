@@ -1,6 +1,7 @@
 # CONNECTOR_BASELINE
 
 ## Wechatsync
+
 - Extension version:
 - CLI/MCP version:
 - Git commit/source:
@@ -13,17 +14,24 @@
 - known failures:
 
 ## Same-Draft Finalizers
+
 ### Zhihu
+
 - strategy:
 - draft→public:
 - public URL:
 - verification:
+
 ### Juejin
+
 ...
+
 ### CSDN
+
 ...
 
 ## yxer
+
 - installed version:
 - install source:
 - doctor:
@@ -38,15 +46,18 @@
 - exact response fixtures saved at:
 
 ## social-auto-upload
+
 - commit/version:
 - platform:
 - auth:
 - public verify:
 
 ## Postiz
+
 - version/tag:
 - destination:
 - public verify:
 
 ## Decision
+
 Only real smoke evidence can move an executor to certification.

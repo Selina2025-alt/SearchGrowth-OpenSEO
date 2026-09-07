@@ -8,9 +8,10 @@ import {
 } from "@/types/schemas/domain";
 import { DomainService } from "@/server/features/domain/services/DomainService";
 import { resolveLabsMarket } from "@/shared/keyword-locations";
+import { isDomainE2eFixtureMode } from "@/shared/e2e-fixture-mode";
 
 function shouldUseDomainE2eFixtures() {
-  return import.meta.env.VITE_E2E_DOMAIN_FIXTURES === "1";
+  return isDomainE2eFixtureMode();
 }
 
 async function getDomainE2eFixtures() {

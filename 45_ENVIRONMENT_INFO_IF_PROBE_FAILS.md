@@ -43,6 +43,7 @@ Get-ChildItem Env: |
 ```
 
 Also tell the architect:
+
 - Are you using Codex CLI, Codex IDE extension, ChatGPT desktop Codex local mode, or Codex web/cloud?
 - Is Claude Code the official Anthropic extension/CLI or another VS Code extension?
 - Does the VS Code extension and CLI share the same DeepSeek configuration?

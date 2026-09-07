@@ -9,6 +9,7 @@
 ## 2. MediaAsset
 
 字段：
+
 - project；
 - MIME；
 - bytes；
@@ -30,15 +31,19 @@ asset://id
 ```
 
 ### Website
+
 CMS 上传并返回企业站永久 media URL。
 
 ### Wechatsync
+
 由其平台 adapter 转存图片。
 
 ### yxer
+
 使用 `yxer upload` 返回完整资源对象，不手写 key/raw。
 
 ### social-auto-upload
+
 local file/download cache + hash check。
 
 ## 4. PublishedMediaRef
@@ -68,6 +73,7 @@ created_at
 ## 6. Rights
 
 `UNKNOWN`：
+
 - 不允许全自动 public release；
 - 需人工确认/补权利状态。
 

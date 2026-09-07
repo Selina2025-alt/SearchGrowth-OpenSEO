@@ -1,0 +1,9 @@
+
+> open-seo@0.1.7 test:e2e D:\company project\SearchGrowth-OpenSEO\.ai-worktrees\T000-M0
+> playwright test
+
+[2m[WebServer] [22m'NODE_OPTIONS' �����ڲ����ⲿ���Ҳ���ǿ����еĳ���
+[2m[WebServer] [22m���������ļ���
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+ ELIFECYCLE  Command failed with exit code 1.

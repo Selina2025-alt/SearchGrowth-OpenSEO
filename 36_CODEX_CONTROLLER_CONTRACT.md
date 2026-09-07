@@ -1,6 +1,7 @@
 # Codex Controller Contract
 
 Per task:
+
 1. update PROJECT_STATE;
 2. create TASK.md;
 3. dispatch Claude via `.ai-orchestrator/dispatch-claude.ps1`;
@@ -13,6 +14,7 @@ Per task:
 10. continue unless Human Gate.
 
 Review verdicts:
+
 - PASS
 - PASS_WITH_NON_BLOCKERS
 - BLOCKED

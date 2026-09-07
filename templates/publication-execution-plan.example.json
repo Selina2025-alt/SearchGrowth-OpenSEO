@@ -4,11 +4,7 @@
   "draftStagerId": "wechatsync-mcp-v1",
   "finalizerId": "zhihu-finalizer-v1",
   "finalizerStrategy": "IN_PAGE_WEB_API",
-  "requiredFields": [
-    "title",
-    "body",
-    "cover"
-  ],
+  "requiredFields": ["title", "body", "cover"],
   "verificationPolicy": {
     "requirePublicUrl": true,
     "verifyTitle": true,

@@ -25,6 +25,7 @@ Bare `claude` resolves to npm-generated `claude.ps1`, which is blocked by the ma
 `claude.cmd` works without lowering the machine-wide policy.
 
 Therefore V1.2:
+
 - prefers `claude.cmd` on Windows;
 - falls back to `claude.exe` / `claude`;
 - does not require machine-wide execution-policy changes.
