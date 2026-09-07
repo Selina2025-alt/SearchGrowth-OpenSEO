@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T100-M1-MARKET-PROFILE-SCHEMA
+CURRENT TASK: T101-M1-SEARCH-TOPIC-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: e2c7b9bcc0659e3ae641431ac5a6c9b34d873d9b
-LAST REVIEW: T000-M0-E2E-RECOVERY ROUND 2 PASS; T000-M0 FINAL PASS AND MERGED
-CURRENT ROUND: 3 / 3
-LAST COMPLETED ACTION: T100 Round 2 delivered both dialect schemas/migrations and green focused/full tests, types, lint, and build. Codex review found nullable location/country plus a Global/null fixture, and a Controller-owned config formatting failure that kept format/CI red.
-CURRENT BLOCKER: SearchMarketProfile currently accepts missing `location_code`/`country` and normalizes a Global placeholder, contrary to the required explicit market identity. Required aggregate CI is also not yet green; Controller has prepared the formatting-only config correction.
-NEXT EXACT ACTION: Supply the formatted config to the task worktree and dispatch final fix round 3. Claude must require explicit location/country, replace the Global fixture, verify migration metadata, run the complete final matrix, and deliver normally.
+LATEST ACCEPTED COMMIT: 7256dd013e860eb3e530aa11059c5c63bf4ecd94
+LAST REVIEW: T100-M1-MARKET-PROFILE-SCHEMA ROUND 3 PASS AND MERGED
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: Codex accepted the explicit non-null dual-dialect SearchMarketProfile foundation after 192 focused and 1,184 full tests, clean db:generate, build, and ci:check; Controller merged it only into integration/ai-v1 at 7256dd013e860eb3e530aa11059c5c63bf4ecd94.
+CURRENT BLOCKER: NONE for credential-free M1 domain work. M0.5 still requires external accounts and publishing Human Gates H1/H2.
+NEXT EXACT ACTION: Dispatch T101-M1-SEARCH-TOPIC-SCHEMA with task-scoped safe grants; wait for DELIVERY; then review only topic schema/migrations, stable-ID lifecycle evidence, parity, final gates, and scope/security boundaries.
 
 ## COMPLETED
 
@@ -19,10 +19,11 @@ NEXT EXACT ACTION: Supply the formatted config to the task worktree and dispatch
 - Direct Claude CLI environment confirmed ready without dangerous permission bypass.
 - T000-M0 Freeze & Baseline accepted with reproducible source, command, architecture, E2E, CI, and security evidence.
 - T000-M0-E2E-RECOVERY accepted in round 2 of 3 and merged to `integration/ai-v1`.
+- T100-M1-MARKET-PROFILE-SCHEMA accepted in round 3 of 3 and merged to `integration/ai-v1`.
 
 ## IN PROGRESS
 
-T100-M1-MARKET-PROFILE-SCHEMA final round 3 is ready for Claude fix dispatch.
+T101-M1-SEARCH-TOPIC-SCHEMA is defined and ready for Claude dispatch.
 
 ## BLOCKED
 
@@ -30,4 +31,4 @@ T100-M1-MARKET-PROFILE-SCHEMA final round 3 is ready for Claude fix dispatch.
 
 ## NEXT
 
-Run the bounded SearchMarketProfile schema task through DELIVERY and targeted independent review. Never merge to `main`.
+Run the bounded SearchTopic schema task through DELIVERY and targeted independent review. Never merge to `main`.
