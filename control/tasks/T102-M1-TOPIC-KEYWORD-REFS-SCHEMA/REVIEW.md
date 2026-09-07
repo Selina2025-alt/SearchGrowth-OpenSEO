@@ -1,23 +1,22 @@
-# REVIEW T102-M1-TOPIC-KEYWORD-REFS-SCHEMA — ROUND 1
+# REVIEW T102-M1-TOPIC-KEYWORD-REFS-SCHEMA — ROUND 2
 
-VERDICT: BLOCKED
+VERDICT: PASS
 REVIEW DATE: 2026-09-07
 
 ## VERIFIED
 
-- Claude was dispatched through the approved safe orchestration profile to the isolated T102 worktree.
-- The executor process exited with code 1 after reaching the configured 120-turn maximum (`error_max_turns`).
-- No `DELIVERY.md` was produced, so no acceptance evidence exists for migrations, mapping invariants, tests, build, or `ci:check`.
-- The partial worktree contains only task-shaped schema/migration/test changes so far; it is not accepted or merged.
+- Delivery completes the round-1 execution gap and maps every acceptance criterion to evidence.
+- `search_topic_keyword_refs` has exactly `id`, `project_id`, `topic_id`, `open_seo_keyword_ref`, and `created_at` in both dialects. It references the existing OpenSEO `saved_keywords.id`; no keyword data is duplicated.
+- Composite same-Project FKs bind mapping `project_id` to both `search_topics` and `saved_keywords`. The supporting `saved_keywords(project_id, id)` unique index is FK-only and adds no business uniqueness. The topic-keyword pair has the approved unique rule.
+- Topic, keyword, and Project deletion cascades are identical in SQLite and Postgres. Eight migration-backed tests cover reuse, duplicates, both cross-Project directions, all deletion paths, and stable topic identity through lifecycle mutation.
+- D1 0047 and Postgres 0025 migrations, journals, and snapshots match the schemas. Final dual-dialect `db:generate` reports no schema changes; snapshot inspection confirms columns, indexes, composite FK targets, and cascade actions.
+- Evidence reports focused 212/212, full 1,212 tests, format, types, lint, build, and `ci:check` all exit 0. `git diff --check` is clean.
+- Scope and security boundaries hold: no CRUD/UI/connector, duplicate keyword store, dependency/lockfile, ADR/scope, credential, external request, remote migration, production, or paid change.
 
 ## FINDINGS
 
-- BLOCKER — executor round ended without DELIVERY or required gate evidence. This is an execution-completion failure, not a product-scope decision. The current partial diff must be completed and revalidated by Claude.
-
-## ROUND 2 ACCEPTANCE
-
-Resume the existing worktree and finish only T102. Produce DELIVERY covering the exact approved fields, reuse of existing `saved_keywords`, same-Project database enforcement, duplicate/deletion behavior, stable-topic mapping, dual-dialect migrations/snapshots, focused/full tests, build, `ci:check`, scope, and security. Every required command must exit 0. Do not edit REVIEW.md, commit, merge, or start another task.
+None. The only prior blocker was missing executor completion evidence; Round 2 resolved it without changing product scope.
 
 ## MERGE DECISION
 
-DO NOT MERGE. Dispatch executor fix round 2. No model escalation is required: this remains a bounded LOW-risk mapping task, and the blocker is missing execution completion evidence.
+T102-M1-TOPIC-KEYWORD-REFS-SCHEMA is accepted in Round 2 of 3. Controller may commit the task worktree and merge only into `integration/ai-v1`; never merge to `main`.
