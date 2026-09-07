@@ -1,0 +1,4 @@
+COMMAND: corepack pnpm install --frozen-lockfile
+EXIT: 0
+SUMMARY: Round 2 authorized single locked install. "Lockfile is up to date, resolution step is skipped." 980 packages added from node_modules/.pnpm store. No manifest/lockfile change (frozen). pnpm v10.30.1. Done in 34.7s.
+NOTES: pnpm printed "Update available 10.30.1 -> 12.3.4" advisory (ignored) and an "Ignored build scripts" advisory for optional native deps (workerd/esbuild/sharp etc.) — standard pnpm security default; did not affect install or checks.

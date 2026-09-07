@@ -1,0 +1,11 @@
+COMMAND: corepack pnpm run db:generate
+EXIT: 0
+SUMMARY: Round 3 final metadata-consistency check. Both drizzle-kit passes report no drift between the
+  corrected dialect schemas and the unmerged migration snapshots:
+  - db:generate:d1 (drizzle-kit generate, drizzle.config.ts): 35 tables listed incl.
+    search_market_profiles 13 columns 1 indexes 1 fks -> "No schema changes, nothing to migrate"
+  - db:generate:pg (drizzle-kit generate --config drizzle-pg.config.ts): 35 tables listed incl.
+    search_market_profiles 13 columns 1 indexes 1 fks -> "No schema changes, nothing to migrate"
+NOTES: Confirms the hand-updated drizzle/meta/0045_snapshot.json and drizzle-pg/meta/0023_snapshot.json
+  (location_code/country notNull:true) match the schema TS files exactly; no second migration is needed
+  for this unmerged task. npm config warnings are pre-existing noise, not task-caused.

@@ -1,0 +1,7 @@
+COMMAND: corepack pnpm test
+EXIT: 0
+SUMMARY: vitest run — full suite (final state):
+  Test Files  142 passed (142)
+       Tests  1183 passed (1183)
+Duration ~77.6s.
+Includes the new market-profile suites (src/db/search-market-profile.test.ts 2 tests, src/types/schemas/search-market-profile.test.ts 5 tests) and schema-parity (184 tests).

@@ -1,0 +1,5 @@
+COMMAND: corepack pnpm types:check
+EXIT: 0
+OUTPUT:
+> tsc --noEmit
+(no diagnostics emitted)

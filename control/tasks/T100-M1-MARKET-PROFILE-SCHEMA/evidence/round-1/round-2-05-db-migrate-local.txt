@@ -1,0 +1,5 @@
+COMMAND: corepack pnpm run db:migrate:local
+EXIT: 0
+SUMMARY: wrangler d1 migrations apply DB --local applied all 46 SQLite/D1 migrations (0000..0045). Every migration reported "✅"; the last row was:
+  0045_search_market_profiles.sql        ✅
+No errors. Local D1 state written under .wrangler/.

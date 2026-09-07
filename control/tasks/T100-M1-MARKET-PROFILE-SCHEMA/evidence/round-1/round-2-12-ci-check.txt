@@ -1,0 +1,6 @@
+COMMAND: corepack pnpm ci:check
+EXIT: 1  (NOT task-caused; fails in its first stage)
+SUMMARY: Script = prettier --check . && knip && tsc --noEmit && tsc --noEmit -p badseo/tsconfig.json && oxlint . --type-aware && pnpm sync-plugin-skills && node scripts/check-plugin-skills-sync.mjs
+Failure occurred at the FIRST stage, prettier --check ., on exactly one pre-existing file:
+  [warn] .ai-orchestrator/config.json
+Because the chain short-circuits, knip/tsc/oxlint stages were not reached in this combined command. Those checks were run independently and pass: types:check (tsc) exit 0, lint (oxlint --type-aware) exit 0, test exit 0, build exit 0. The prettier blocker is a tracked, unchanged orchestration-control file outside this task's scope; all task-touched source/test/migration files are either prettier-clean or excluded via .prettierignore (drizzle/, drizzle-pg/, control/).

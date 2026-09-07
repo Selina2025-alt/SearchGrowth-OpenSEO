@@ -1,0 +1,13 @@
+COMMAND: corepack pnpm exec vitest run src/db/schema-parity.test.ts src/db/search-market-profile.test.ts src/types/schemas/search-market-profile.test.ts
+EXIT: 0
+SUMMARY:
+  Test Files  3 passed (3)
+       Tests  192 passed (192)
+  ✓ src/types/schemas/search-market-profile.test.ts (5 tests)
+  ✓ src/db/search-market-profile.test.ts (3 tests)
+  ✓ src/db/schema-parity.test.ts (184 tests)
+Duration 5.75s (final state).
+
+NOTES: 191 -> 192 tests vs Round 2 because the market fixture gained one test that proves the corrected
+  migration's NOT NULL columns reject a profile that omits concrete location_code/country identity
+  (raw SQL insert; final state after the lint-driven rewrite noted in round-3-10-lint.txt).

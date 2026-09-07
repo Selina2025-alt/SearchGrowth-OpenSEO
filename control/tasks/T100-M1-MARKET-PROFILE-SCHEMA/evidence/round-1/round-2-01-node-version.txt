@@ -1,0 +1,4 @@
+COMMAND: node --version
+EXIT: 0
+OUTPUT:
+v24.16.0

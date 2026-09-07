@@ -1,0 +1,10 @@
+COMMAND: corepack pnpm lint
+EXIT: 0
+OUTPUT:
+> oxlint . --type-aware
+Found 0 warnings and 0 errors.
+Finished in 7.4s on 848 files using 16 threads.
+
+NOTES: First run flagged the test's `null as unknown as string` narrowing (typescript-eslint
+  no-unsafe-type-assertion). The NOT NULL enforcement test was rewritten to use a raw SQL insert via the
+  libsql client (no type assertion), and lint is clean.

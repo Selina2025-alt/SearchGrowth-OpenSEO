@@ -1,0 +1,8 @@
+COMMAND: corepack pnpm format:check
+EXIT: 0
+OUTPUT:
+> prettier --check .
+All matched files use Prettier code style!
+
+NOTES: Round 2 blocker resolved by the Controller's formatting-only .ai-orchestrator/config.json
+  correction; this executor did not edit that control file. All task-touched files are Prettier-clean.

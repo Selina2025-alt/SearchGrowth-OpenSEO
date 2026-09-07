@@ -1,4 +1,5 @@
 export * from "./app.schema";
+export * from "./search-growth.schema";
 export * from "./project-context.schema";
 export * from "./audit.schema";
 export * from "./sam.schema";

@@ -1,0 +1,10 @@
+COMMAND: corepack pnpm run db:migrate:local
+EXIT: 0
+OUTPUT:
+> wrangler d1 migrations apply DB --local
+✅ No migrations to apply!
+
+NOTES: Migration 0045_search_market_profiles was already applied in Round 2. Because the Round 3 fix
+  edits that unmerged migration's DDL (adds NOT NULL to location_code/country), the fresh-DB proof of
+  the corrected DDL comes from the focused vitest fixture, which builds an in-memory SQLite DB from the
+  migration file content itself (src/db/search-market-profile.test.ts).
