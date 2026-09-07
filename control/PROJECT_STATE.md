@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 16ce86f379b6258b8613760a5b11a5211b4932a3
 LAST REVIEW: T101-M1-SEARCH-TOPIC-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: Codex accepted T101 after verifying same-Project composite merge references, lifecycle and self-merge CHECKs, restrictive target deletion, dual-dialect snapshots, executor gates, and an independent 10-test rerun; merged only into integration/ai-v1 at 16ce86f379b6258b8613760a5b11a5211b4932a3.
+LAST COMPLETED ACTION: Codex accepted T101 after verifying same-Project composite merge references, lifecycle and self-merge CHECKs, restrictive target deletion, dual-dialect snapshots, executor gates, and an independent 10-test rerun; merged only into integration/ai-v1 at 16ce86f379b6258b8613760a5b11a5211b4932a3. T102 was then dispatched to Claude in its isolated worktree under the approved safe command set.
 CURRENT BLOCKER: NONE for credential-free M1 domain work. M0.5 still requires external accounts and publishing Human Gates H1/H2.
-NEXT EXACT ACTION: Dispatch T102 to add only the normalized, same-Project mapping from SearchTopic to existing OpenSEO saved keywords; wait for DELIVERY; then review mapping integrity, reuse, migrations, tests, and required gates.
+NEXT EXACT ACTION: Wait for T102 DELIVERY; then perform Fast Review only: DELIVERY summary, targeted diff, mapping invariants, migration/snapshot evidence, scope/security, and required gate exits.
 
 ## COMPLETED
 
