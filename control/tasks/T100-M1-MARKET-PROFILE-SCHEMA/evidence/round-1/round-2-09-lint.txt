@@ -1,0 +1,3 @@
+COMMAND: corepack pnpm lint
+EXIT: 0
+SUMMARY: oxlint . --type-aware → "Found 0 warnings and 0 errors." Finished in 21.4s on 848 files.

@@ -1,0 +1,8 @@
+COMMAND: corepack pnpm build
+EXIT: 0
+SUMMARY: vite build && tsc --noEmit.
+  ✓ client env built in 21.63s (3682 modules)
+  ✓ ssr env built in 45.46s (5086 modules)
+  ✓ open_seo_audit env built in 7.41s (431 modules)
+  tsc --noEmit completed with no errors.
+Standard "chunk larger than 500 kB" advisory only (pre-existing app chunking).

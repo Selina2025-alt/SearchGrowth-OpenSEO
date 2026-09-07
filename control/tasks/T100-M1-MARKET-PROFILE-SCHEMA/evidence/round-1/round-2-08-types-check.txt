@@ -1,0 +1,3 @@
+COMMAND: corepack pnpm types:check
+EXIT: 0
+SUMMARY: tsc --noEmit completed with no errors (no output beyond the script banner).

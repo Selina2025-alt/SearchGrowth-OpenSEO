@@ -1,44 +1,33 @@
-# REVIEW T100-M1-MARKET-PROFILE-SCHEMA — ROUND 2
+# REVIEW T100-M1-MARKET-PROFILE-SCHEMA — ROUND 3
 
-VERDICT: BLOCKED
+VERDICT: PASS
 REVIEW DATE: 2026-09-07
-EXECUTOR ROUNDS USED: 2 / 3
+EXECUTOR ROUNDS USED: 3 / 3
 
-## VERIFIED EVIDENCE
+## ACCEPTANCE VERIFICATION
 
-- The diff is confined to the market-profile schema/domain slice plus task artifacts.
-- SQLite/D1 and Postgres definitions expose the same table, columns, defaults, Project foreign key, and project index; parity tests pass.
-- SQLite migration 0045 applied locally. Postgres migration 0023 is registered in its journal and snapshot.
-- Focused tests: 3 files / 191 tests PASS. Full tests: 142 files / 1,183 tests PASS. Types, lint, and build PASS.
-- No dependency, lockfile, Accepted ADR, scope, connector, credential, external request, production, paid, or publishing change occurred.
+- SQLite/D1 and Postgres define one normalized `search_market_profiles` table with all required fields, equivalent defaults, explicit Project foreign key with cascade delete, and one project index.
+- `location_code` and `country` are non-null in both Drizzle schemas, both forward migration SQL files, and both migration snapshots. Codex independently parsed both snapshots and confirmed `notNull: true`, one project index, and one Project foreign key.
+- Engine values are limited to `GOOGLE | BAIDU | BING | OTHER`; device values are limited to `DESKTOP | MOBILE`; Zod boundary tests reject `GLOBAL`, unsupported engines, unsupported devices, lowercase variants, and empty values.
+- The real SQLite migration fixture preserves distinct Google and Baidu profiles, isolates a concrete Bing United States profile on a second Project, and rejects missing location/country identity. No Global/null fixture remains.
+- No CRUD, server function, UI, connector, unrelated domain table, additional uniqueness rule, JSON relation, or second Project model was introduced.
+- Forward migrations are registered as SQLite/D1 0045 and Postgres 0023. Final `db:generate` reports no schema changes for either dialect, and no follow-up migration was created.
+- Local migration command exits 0; the final corrected DDL is also executed against a fresh in-memory SQLite database by the market fixture test.
 
-## FINDINGS
+## TEST AND QUALITY EVIDENCE
 
-### MAJOR — Two required market-identity fields are nullable and the fixture normalizes a Global market
+- Focused schema/parity/market tests: 3 files / 192 tests PASS.
+- Full unit suite: 142 files / 1,184 tests PASS.
+- Format, types, lint (0 warnings / 0 errors), build, and full `ci:check`: PASS with exit 0.
+- `ci:check` completed every stage, including Knip, both TypeScript checks, type-aware lint, skill sync, and tracked/untracked skill-drift verification.
+- `git diff --check` is clean; package manifest, lockfile, Accepted ADRs, scope lock, and production configuration are unchanged.
 
-- Path/location: `src/db/search-growth.schema.ts` and `src/db/pg/search-growth.schema.ts`, `locationCode` and `country`; `src/db/search-market-profile.test.ts`, `prof_bing_global` fixture.
-- Requirement violated: `05_DOMAIN_DATA_MODEL.md` section 2 lists `location_code` and `country` as SearchMarketProfile fields without optional markers. TASK calls them required domain fields and prohibits an implicit `GLOBAL` market or inferred missing market identity.
-- Evidence: both schemas/migrations allow `location_code` and `country` to be null. The added test intentionally inserts `locationCode: null`, `country: null`, names the project/profile `global`, and describes an engine-wide/global profile. This converts missing market identity into an accepted foundation contract.
-- Expected behavior: every persisted profile carries explicit engine, location code/name, language, country, and device identity. Project scoping must be tested with another concrete market rather than a Global/null placeholder.
-- Reproduction: inspect column nullability and the second market fixture; the parity test confirms the nullable shape rather than rejecting it.
-- Fix acceptance condition: make `location_code` and `country` non-null in both dialect schemas, both forward migrations, and both migration snapshots; replace the global/null fixture with a concrete profile on a second project; update tests to prove required market identity and retain Google/Baidu distinction. Do not invent other uniqueness rules or expand into CRUD.
+## CONTROL AND SECURITY
 
-### BLOCKER — Required aggregate CI gate is not green
-
-- Path/location: `control/tasks/T100-M1-MARKET-PROFILE-SCHEMA/evidence/round-1/round-2-07-format-check.txt` and `round-2-12-ci-check.txt`; `.ai-orchestrator/config.json` on the task base.
-- Requirement violated: TASK requires `format:check` and `ci:check` to complete successfully before PASS.
-- Evidence: both exit 1 because a Controller-owned orchestration config on the branch base was not Prettier-formatted. This is not caused by the market implementation, but the required final-state gates still fail.
-- Expected behavior: Controller restores the control file to repository formatting, then Claude reruns the final gates on the actual delivery state.
-- Reproduction: `corepack pnpm format:check` reports only `.ai-orchestrator/config.json`; `ci:check` stops at the same first stage.
-- Fix acceptance condition: Controller supplies the formatting-only config correction before Round 3. Claude must not edit orchestration control files; rerun `format:check` and full `ci:check` to exit 0.
-
-## ROUND 3 ACCEPTANCE
-
-1. Fix only the required market identity nullability and concrete second-project fixture, including both migration snapshots.
-2. Run `db:generate` after the final schema/snapshot state and prove Drizzle reports no new schema change; do not add a second migration for this unmerged task.
-3. Rerun local migration, focused tests, format, types, lint, full tests, build, and `ci:check`; all must exit 0.
-4. Update DELIVERY with exact final evidence and diff inventory, then finish normally. No unrelated changes.
+- The Controller-supplied `.ai-orchestrator/config.json` content exactly matches the current integration branch. Its formatting correction was not an executor business-code change.
+- No credential, external request, remote migration, account action, publication, deployment, paid action, CAPTCHA/2FA bypass, or production mutation occurred.
+- Live Postgres migration remains a later environment gate; schema parity plus clean Postgres `db:generate` prove the checked-in logical/migration metadata contract for this credential-free task.
 
 ## MERGE DECISION
 
-DO NOT MERGE. Dispatch final fix round 3 after the Controller formatting correction is present in the task worktree.
+PASS. Commit the accepted task state and merge only into `integration/ai-v1`. Never merge to `main`.

@@ -1,0 +1,16 @@
+COMMAND: corepack pnpm exec prettier --write <task-touched source/test files>
+EXIT: 0
+FILES:
+  src/db/search-growth.schema.ts            (unchanged)
+  src/db/pg/search-growth.schema.ts         (unchanged)
+  src/db/search-market-profile.test.ts      (unchanged)
+  src/types/schemas/search-market-profile.ts (unchanged)
+  src/types/schemas/search-market-profile.test.ts (unchanged)
+  src/db/schema.ts                          (unchanged)
+  src/db/d1/schema.ts                       (unchanged)
+  src/db/pg/schema.ts                       (unchanged)
+  src/db/schema-parity.test.ts              (unchanged)
+NOTES: Round 3 edited only src/db/search-growth.schema.ts, src/db/pg/search-growth.schema.ts and
+  src/db/search-market-profile.test.ts; all three were already Prettier-clean. drizzle/ and
+  drizzle-pg/ are excluded by .prettierignore (drizzle-kit output), so migration/metadata files were
+  not re-formatted; their JSON/SQL edits were checked manually.

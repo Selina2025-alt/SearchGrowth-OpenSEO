@@ -1,0 +1,9 @@
+COMMAND: corepack pnpm exec vitest run src/db/schema-parity.test.ts src/db/search-market-profile.test.ts src/types/schemas/search-market-profile.test.ts
+EXIT: 0
+SUMMARY:
+  Test Files  3 passed (3)
+       Tests  191 passed (191)
+  ✓ src/db/search-market-profile.test.ts (2 tests)
+  ✓ src/types/schemas/search-market-profile.test.ts (5 tests)
+  ✓ src/db/schema-parity.test.ts (184 tests)
+Duration 7.21s (final state).

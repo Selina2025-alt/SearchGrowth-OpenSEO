@@ -1,0 +1,11 @@
+COMMAND: corepack pnpm test
+EXIT: 0
+SUMMARY:
+  Test Files  142 passed (142)
+       Tests  1184 passed (1184)
+Duration 66.63s.
+
+NOTES: 1183 -> 1184 vs Round 2 because the market fixture gained one NOT NULL enforcement test.
+  stderr/stdout telemetry lines in the log are expected output from existing tests (rank-tracking
+  scheduler summaries, DataForSEO upstream-failure simulations, OAuth refresh negative cases); no
+  failures.

@@ -1,0 +1,6 @@
+COMMAND: corepack pnpm build
+EXIT: 0
+OUTPUT: vite build (client) succeeded in 12.54s; vite build (ssr) succeeded in 28.05s; vite build
+  (open_seo_audit worker) succeeded in 3.33s; then `tsc --noEmit` emitted no diagnostics.
+NOTES: The pre-existing chunk-size warnings (>500 kB) are informational Rollup output, not failures;
+  build exits 0.

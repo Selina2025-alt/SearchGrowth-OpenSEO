@@ -1,0 +1,5 @@
+COMMAND: corepack pnpm format:check
+EXIT: 1  (NOT task-caused)
+SUMMARY: prettier --check . reported exactly one pre-existing style issue:
+  [warn] .ai-orchestrator/config.json
+No task-touched file was reported. .ai-orchestrator/config.json is tracked at this branch HEAD and is byte-identical to HEAD (git status --short shows no change). It is outside this task's scope (orchestration control-plane file, not part of the schema/migration/test slice). drizzle/ and drizzle-pg/ are excluded from prettier via .prettierignore.
