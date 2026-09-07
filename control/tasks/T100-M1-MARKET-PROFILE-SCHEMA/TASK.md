@@ -6,6 +6,10 @@ OWNER: Claude Code + DeepSeek Implementation Engineer
 CONTROLLER: Codex
 MAX ROUNDS: 3
 
+## ROUND 2 RECOVERY CONTEXT
+
+Round 1 ended at the 100-turn limit after producing a focused partial schema/migration/test diff but before any acceptance command or DELIVERY. Continue from that diff. The isolated worktree has no `node_modules`, so Round 2 is explicitly authorized to run one locked install. Do not redo broad discovery or retry commands denied in Round 1; use Read/Glob/Grep and the approved Git commands for inspection.
+
 ## GOAL
 
 Add the normalized, project-scoped `SearchMarketProfile` persistence foundation for both SQLite/D1 and Postgres. This task ends at the schema/domain boundary; API, UI, Topic, Entity, Prompt, GEO, and connector work are separate tasks.
@@ -70,18 +74,19 @@ Run independently and save concise sanitized logs under `control/tasks/T100-M1-M
 
 1. `node --version`
 2. `corepack pnpm --version`
-3. `corepack pnpm exec prettier --write <only task-touched source/test/migration files>`
-4. `corepack pnpm run db:migrate:local`
-5. `corepack pnpm exec vitest run <focused schema/parity/market tests>`
-6. `corepack pnpm format:check`
-7. `corepack pnpm types:check`
-8. `corepack pnpm lint`
-9. `corepack pnpm test`
-10. `corepack pnpm build`
-11. `corepack pnpm ci:check`
-12. Read-only Git inspection: `git status`, `git diff`, `git log`, `git show`, `git ls-files`, `git rev-parse`.
+3. `corepack pnpm install --frozen-lockfile` (Round 2 only; lockfile and manifests must remain unchanged)
+4. `corepack pnpm exec prettier --write <only task-touched source/test/migration files>`
+5. `corepack pnpm run db:migrate:local`
+6. `corepack pnpm exec vitest run <focused schema/parity/market tests>`
+7. `corepack pnpm format:check`
+8. `corepack pnpm types:check`
+9. `corepack pnpm lint`
+10. `corepack pnpm test`
+11. `corepack pnpm build`
+12. `corepack pnpm ci:check`
+13. Read-only Git inspection: `git status`, `git diff`, `git log`, `git show`, `git ls-files`, `git rev-parse`.
 
-Do not install packages or run commands not listed here. Do not use `--dangerously-skip-permissions`.
+Do not add/update packages or run commands not listed here. Do not use `--dangerously-skip-permissions`.
 
 ## DELIVERY
 

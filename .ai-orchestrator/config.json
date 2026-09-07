@@ -5,7 +5,7 @@
   "maxExecutorRounds": 3,
   "claude": {
     "command": "claude.cmd",
-    "maxTurns": 100,
+    "maxTurns": 120,
     "outputFormat": "json",
     "extraArgs": [
       "--permission-mode", "acceptEdits",
@@ -15,7 +15,7 @@
       "--model", "deepseek-v4-Pro[1m]",
       "--tools", "Read,Glob,Grep,Bash,Write,Edit",
       "--allowedTools",
-      "Bash(node --version),Bash(corepack pnpm --version),Bash(corepack pnpm exec prettier --write *),Bash(corepack pnpm run db:migrate:local),Bash(corepack pnpm exec vitest run *),Bash(corepack pnpm format:check),Bash(corepack pnpm types:check),Bash(corepack pnpm lint),Bash(corepack pnpm test),Bash(corepack pnpm build),Bash(corepack pnpm ci:check),Bash(git status *),Bash(git rev-parse *),Bash(git diff *),Bash(git log *),Bash(git show *),Bash(git ls-files *),Read,Glob,Grep,Write,Edit"
+      "Bash(node --version),Bash(corepack pnpm --version),Bash(corepack pnpm install --frozen-lockfile),Bash(corepack pnpm exec prettier --write *),Bash(corepack pnpm run db:migrate:local),Bash(corepack pnpm exec vitest run *),Bash(corepack pnpm format:check),Bash(corepack pnpm types:check),Bash(corepack pnpm lint),Bash(corepack pnpm test),Bash(corepack pnpm build),Bash(corepack pnpm ci:check),Bash(git status *),Bash(git rev-parse *),Bash(git diff *),Bash(git log *),Bash(git show *),Bash(git ls-files *),Read,Glob,Grep,Write,Edit"
     ],
     "windowsFallbackCommand": "claude",
     "observedCliVersion": "2.1.261",
