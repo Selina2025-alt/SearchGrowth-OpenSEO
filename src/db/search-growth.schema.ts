@@ -8,7 +8,7 @@ import {
   text,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
-import { projects } from "./app.schema";
+import { projects, savedKeywords } from "./app.schema";
 
 // ============================================================================
 // Search Growth V1.0 — normalized, project-scoped market profiles.
@@ -161,5 +161,76 @@ export const searchTopics = sqliteTable(
       "search_topics_merge_target_not_self",
       sql`(${table.mergedIntoTopicId} IS NULL OR ${table.mergedIntoTopicId} <> ${table.id})`,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized Topic -> saved-keyword reference.
+//
+// A topic maps to existing OpenSEO saved keywords WITHOUT copying keyword text,
+// market fields, ranks, tags or any other keyword entity: each row stores only
+// the canonical saved_keywords.id reference (04_OPENSEO_REUSE_CODE_MAP.md §1,
+// "Keyword research | existing | Topic mapping，不复制关键词库"). This table is
+// what the V1.0 Topic稳定 traceability row's `mapping` gate tests against.
+//
+// Same-project integrity is enforced by two composite foreign keys that carry
+// the mapping row's own project_id as their leading column:
+//   - (project_id, topic_id)            -> search_topics(project_id, id)
+//   - (project_id, open_seo_keyword_ref)-> saved_keywords(project_id, id)
+// so the DB (not application convention) rejects a topic and a saved keyword
+// that belong to different projects.
+//
+// One mapping per (topic_id, open_seo_keyword_ref) is the V1.0 uniqueness rule
+// (schemas/migrations-reference.sql); topic ids and saved-keyword ids are both
+// globally unique primary keys, so once the same-project FKs hold the pair is
+// project-isolated without listing project_id in the unique index.
+//
+// Delete behavior mirrors the established OpenSEO cascade convention: deleting
+// a topic, a saved keyword, or a whole project cascades to the mapping, so no
+// mapping row can ever dangle.
+// ============================================================================
+
+export const searchTopicKeywordRefs = sqliteTable(
+  "search_topic_keyword_refs",
+  {
+    id: text("id").primaryKey(),
+    // The mapping's own project. Every topic/keyword/mapping read is
+    // project-scoped, so project_id stays an explicit typed column.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The mapped SearchTopic id (search_topics.id, the stable ADR-004 identity).
+    topicId: text("topic_id").notNull(),
+    // The canonical OpenSEO saved-keyword id (saved_keywords.id). No keyword
+    // text / market / rank / tag data is stored here.
+    openSeoKeywordRef: text("open_seo_keyword_ref").notNull(),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-project composite FK to the topic: the mapping's project_id must
+    // equal the topic's project_id. Deleting a topic removes its mappings.
+    foreignKey({
+      columns: [table.projectId, table.topicId],
+      foreignColumns: [searchTopics.projectId, searchTopics.id],
+    }).onDelete("cascade"),
+    // Same-project composite FK to the canonical saved keyword: the mapping's
+    // project_id must equal the saved keyword's project_id. Deleting a saved
+    // keyword removes its mappings. The referenced (project_id, id) pair is
+    // unique via the supporting `saved_keywords_project_id_id_idx` index this
+    // FK requires (added to app.schema.ts; no business uniqueness changes).
+    foreignKey({
+      columns: [table.projectId, table.openSeoKeywordRef],
+      foreignColumns: [savedKeywords.projectId, savedKeywords.id],
+    }).onDelete("cascade"),
+    // V1.0 uniqueness: one mapping per (topic_id, open_seo_keyword_ref).
+    uniqueIndex("search_topic_keyword_refs_unique_topic_keyword_idx").on(
+      table.topicId,
+      table.openSeoKeywordRef,
+    ),
+    // topic -> keyword reads and keyword -> topic reads are the two directions
+    // the mapping serves; the unique index above already leads with topic_id.
+    index("search_topic_keyword_refs_keyword_idx").on(table.openSeoKeywordRef),
   ],
 );

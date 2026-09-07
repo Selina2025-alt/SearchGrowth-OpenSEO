@@ -1,0 +1,127 @@
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +980
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 980, reused 248, downloaded 0, added 0
+Progress: resolved 980, reused 659, downloaded 0, added 0
+Progress: resolved 980, reused 958, downloaded 0, added 0
+Progress: resolved 980, reused 978, downloaded 0, added 14
+Progress: resolved 980, reused 978, downloaded 0, added 32
+Progress: resolved 980, reused 980, downloaded 0, added 87
+Progress: resolved 980, reused 980, downloaded 0, added 130
+Progress: resolved 980, reused 980, downloaded 0, added 174
+Progress: resolved 980, reused 980, downloaded 0, added 244
+Progress: resolved 980, reused 980, downloaded 0, added 321
+Progress: resolved 980, reused 980, downloaded 0, added 421
+Progress: resolved 980, reused 980, downloaded 0, added 502
+Progress: resolved 980, reused 980, downloaded 0, added 575
+Progress: resolved 980, reused 980, downloaded 0, added 612
+Progress: resolved 980, reused 980, downloaded 0, added 666
+Progress: resolved 980, reused 980, downloaded 0, added 723
+Progress: resolved 980, reused 980, downloaded 0, added 744
+Progress: resolved 980, reused 980, downloaded 0, added 776
+Progress: resolved 980, reused 980, downloaded 0, added 841
+Progress: resolved 980, reused 980, downloaded 0, added 886
+Progress: resolved 980, reused 980, downloaded 0, added 939
+Progress: resolved 980, reused 980, downloaded 0, added 963
+Progress: resolved 980, reused 980, downloaded 0, added 969
+Progress: resolved 980, reused 980, downloaded 0, added 971
+Progress: resolved 980, reused 980, downloaded 0, added 972
+Progress: resolved 980, reused 980, downloaded 0, added 973
+Progress: resolved 980, reused 980, downloaded 0, added 974
+Progress: resolved 980, reused 980, downloaded 0, added 976
+Progress: resolved 980, reused 980, downloaded 0, added 977
+Progress: resolved 980, reused 980, downloaded 0, added 978
+Progress: resolved 980, reused 980, downloaded 0, added 979
+Progress: resolved 980, reused 980, downloaded 0, added 980
+Progress: resolved 980, reused 980, downloaded 0, added 980, done
+
+dependencies:
++ @ai-sdk/react 3.0.211
++ @better-auth/api-key 1.6.22
++ @cloudflare/ai-chat 0.10.1
++ @cloudflare/think 0.15.1
++ @cloudflare/workers-oauth-provider 0.10.2
++ @every-app/sdk 0.1.14
++ @modelcontextprotocol/client 2.0.0
++ @modelcontextprotocol/sdk 1.30.0
++ @modelcontextprotocol/server 2.0.0
++ @openrouter/ai-sdk-provider 2.9.0
++ @tanstack/query-core 5.101.2
++ @tanstack/react-form 1.33.0
++ @tanstack/react-query 5.101.2
++ @tanstack/react-router 1.170.16
++ @tanstack/react-router-devtools 1.167.0
++ @tanstack/react-start 1.168.26
++ @tanstack/react-table 8.21.3
++ agents 0.20.1
++ ai 6.0.199
++ autumn-js 1.2.33
++ better-auth 1.6.22
++ cloudflare 5.2.0
++ daisyui 5.5.19
++ drizzle-orm 0.45.2
++ fast-xml-parser 5.8.0
++ htmlparser2 10.1.0
++ jose 6.1.3
++ lucide-react 0.542.0
++ papaparse 5.5.3
++ postgres 3.4.9
++ posthog-js 1.395.0
++ posthog-node 5.38.6
++ react 19.2.4
++ react-dom 19.2.4
++ react-markdown 10.1.0
++ recharts 3.7.0
++ remark-gfm 4.0.1
++ remeda 2.33.6
++ robots-parser 3.0.1
++ sonner 2.0.7
++ tailwindcss 4.2.1
++ tldts 7.0.25
++ yaml 2.9.0
++ zod 4.3.6
+
+devDependencies:
++ @cloudflare/vite-plugin 1.42.3
++ @cloudflare/workers-types 4.20260702.1
++ @distilled.cloud/cloudflare 0.28.2
++ @effect/platform-node 4.0.0-beta.93
++ @libsql/client 0.15.15
++ @playwright/test 1.59.1
++ @tailwindcss/vite 4.2.1
++ @tanstack/devtools-vite 0.6.1
++ @tanstack/react-devtools 0.10.8
++ @types/node 22.19.11
++ @types/papaparse 5.5.2
++ @types/react 19.2.14
++ @types/react-dom 19.2.3
++ @vitejs/plugin-react 4.7.0
++ alchemy 2.0.0-beta.61
++ chalk 5.6.2
++ cheerio 1.2.0
++ drizzle-kit 0.31.10
++ effect 4.0.0-beta.93
++ knip 5.88.1
++ oxlint 1.50.0
++ oxlint-tsgolint 0.15.0
++ portless 0.5.2
++ prettier 3.8.1
++ tsx 4.22.4
++ typescript 5.9.3
++ vite 7.3.6
++ vite-tsconfig-paths 5.1.4
++ vitest 3.2.6
++ wrangler 4.105.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @mongodb-js/zstd@7.0.0, core-js-pure@3.49.0,        │
+│   core-js@3.49.0, esbuild@0.18.20, esbuild@0.25.12, esbuild@0.28.1,          │
+│   msgpackr-extract@3.0.4, node-liblzma@2.2.0, sharp@0.34.5,                  │
+│   workerd@1.20260625.1, workerd@1.20260704.1.                                │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Done in 38.3s using pnpm v10.30.1

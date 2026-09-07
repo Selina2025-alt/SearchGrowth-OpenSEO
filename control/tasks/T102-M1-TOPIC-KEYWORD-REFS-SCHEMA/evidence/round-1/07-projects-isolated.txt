@@ -1,0 +1,11 @@
+
+ RUN  v3.2.6 D:/company project/SearchGrowth-OpenSEO/.ai-worktrees/T102-M1-TOPIC-KEYWORD-REFS-SCHEMA
+
+ ✓ src/server/features/projects/services/projects.test.ts (20 tests) 1209ms
+   ✓ project service > listProjectsEnsuringOne > returns existing projects without creating a Default  467ms
+
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+   Start at  16:47:10
+   Duration  20.23s (transform 237ms, setup 0ms, collect 108ms, tests 1.21s, environment 0ms, prepare 302ms)
+

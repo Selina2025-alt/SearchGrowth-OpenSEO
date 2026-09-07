@@ -111,6 +111,14 @@ export const savedKeywords = pgTable(
       table.locationCode,
       table.languageCode,
     ),
+    // Supporting composite unique target for the Search Growth topic->keyword
+    // mapping FK ((project_id, open_seo_keyword_ref) -> saved_keywords
+    // (project_id, id)). id is already the PK, so this is purely the FK's
+    // required unique target — it adds no business uniqueness.
+    uniqueIndex("saved_keywords_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
     index("saved_keywords_project_created_idx").on(
       table.projectId,
       table.createdAt,
