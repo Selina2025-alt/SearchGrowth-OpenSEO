@@ -7,11 +7,11 @@ CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
 CURRENT TASK: T101-M1-SEARCH-TOPIC-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 7256dd013e860eb3e530aa11059c5c63bf4ecd94
-LAST REVIEW: T100-M1-MARKET-PROFILE-SCHEMA ROUND 3 PASS AND MERGED
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: Codex accepted the explicit non-null dual-dialect SearchMarketProfile foundation after 192 focused and 1,184 full tests, clean db:generate, build, and ci:check; Controller merged it only into integration/ai-v1 at 7256dd013e860eb3e530aa11059c5c63bf4ecd94.
-CURRENT BLOCKER: NONE for credential-free M1 domain work. M0.5 still requires external accounts and publishing Human Gates H1/H2.
-NEXT EXACT ACTION: Dispatch T101-M1-SEARCH-TOPIC-SCHEMA with task-scoped safe grants; wait for DELIVERY; then review only topic schema/migrations, stable-ID lifecycle evidence, parity, final gates, and scope/security boundaries.
+LAST REVIEW: T101-M1-SEARCH-TOPIC-SCHEMA ROUND 1 BLOCKED
+CURRENT ROUND: 2 / 3
+LAST COMPLETED ACTION: Claude delivered T101 round 1; Codex targeted review found that the merge pointer allowed cross-project targets and incoherent lifecycle states. Codex supplied the formatting-only ACCEPTANCE_LEDGER correction that had caused format and ci:check to fail.
+CURRENT BLOCKER: SearchTopic merge integrity must enforce same-project targets, coherent status/pointer state, no self-merge, and restrictive target deletion in both database dialects. M0.5 still requires external accounts and publishing Human Gates H1/H2.
+NEXT EXACT ACTION: Dispatch T101 round 2 with the bounded REVIEW acceptance; wait for DELIVERY; then independently verify the diff, migration-backed negative tests, clean db:generate, and all required gates.
 
 ## COMPLETED
 
@@ -23,7 +23,7 @@ NEXT EXACT ACTION: Dispatch T101-M1-SEARCH-TOPIC-SCHEMA with task-scoped safe gr
 
 ## IN PROGRESS
 
-T101-M1-SEARCH-TOPIC-SCHEMA is defined and ready for Claude dispatch.
+T101-M1-SEARCH-TOPIC-SCHEMA round 2 fix acceptance is defined and ready for Claude dispatch.
 
 ## BLOCKED
 
@@ -31,4 +31,4 @@ T101-M1-SEARCH-TOPIC-SCHEMA is defined and ready for Claude dispatch.
 
 ## NEXT
 
-Run the bounded SearchTopic schema task through DELIVERY and targeted independent review. Never merge to `main`.
+Dispatch T101 round 2, wait for DELIVERY, and perform targeted independent review. Never merge to `main`.
