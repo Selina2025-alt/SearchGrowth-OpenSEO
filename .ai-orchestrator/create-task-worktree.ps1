@@ -26,6 +26,30 @@ if (-not (Test-Path $taskFile)) {
 
 New-Item -ItemType Directory -Force -Path $worktreeRoot | Out-Null
 
+# A recovery task may intentionally continue an uncommitted executor worktree
+# after its branch is renamed. Reuse the worktree already associated with the
+# expected task branch even when its physical directory still has the prior
+# task name (Windows can refuse a directory move while tool handles are open).
+$associatedWorktree = $null
+$listedWorktree = $null
+foreach ($line in (& git worktree list --porcelain)) {
+  if ($line -like "worktree *") {
+    $listedWorktree = $line.Substring(9)
+  } elseif ($line -eq "branch refs/heads/$branch" -and $listedWorktree) {
+    $associatedWorktree = $listedWorktree
+    break
+  }
+}
+if ($associatedWorktree -and (Test-Path -LiteralPath $associatedWorktree)) {
+  $targetTaskDir = Join-Path $associatedWorktree "control\tasks\$TaskId"
+  New-Item -ItemType Directory -Force -Path $targetTaskDir | Out-Null
+  Copy-Item $taskFile (Join-Path $targetTaskDir "TASK.md") -Force
+  Copy-Item (Join-Path $root "CLAUDE.md") (Join-Path $associatedWorktree "CLAUDE.md") -Force
+  Write-Host "Worktree already associated with task branch: $associatedWorktree"
+  Write-Output $associatedWorktree
+  exit 0
+}
+
 if (Test-Path $worktree) {
   Write-Host "Worktree already exists: $worktree"
   Write-Output $worktree
