@@ -1,0 +1,17 @@
+COMMAND: corepack pnpm exec vitest run src/db/search-topic.test.ts src/types/schemas/search-topic.test.ts src/db/schema-parity.test.ts src/db/search-market-profile.test.ts src/types/schemas/search-market-profile.test.ts
+EXIT: 0
+OUTPUT:
+  ✓ src/types/schemas/search-topic.test.ts (3 tests)
+  ✓ src/types/schemas/search-market-profile.test.ts (5 tests)
+  ✓ src/db/search-topic.test.ts (7 tests)
+  ✓ src/db/search-market-profile.test.ts (3 tests)
+  ✓ src/db/schema-parity.test.ts (189 tests)
+
+  Test Files  5 passed (5)
+      Tests  207 passed (207)
+
+NOTE: schema parity covers search_topics incl. the composite FK, supporting
+unique index, and the three lifecycle/self-merge CHECKs (names match across
+both dialects). Round-1's single storage test grew to 7 migration-backed tests:
+valid stable-ID merge + cross-project merge, dangling MERGED, ACTIVE/ARCHIVED
+with target, self-merge, referenced-target deletion, and whole-project cascade.

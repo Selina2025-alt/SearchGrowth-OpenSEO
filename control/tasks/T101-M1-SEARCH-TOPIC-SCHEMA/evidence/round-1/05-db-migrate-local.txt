@@ -1,0 +1,8 @@
+COMMAND: corepack pnpm run db:migrate:local
+EXIT: 0
+OUTPUT (first run, fresh local state):
+  wrangler d1 migrations apply DB --local
+  Migrations to be applied: 0000 ... 0046_search_topics.sql
+  0046_search_topics.sql  ✅
+OUTPUT (second run, final state):
+  ✅ No migrations to apply!

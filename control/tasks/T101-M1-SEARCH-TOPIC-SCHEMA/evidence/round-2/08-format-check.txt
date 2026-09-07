@@ -1,0 +1,9 @@
+COMMAND: corepack pnpm format:check
+EXIT: 0
+OUTPUT:
+  prettier --check .
+  Checking formatting...
+  All matched files use Prettier code style!
+NOTE: round-1 BLOCKER resolved — the Controller-supplied formatting-only
+correction to control/ACCEPTANCE_LEDGER.md is present in the worktree and the
+repo-wide prettier gate is green. Claude did not edit the ledger.

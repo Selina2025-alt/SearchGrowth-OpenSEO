@@ -1,0 +1,36 @@
+COMMAND: read-only git inspection (git status / git diff / git log)
+EXIT: 0
+OBSERVED:
+  HEAD: 041cf7e chore: accept market profile and schedule topic schema
+  Branch: ai-task/T101-M1-SEARCH-TOPIC-SCHEMA (main is the merge target)
+
+  M control/ACCEPTANCE_LEDGER.md            (Controller formatting correction — NOT edited by executor)
+  M control/tasks/T101-M1-SEARCH-TOPIC-SCHEMA/TASK.md (Controller round-2 text — NOT edited by executor)
+  M drizzle-pg/meta/_journal.json           (idx 24 tag 0024_search_topics)
+  M drizzle/meta/_journal.json              (idx 46 tag 0046_search_topics)
+  M src/db/pg/search-growth.schema.ts       (search_topics constraints)
+  M src/db/schema.ts                        (round-1: searchTopics barrel export)
+  M src/db/search-growth.schema.ts          (search_topics constraints)
+
+  ?? drizzle/0046_search_topics.sql         (regenerated round-2 DDL)
+  ?? drizzle/meta/0046_snapshot.json
+  ?? drizzle-pg/0024_search_topics.sql      (regenerated, reordered unique index)
+  ?? drizzle-pg/meta/0024_snapshot.json
+  ?? src/db/search-topic.test.ts
+  ?? src/types/schemas/search-topic.ts
+  ?? src/types/schemas/search-topic.test.ts
+  ?? control/tasks/T101-M1-SEARCH-TOPIC-SCHEMA/DELIVERY.md (round-2 update)
+  ?? control/tasks/T101-M1-SEARCH-TOPIC-SCHEMA/evidence/round-2/*
+
+  git diff --stat (tracked vs HEAD):
+    control/ACCEPTANCE_LEDGER.md                      |  12 +--
+    control/tasks/T101-M1-SEARCH-TOPIC-SCHEMA/TASK.md |   4 +
+    drizzle-pg/meta/_journal.json                     |   7 ++
+    drizzle/meta/_journal.json                        |   7 ++
+    src/db/pg/search-growth.schema.ts                 | 105 ++++++++++++++++++++-
+    src/db/schema.ts                                  |   1 +
+    src/db/search-growth.schema.ts                    | 108 +++++++++++++++++++++-
+    7 files changed, 236 insertions(+), 8 deletions(-)
+
+  No lockfile, package manifest, .prettierignore, ADR, scope, credential, or
+  production change is part of the diff. Not committed; not merged.

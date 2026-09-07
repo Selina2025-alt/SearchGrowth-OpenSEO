@@ -1,0 +1,17 @@
+COMMAND: corepack pnpm exec prettier --write <task-touched source/test files>
+EXIT: 0
+FILES:
+  src/db/search-growth.schema.ts
+  src/db/pg/search-growth.schema.ts
+  src/db/schema.ts
+  src/db/search-topic.test.ts
+  src/types/schemas/search-topic.ts
+  src/types/schemas/search-topic.test.ts
+OUTPUT:
+  src/db/search-growth.schema.ts ... (formatted)
+  src/db/pg/search-growth.schema.ts ... (formatted)
+  src/db/schema.ts ... (unchanged)
+  src/db/search-topic.test.ts ... (unchanged)
+  src/types/schemas/search-topic.ts ... (unchanged)
+  src/types/schemas/search-topic.test.ts ... (formatted)
+NOTE: drizzle/ and drizzle-pg/ migration + meta output is .prettierignore'd drizzle-kit output, per repo convention.
