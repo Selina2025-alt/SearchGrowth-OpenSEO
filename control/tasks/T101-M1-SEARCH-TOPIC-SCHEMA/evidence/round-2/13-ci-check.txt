@@ -1,0 +1,11 @@
+COMMAND: corepack pnpm ci:check
+EXIT: 0
+OUTPUT:
+  prettier --check .          -> All matched files use Prettier code style!
+  knip                        -> 0 warnings / 0 errors
+  tsc --noEmit                -> clean
+  tsc --noEmit -p badseo/tsconfig.json -> clean
+  oxlint . --type-aware       -> 0 warnings / 0 errors
+  pnpm sync-plugin-skills     -> Synced 9 skills into plugins/openseo/skills/
+  node scripts/check-plugin-skills-sync.mjs -> plugin skill sync clean
+NOTE: round-1 BLOCKER resolved; the aggregate CI gate is fully green.

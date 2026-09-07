@@ -1,0 +1,14 @@
+COMMAND: corepack pnpm run db:migrate:local
+EXIT: 0 (both runs)
+
+Run 1 — clean local state reset (gitignored .wrangler/state/v3/d1 removed first so
+the corrected 0046 is exercised from scratch, mirroring round 1's fresh-worktree apply):
+  wrangler d1 migrations apply DB --local
+  Migrations to be applied: 0000..0046
+  ✅ 0046_search_topics.sql  (all 47 migrations applied, each row ✅)
+
+Run 2 — repeat:
+  ✅ No migrations to apply!
+
+NOTE: proves the corrected 0046_search_topics.sql DDL (composite FK, supporting
+unique index, three lifecycle/self-merge CHECKs) applies cleanly on D1/SQLite.

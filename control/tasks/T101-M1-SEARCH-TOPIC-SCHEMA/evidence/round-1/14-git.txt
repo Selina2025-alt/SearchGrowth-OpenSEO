@@ -1,0 +1,11 @@
+COMMAND: Read-only Git inspection (git status / git diff / git log / git ls-files)
+EXIT: 0
+SUMMARY:
+  On branch ai-task/T101-M1-SEARCH-TOPIC-SCHEMA (base 041cf7e).
+  Modified (tracked): drizzle/meta/_journal.json, drizzle-pg/meta/_journal.json,
+    src/db/search-growth.schema.ts, src/db/pg/search-growth.schema.ts, src/db/schema.ts
+  New (untracked): drizzle/0046_search_topics.sql, drizzle/meta/0046_snapshot.json,
+    drizzle-pg/0024_search_topics.sql, drizzle-pg/meta/0024_snapshot.json,
+    src/db/search-topic.test.ts, src/types/schemas/search-topic.ts, src/types/schemas/search-topic.test.ts
+  Control-channel additions: DELIVERY.md + evidence/round-1/* (prettier-ignored).
+  No lockfile/manifest/credential/external/production change. dist/ and .wrangler/ are gitignored.

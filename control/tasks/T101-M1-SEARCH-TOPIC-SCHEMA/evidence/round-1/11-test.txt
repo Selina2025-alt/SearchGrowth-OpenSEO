@@ -1,0 +1,11 @@
+COMMAND: corepack pnpm test
+EXIT: 0 (final green run)
+OUTPUT:
+  Test Files  144 passed (144)
+       Tests  1193 passed (1193)
+  Duration  88.21s
+NOTE: Three earlier full-suite attempts hit intermittent Vitest timeouts in UNRELATED suites under heavy
+parallel CPU contention on this Windows host (cold-import of workers-oauth-provider / libsql beforeAll
+hooks at 5-10s defaults). Each flagged suite passed immediately when run in isolation, and the final
+full-suite run is green 144/144 files, 1193/1193 tests. No failure touched topic/market/schema-parity
+code. (search-topic: 1, search-topic boundary: 3, parity incl. search_topics: 189 all pass.)

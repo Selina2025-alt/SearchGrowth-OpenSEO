@@ -1,0 +1,9 @@
+COMMAND: corepack pnpm build
+EXIT: 0
+OUTPUT (sanitized):
+  vite v7.3.6 building client environment for production...   ✓ built in 25.30s
+  vite v7.3.6 building ssr environment for production...       ✓ built in 1m 38s
+  vite v7.3.6 building open_seo_audit environment...           ✓ built in 11.44s
+  tsc --noEmit  (clean; chunk-size advisory only)
+NOTE: standard client/ssr/open_seo_audit production build completes; the
+>500 kB chunk warnings are pre-existing and non-fatal.

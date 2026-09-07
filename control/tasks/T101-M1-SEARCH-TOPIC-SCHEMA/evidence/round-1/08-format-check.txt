@@ -1,0 +1,11 @@
+COMMAND: corepack pnpm format:check
+EXIT: 1
+OUTPUT:
+  prettier --check .
+  [warn] control/ACCEPTANCE_LEDGER.md
+  [warn] Code style issues found in the above file. Run Prettier with --write to fix.
+ROOT CAUSE:
+  Pre-existing prettier drift in control/ACCEPTANCE_LEDGER.md — a Controller-owned acceptance ledger
+  committed at branch HEAD (commit 041cf7e), NOT modified by this task (git diff shows no change to it),
+  and outside executor edit scope/grants. All task-touched files were written with the approved
+  `prettier --write` and are clean. No task file is flagged.

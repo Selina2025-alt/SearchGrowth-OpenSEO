@@ -1,0 +1,13 @@
+COMMAND: corepack pnpm ci:check
+EXIT: 1
+OUTPUT:
+  prettier --check . && knip && tsc --noEmit && tsc --noEmit -p badseo/tsconfig.json && oxlint . --type-aware && pnpm sync-plugin-skills && node scripts/check-plugin-skills-sync.mjs
+  Checking formatting...
+  [warn] control/ACCEPTANCE_LEDGER.md
+  [warn] Code style issues found in the above file. Run Prettier with --write to fix.
+ROOT CAUSE:
+  Chain aborts at its first gate (repo-wide prettier) on the SAME pre-existing Controller-owned
+  control/ACCEPTANCE_LEDGER.md drift that fails `format:check` (unmodified at HEAD; not part of this
+  task's diff; executor cannot edit it). Later stages (knip, tsc x2, oxlint, skill-sync) were therefore
+  not reached in this compound run; each independently-run equivalent gate that is approved and reachable
+  is green: types:check (tsc), lint (oxlint), test, build.

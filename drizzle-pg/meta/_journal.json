@@ -169,6 +169,13 @@
       "when": 1788500000000,
       "tag": "0023_search_market_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1788767144301,
+      "tag": "0024_search_topics",
+      "breakpoints": true
     }
   ]
 }

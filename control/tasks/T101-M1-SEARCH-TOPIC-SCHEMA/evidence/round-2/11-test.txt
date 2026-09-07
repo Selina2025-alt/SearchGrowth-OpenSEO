@@ -1,0 +1,7 @@
+COMMAND: corepack pnpm test
+EXIT: 0
+OUTPUT (final run):
+  Test Files  144 passed (144)
+      Tests  1199 passed (1199)
+NOTE: 1199 = round-1 1193 + 6 new topic storage/merge-integrity tests.
+No flakiness or timeouts this run.

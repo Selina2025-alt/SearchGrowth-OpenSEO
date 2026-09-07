@@ -1,0 +1,22 @@
+COMMAND: corepack pnpm run db:generate
+EXIT: 0 (both runs)
+
+Round 2 first run (after rewinding the unmerged 0046/0024 journal entries +
+removing the round-1 generated migration/snapshot files so the corrected schema
+regenerates in place at the SAME identifiers):
+  drizzle-kit generate (D1): search_topics 9 columns 2 indexes 2 fks
+    Your SQL migration file -> drizzle/0046_awesome_payback.sql
+    (renamed to drizzle/0046_search_topics.sql; journal tag updated)
+  drizzle-kit generate (pg): search_topics 9 columns 2 indexes 2 fks
+    Your SQL migration file -> drizzle-pg/0024_clumsy_xorn.sql
+    (renamed to drizzle-pg/0024_search_topics.sql; journal tag updated)
+  (pg SQL statement order hand-fixed: the supporting unique index
+   search_topics_project_id_id_idx is created BEFORE the composite self-FK ALTER,
+   which Postgres requires. Snapshots are drizzle-kit output, untouched.)
+
+Final verification run (after renames/tag updates):
+  drizzle-kit generate (D1):  No schema changes, nothing to migrate
+  drizzle-kit generate (pg):  No schema changes, nothing to migrate
+
+NOTE: identifiers stay the next after accepted T100 (D1 0046, pg 0024); no
+additional migration is produced in either dialect.

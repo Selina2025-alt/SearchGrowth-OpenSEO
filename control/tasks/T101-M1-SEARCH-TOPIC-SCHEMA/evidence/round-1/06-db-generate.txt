@@ -1,0 +1,14 @@
+COMMAND: corepack pnpm run db:generate
+EXIT: 0
+OUTPUT (first run — generated the new forward migrations):
+  drizzle-kit generate (D1): 36 tables ... search_topics 9 columns 1 indexes 2 fks
+    Your SQL migration file -> drizzle/0046_*.sql (renamed to drizzle/0046_search_topics.sql)
+  drizzle-kit generate (pg): 36 tables ... search_topics 9 columns 1 indexes 2 fks
+    Your SQL migration file -> drizzle-pg/0024_*.sql (renamed to drizzle-pg/0024_search_topics.sql)
+  Journal tags updated to match file stems (0046_search_topics / 0024_search_topics).
+OUTPUT (final verification run):
+  drizzle-kit generate (D1): 36 tables ... search_topics 9 columns 1 indexes 2 fks
+    No schema changes, nothing to migrate
+  drizzle-kit generate (pg): 36 tables ... search_topics 9 columns 1 indexes 2 fks
+    No schema changes, nothing to migrate
+NOTE: identifiers are the next after accepted T100: D1 0046, pg 0024. No additional migration is produced.

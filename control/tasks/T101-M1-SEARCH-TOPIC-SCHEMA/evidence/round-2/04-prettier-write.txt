@@ -1,0 +1,10 @@
+COMMAND: corepack pnpm exec prettier --write src/db/search-growth.schema.ts src/db/pg/search-growth.schema.ts src/db/search-topic.test.ts src/types/schemas/search-topic.ts src/types/schemas/search-topic.test.ts src/db/schema.ts
+EXIT: 0
+OUTPUT:
+  src/db/search-growth.schema.ts  (unchanged)
+  src/db/pg/search-growth.schema.ts  (unchanged)
+  src/db/search-topic.test.ts  (unchanged)
+  src/types/schemas/search-topic.ts  (unchanged)
+  src/types/schemas/search-topic.test.ts  (unchanged)
+  src/db/schema.ts  (unchanged)
+NOTE: All six task-touched source/test files are already Prettier-clean.

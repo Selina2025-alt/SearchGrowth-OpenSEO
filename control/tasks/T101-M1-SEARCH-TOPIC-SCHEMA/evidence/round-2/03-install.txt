@@ -1,0 +1,9 @@
+COMMAND: corepack pnpm install --frozen-lockfile
+EXIT: 0
+OUTPUT (sanitized):
+  Lockfile is up to date, resolution step is skipped
+  Already up to date
+  Done in 2.4s using pnpm v10.30.1
+  (pnpm "Ignored build scripts" advisory is the repository's standard config;
+   no dependency was installed/upgraded. `git status` after install is
+   unchanged — no manifest/lockfile diff.)

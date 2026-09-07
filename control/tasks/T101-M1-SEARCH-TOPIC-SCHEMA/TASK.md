@@ -6,6 +6,10 @@ OWNER: Claude Code + DeepSeek Implementation Engineer
 CONTROLLER: Codex
 MAX ROUNDS: 3
 
+## ROUND 2 FIX CONTEXT
+
+Round 1 delivered the bounded topic slice but left the optional merge pointer internally inconsistent. Fix only the REVIEW findings. Enforce same-Project merge targets, coherent status/pointer state, no self-merge, and restrictive target deletion in both dialects and migration artifacts. The supporting composite unique target/index required for a composite foreign key is explicitly authorized; canonical-name or other business uniqueness is not. The Controller has already supplied the formatting-only `control/ACCEPTANCE_LEDGER.md` correction. Do not edit that Controller file.
+
 ## GOAL
 
 Add the normalized, project-scoped `SearchTopic` persistence and validation foundation with a stable identity across topic lifecycle changes. This task implements only the topic record. Keyword refs, prompts, pages, opportunities, content, experiments, CRUD, and UI remain separate tasks.

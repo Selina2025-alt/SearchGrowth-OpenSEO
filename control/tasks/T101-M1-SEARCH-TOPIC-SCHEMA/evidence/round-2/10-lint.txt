@@ -1,0 +1,6 @@
+COMMAND: corepack pnpm lint
+EXIT: 0
+OUTPUT:
+  oxlint . --type-aware
+  Found 0 warnings and 0 errors.
+  Finished in 52.1s on 851 files using 16 threads.
