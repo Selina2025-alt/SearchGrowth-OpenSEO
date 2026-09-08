@@ -79,6 +79,7 @@ export const {
   searchTopicKeywordRefs,
   trackedEntities,
   entityAliases,
+  searchPrompts,
   savedKeywords,
   savedKeywordTags,
   savedKeywordTagAssignments,

@@ -190,6 +190,13 @@
       "when": 1788776271920,
       "tag": "0026_normal_talkback",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1788834796693,
+      "tag": "0027_clever_warpath",
+      "breakpoints": true
     }
   ]
 }
