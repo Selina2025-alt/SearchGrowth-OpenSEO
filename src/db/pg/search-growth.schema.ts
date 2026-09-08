@@ -717,3 +717,85 @@ export const geoObservationRuns = pgTable(
     index("geo_observation_runs_market_profile_idx").on(table.marketProfileId),
   ],
 );
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `geo_observation_parses` table in
+// ../search-growth.schema.ts (keep the two files structurally identical).
+//
+// A geo observation parse is the immutable, versioned record of ONE parser run
+// over an already stored raw geo_observation_run (05_DOMAIN_DATA_MODEL.md §7,
+// ADR-005). A parser upgrade creates another row for the same run — v1/v2
+// coexist and each row snapshots its parser version. Storage/contract only: no
+// parser, reparse workflow, current-pointer selection, metrics, entity/citation
+// extraction, recommendation logic or provider action is implemented here.
+//
+// FIELD RECONCILIATION (§7 is the direct field contract; see the SQLite mirror
+// for the full reconciliation):
+//   - §7 field list shipped verbatim: id, run_id, parser_version,
+//     parse_status, accuracy_status, parsed_at, is_current, plus the append-only
+//     `created_at` system timestamp.
+//   - `parser_version` is TEXT; `parse_status` is SUCCESS | PARTIAL | FAILED;
+//     optional `accuracy_status` is ACCURATE | PARTIAL | INACCURATE | UNKNOWN;
+//     `is_current` is a required boolean with documented storage default false.
+//   - parser_model, recommendation, recommendation_confidence and parsed_json
+//     are NOT shipped, and no entity/citation/relationship data is encoded in
+//     JSON/text (later normalized GeoEntityMention/GeoCitation tasks own that).
+//
+// APPEND-ONLY SHAPE: no `updated_at`, no update/delete API, no repository/
+// service and no mutation surface — immutability is by schema/contract shape,
+// not a DB trigger (21_TEST_ACCEPTANCE_PLAN.md §6).
+//
+// RELATIONSHIP / DELETE BEHAVIOR: run_id references geo_observation_runs(id);
+// deleting a run (or, through the run's own Project/Prompt cascade, a whole
+// project/prompt) CASCADES its parses away, so a parse can never dangle. The
+// `(run_id, parser_version)` unique index is the SOLE version-identity rule: it
+// permits v1/v2 coexistence and rejects a duplicate parser version per run. No
+// global or current-pointer uniqueness rule exists.
+// ============================================================================
+
+export const geoObservationParses = pgTable(
+  "geo_observation_parses",
+  {
+    id: text("id").primaryKey(),
+    // The immutable raw run this parse was computed from (geo_observation_runs
+    // .id). The FK below cascades parses away when the run is deleted.
+    runId: text("run_id")
+      .notNull()
+      .references(() => geoObservationRuns.id, { onDelete: "cascade" }),
+    // Parser package/version identifier (TEXT). A parser upgrade inserts a new
+    // row with a new version — the unique index below is the versioned-identity
+    // rule that lets v1/v2 coexist and rejects a duplicate version per run.
+    parserVersion: text("parser_version").notNull(),
+    // Parse outcome (SUCCESS | PARTIAL | FAILED). DB text-enum column; the Zod
+    // boundary rejects unsupported/case-mismatched/empty values at runtime.
+    parseStatus: text("parse_status", {
+      enum: ["SUCCESS", "PARTIAL", "FAILED"],
+    }).notNull(),
+    // Optional accuracy assessment (ACCURATE | PARTIAL | INACCURATE | UNKNOWN).
+    // DB text-enum column; NULL means no accuracy assessment was made.
+    accuracyStatus: text("accuracy_status", {
+      enum: ["ACCURATE", "PARTIAL", "INACCURATE", "UNKNOWN"],
+    }),
+    // The application-supplied moment this parse was produced (§7). Distinct
+    // from the append-only system `created_at` insert timestamp below.
+    parsedAt: text("parsed_at").notNull(),
+    // Current-marker fact/default only (documented storage default false).
+    // Required typed boolean; selecting/switching the pointer is later workflow
+    // logic and is NOT implemented here.
+    isCurrent: boolean("is_current").notNull().default(false),
+    // Append-only creation timestamp (system insert time). No updated_at column
+    // exists — the row is immutable once written.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // The SOLE version-identity rule (migrations-reference.sql
+    // idx_geo_parse_version): (run_id, parser_version). v1/v2 parses of the
+    // same raw run coexist; a duplicate parser version of the same run is
+    // rejected. The leading run_id column also serves run -> parses reads and
+    // the run-delete cascade path. No global or current-pointer uniqueness.
+    uniqueIndex("geo_observation_parses_run_version_unique_idx").on(
+      table.runId,
+      table.parserVersion,
+    ),
+  ],
+);
