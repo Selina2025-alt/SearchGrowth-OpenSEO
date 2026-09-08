@@ -10,6 +10,7 @@ import {
   searchMarketProfiles,
   searchPrompts,
   searchTopics,
+  trackedEntities,
 } from "./search-growth.schema";
 import type {
   GeoObservationAccuracyStatus,
@@ -17,18 +18,22 @@ import type {
 } from "@/types/schemas/geo-observation-parse";
 
 // Real in-memory SQLite built from the actual forward migration DDL for the
-// append-only parse table (0051), plus its parents (market profile 0045, topic
-// 0046, prompt 0049, immutable raw-run 0050). Foreign keys are ON so the run FK
-// cascade, the (run_id, parser_version) version-identity rule and the delete
-// behavior are exercised against the shipped storage contract.
+// append-only parse table through the Round 2 same-Project ownership expansion
+// (0051 + 0052 mention table + 0053 project-key rebuild), plus its parents
+// (market profile 0045, topic 0046, tracked entity 0048, prompt 0049, immutable
+// raw-run 0050). Foreign keys are ON so the run composite FK cascade, the
+// (run_id, parser_version) version-identity rule and the delete behavior are
+// exercised against the shipped storage contract.
 //
-// Invariants: a valid §7 parse persists; every parse_status/accuracy_status
-// enum value stores and NULL accuracy + the documented is_current default
-// persist; v1/v2 parses of the same raw run coexist while a duplicate version
-// is rejected and the same version on DIFFERENT runs is allowed (no global
-// uniqueness); the raw run stays byte-identical while parses coexist
-// (21_TEST_ACCEPTANCE_PLAN.md §6, ADR-005); deleting a run/project cascades
-// parses away; and the schema is append-only with ONLY the direct §7 fields
+// Invariants: a valid §7 parse persists (with the Round 2 project_id ownership
+// key); every parse_status/accuracy_status enum value stores and NULL accuracy
+// + the documented is_current default persist; v1/v2 parses of the same raw run
+// coexist while a duplicate version is rejected and the same version on
+// DIFFERENT runs is allowed (no global uniqueness); a parse whose own project
+// does not match its run's project is rejected by the composite FK; the raw run
+// stays byte-identical while parses coexist (21_TEST_ACCEPTANCE_PLAN.md §6,
+// ADR-005); deleting a run/project cascades parses away; and the schema is
+// append-only with ONLY the direct §7 fields plus the project_id ownership key
 // (no updated_at, parser_model, recommendation or parsed_json column).
 
 const DRIZZLE_STATEMENT_SEPARATOR = "--> statement-breakpoint";
@@ -44,29 +49,32 @@ const statementParts = (ddl: string) =>
     .map((statement) => statement.trim())
     .filter((statement) => statement.length > 0);
 
+async function applyMigrationFiles(target: Client, files: string[]) {
+  for (const file of files) {
+    for (const statement of statementParts(readFileSync(file, "utf8"))) {
+      await target.execute(statement);
+    }
+  }
+}
+
 beforeAll(async () => {
   client = createClient({ url: "file::memory:" });
   db = drizzle(client);
   await client.execute("PRAGMA foreign_keys = ON");
-  await client.executeMultiple(
-    [
-      `CREATE TABLE projects (id text PRIMARY KEY);`,
-      `INSERT INTO projects (id) VALUES ('proj_alpha'), ('proj_beta'), ('proj_delete');`,
-      ...statementParts(
-        readFileSync("drizzle/0045_search_market_profiles.sql", "utf8"),
-      ),
-      ...statementParts(readFileSync("drizzle/0046_search_topics.sql", "utf8")),
-      ...statementParts(
-        readFileSync("drizzle/0049_gigantic_johnny_blaze.sql", "utf8"),
-      ),
-      ...statementParts(
-        readFileSync("drizzle/0050_dusty_stardust.sql", "utf8"),
-      ),
-      ...statementParts(
-        readFileSync("drizzle/0051_cuddly_matthew_murdock.sql", "utf8"),
-      ),
-    ].join("\n"),
+  await client.execute(`CREATE TABLE projects (id text PRIMARY KEY);`);
+  await client.execute(
+    `INSERT INTO projects (id) VALUES ('proj_alpha'), ('proj_beta'), ('proj_delete');`,
   );
+  await applyMigrationFiles(client, [
+    "drizzle/0045_search_market_profiles.sql",
+    "drizzle/0046_search_topics.sql",
+    "drizzle/0048_ordinary_legion.sql",
+    "drizzle/0049_gigantic_johnny_blaze.sql",
+    "drizzle/0050_dusty_stardust.sql",
+    "drizzle/0051_cuddly_matthew_murdock.sql",
+    "drizzle/0052_cute_red_shift.sql",
+    "drizzle/0053_shocking_rhodey.sql",
+  ]);
 });
 
 afterAll(() => {
@@ -79,6 +87,7 @@ beforeEach(async () => {
   await db.delete(searchPrompts);
   await db.delete(searchMarketProfiles);
   await db.delete(searchTopics);
+  await db.delete(trackedEntities);
 });
 
 async function seedPrompt(id: string, projectId: string, topicId: string) {
@@ -134,6 +143,7 @@ async function seedRun(
 function parseValues(id: string, overrides: Partial<NewParse> = {}): NewParse {
   return {
     id,
+    projectId: ALPHA_RUN.projectId,
     runId: ALPHA_RUN.id,
     parserVersion: "1.0.0",
     parseStatus: "SUCCESS",
@@ -223,9 +233,9 @@ describe("geo_observation_parses storage contract", () => {
     // accuracy_status NULL and is_current DEFAULT false.
     await client.execute(
       `INSERT INTO geo_observation_parses
-         (id, run_id, parser_version, parse_status, parsed_at)
+         (id, project_id, run_id, parser_version, parse_status, parsed_at)
        VALUES
-         ('parse_failed', 'run_alpha_1', '1.0.0', 'FAILED',
+         ('parse_failed', 'proj_alpha', 'run_alpha_1', '1.0.0', 'FAILED',
           '2026-09-08T04:00:06.000Z')`,
     );
 
@@ -271,9 +281,9 @@ describe("geo_observation_parses storage contract", () => {
     await seedRun();
     await client.execute(
       `INSERT INTO geo_observation_parses
-         (id, run_id, parser_version, parse_status, parsed_at)
+         (id, project_id, run_id, parser_version, parse_status, parsed_at)
        VALUES
-         ('parse_v1', 'run_alpha_1', '1.0.0', 'SUCCESS',
+         ('parse_v1', 'proj_alpha', 'run_alpha_1', '1.0.0', 'SUCCESS',
           '2026-09-08T04:00:05.000Z')`,
     );
 
@@ -282,9 +292,9 @@ describe("geo_observation_parses storage contract", () => {
     await expect(
       client.execute(
         `INSERT INTO geo_observation_parses
-           (id, run_id, parser_version, parse_status, parsed_at)
+           (id, project_id, run_id, parser_version, parse_status, parsed_at)
          VALUES
-           ('parse_v1_dup', 'run_alpha_1', '1.0.0', 'SUCCESS',
+           ('parse_v1_dup', 'proj_alpha', 'run_alpha_1', '1.0.0', 'SUCCESS',
             '2026-09-08T04:00:06.000Z')`,
       ),
     ).rejects.toThrow(/UNIQUE constraint failed/i);
@@ -304,6 +314,7 @@ describe("geo_observation_parses storage contract", () => {
     });
     await insertParse("parse_beta_v1", {
       runId: "run_beta_1",
+      projectId: "proj_beta",
       parserVersion: "1.0.0",
       parseStatus: "SUCCESS",
       isCurrent: true,
@@ -311,6 +322,29 @@ describe("geo_observation_parses storage contract", () => {
 
     const rows = await db.select().from(geoObservationParses);
     expect(rows).toHaveLength(2);
+  });
+
+  it("rejects a parse whose own Project differs from its run's Project", async () => {
+    await seedRun();
+    await seedRun({
+      id: "run_beta_1",
+      projectId: "proj_beta",
+      promptId: "prompt_proj_beta",
+    });
+
+    // The composite FK (project_id, run_id) -> geo_observation_runs(project_id,
+    // id) leads with the parse's project_id: a parse that claims proj_alpha but
+    // sits on run_beta_1 (which belongs to proj_beta) has no matching parent row
+    // and is rejected by the DB.
+    await expect(
+      client.execute(
+        `INSERT INTO geo_observation_parses
+           (id, project_id, run_id, parser_version, parse_status, parsed_at)
+         VALUES
+           ('parse_cross_project', 'proj_alpha', 'run_beta_1', '1.0.0',
+            'SUCCESS', '2026-09-08T04:00:05.000Z')`,
+      ),
+    ).rejects.toThrow(/FOREIGN KEY constraint failed/i);
   });
 
   it("leaves the raw run byte-identical while v1/v2 parses coexist", async () => {
@@ -358,7 +392,10 @@ describe("geo_observation_parses storage contract", () => {
       projectId: "proj_delete",
       promptId: "prompt_proj_delete",
     });
-    await insertParse("parse_delete_v1", { runId: "run_delete" });
+    await insertParse("parse_delete_v1", {
+      runId: "run_delete",
+      projectId: "proj_delete",
+    });
 
     await client.execute("DELETE FROM projects WHERE id = 'proj_delete'");
 
@@ -376,9 +413,10 @@ describe("geo_observation_parses storage contract", () => {
       (a, b) => a.localeCompare(b),
     );
 
-    // The exact §7 field list + the append-only created_at system timestamp.
-    // No updated_at, and NO parser_model / recommendation / parsed_json /
-    // entity / citation column — those belong to later tasks.
+    // The exact §7 field list + the Round 2 project_id ownership key and the
+    // append-only created_at system timestamp. No updated_at, and NO
+    // parser_model / recommendation / parsed_json / entity / citation column —
+    // those belong to later tasks.
     expect(columns).toEqual([
       "accuracy_status",
       "created_at",
@@ -387,6 +425,7 @@ describe("geo_observation_parses storage contract", () => {
       "parse_status",
       "parsed_at",
       "parser_version",
+      "project_id",
       "run_id",
     ]);
   });

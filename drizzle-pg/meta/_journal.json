@@ -211,6 +211,20 @@
       "when": 1788843358990,
       "tag": "0029_exotic_wither",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1788846345701,
+      "tag": "0030_tiresome_scarecrow",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1788850474734,
+      "tag": "0031_unusual_namor",
+      "breakpoints": true
     }
   ]
 }
