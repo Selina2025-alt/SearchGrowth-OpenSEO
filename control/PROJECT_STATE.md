@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: NEXT M1 TASK (NOT YET PLANNED)
+CURRENT TASK: T105-M1-GEO-OBSERVATION-RUNS-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 4b2e420d0375a228279bb3ead4c256aaa9520d08
 LAST REVIEW: T104-M1-SEARCH-PROMPT-SCHEMA ROUND 2 PASS AND MERGED
-CURRENT ROUND: 0 / 3
-LAST COMPLETED ACTION: Codex completed T104 Fast Review and merged it only to `integration/ai-v1`.
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: Codex created the bounded T105 raw GeoObservationRun schema-and-contract task and dispatched Claude round 1.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create and dispatch the next credential-free approved M1 domain task; do not merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T105 Round 1 DELIVERY, then perform Fast Review. Do not merge to `main`.
 
 ## COMPLETED
 
@@ -22,10 +22,12 @@ NEXT EXACT ACTION: Create and dispatch the next credential-free approved M1 doma
 - T100-M1-MARKET-PROFILE-SCHEMA accepted in round 3 of 3 and merged to `integration/ai-v1`.
 - T101-M1-SEARCH-TOPIC-SCHEMA accepted in round 2 of 3 and merged to `integration/ai-v1`.
 - T102-M1-TOPIC-KEYWORD-REFS-SCHEMA accepted in round 2 of 3 and merged to `integration/ai-v1`.
+- T103-M1-ENTITY-ALIAS-SCHEMA accepted through its authorized recovery and merged to `integration/ai-v1`.
+- T104-M1-SEARCH-PROMPT-SCHEMA accepted in round 2 of 3 and merged to `integration/ai-v1`.
 
 ## IN PROGRESS
 
-T103-M1-ENTITY-ALIAS-SCHEMA passed its authorized recovery and merged to `integration/ai-v1`.
+T105-M1-GEO-OBSERVATION-RUNS-SCHEMA Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
@@ -33,4 +35,4 @@ T103-M1-ENTITY-ALIAS-SCHEMA passed its authorized recovery and merged to `integr
 
 ## NEXT
 
-Wait for T104 Round 1 DELIVERY, then perform Fast Review. Never merge to `main`.
+WAITING_FOR_EXECUTOR: wait for T105 Round 1 DELIVERY, then perform its targeted Fast Review. Never merge to `main`.
