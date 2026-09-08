@@ -8,10 +8,10 @@ CURRENT TASK: T107-M1-GEO-ENTITY-MENTION-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 1263b360ec96ed98048f8bdf1263a871b33c9a16
 LAST REVIEW: T106-M1-GEO-OBSERVATION-PARSE-SCHEMA ROUND 1 PASS AND MERGED
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: Codex created the bounded T107 GeoEntityMention schema-and-contract task and dispatched Claude round 1.
-CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T107 Round 1 DELIVERY, then perform Fast Review. Do not merge to `main`.
+CURRENT ROUND: 1 / 3 (BLOCKED IN REVIEW)
+LAST COMPLETED ACTION: Codex completed T107 Round 1 Fast Review and found an unresolvable same-Project integrity gap.
+CURRENT BLOCKER: Human Gate — GeoObservationParse lacks a Project key, so GeoEntityMention cannot database-enforce Parse/Entity same-Project ownership without a forward contract expansion. M0.5 H1/H2 remain separately closed.
+NEXT EXACT ACTION: Await Product Owner decision recorded in `control/USER_ACTION_REQUIRED.md`; do not dispatch T107 Round 2 or merge T107.
 
 ## COMPLETED
 
@@ -29,7 +29,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T107 Round 1 DELIVERY, then pe
 
 ## IN PROGRESS
 
-T107-M1-GEO-ENTITY-MENTION-SCHEMA Round 1 is executing in its isolated Claude worktree.
+T107-M1-GEO-ENTITY-MENTION-SCHEMA Round 1 is BLOCKED in Controller Review pending the Project ownership data-contract decision.
 
 ## BLOCKED
 
@@ -37,4 +37,4 @@ T107-M1-GEO-ENTITY-MENTION-SCHEMA Round 1 is executing in its isolated Claude wo
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR: wait for T107 Round 1 DELIVERY, then perform Fast Review. Never merge to `main`.
+Human Gate: resolve `control/USER_ACTION_REQUIRED.md` before defining a T107 fix round. Never merge to `main`.
