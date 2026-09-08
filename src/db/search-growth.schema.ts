@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T106 geo_observation_parses and T107 geo_entity_mentions ownership keys); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations and the T109 search_growth_opportunities additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -1247,5 +1247,224 @@ export const geoCitations = sqliteTable(
     }).onDelete("cascade"),
     // Parse -> citations reads and the parse-delete cascade path.
     index("geo_citations_parse_idx").on(table.parseId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, Project-scoped growth opportunities.
+//
+// A search growth opportunity is the stored result of the later deterministic
+// Opportunity/PageFit services (08_OPPORTUNITY_ENGINE_SPEC.md;
+// 05_DOMAIN_DATA_MODEL.md §8 SearchGrowthOpportunity;
+// schemas/domain-types.ts SearchGrowthOpportunity). This task is the storage
+// and contract foundation ONLY — no opportunity computation, scoring engine,
+// profile/PageFit calculation, ranking, recommendation runtime, CRUD, UI or
+// external action is implemented here, and the score/data-quality/evidence
+// values in tests are fixtures a later out-of-scope task will produce.
+//
+// FIELD RECONCILIATION (05_DOMAIN_DATA_MODEL.md §8 + the TASK field list are
+// the direct contract; schemas/domain-types.ts SearchGrowthOpportunity and
+// schemas/migrations-reference.sql growth_opportunities supply reference
+// context):
+//   - The stable `id` primary key, the explicit `project_id` Project key and
+//     the `created_at`/`updated_at` system timestamps are the additions the
+//     established Search Growth schema convention requires (every V1.0 row has
+//     a stable text id; §8's snippet omits id/project_id/timestamps only
+//     because it lists relations first). `updated_at` is shipped because an
+//     opportunity is a mutable lifecycle row (a later re-computation refreshes
+//     it in place) — unlike the append-only run/parse/citation tables, §8 and
+//     the migration reference both carry `updated_at`.
+//   - `topic_id` (NOT NULL) binds the opportunity to its stable same-Project
+//     SearchTopic and `market_profile_id` (nullable) optionally scopes it to a
+//     same-Project SearchMarketProfile (§8 `market_profile_id`; the TASK field
+//     list "optional MarketProfile"). Both are DB-enforced by SAME-PROJECT
+//     composite FKs whose leading column is this row's project_id, so an
+//     opportunity can never reference a Topic or MarketProfile on another
+//     Project. `market_profile_id` NULL means no profile is attached.
+//   - `profile` is exactly the canonical V1.0 OpportunityProfile union
+//     (EXISTING_GOOGLE_PAGE | EXISTING_SEARCH_PAGE_PARTIAL | NEW_TOPIC |
+//     GEO_DISTRIBUTION | EVIDENCE_ONLY | TECHNICAL_BLOCKER —
+//     schemas/domain-types.ts OpportunityProfile, 21_TEST_ACCEPTANCE_PLAN.md
+//     §7). §8 names the field `type`; the domain type and the migration
+//     reference name it `profile`, which is the shipped column (TASK
+//     "profile/type"). The DB text-enum column plus the named CHECK below and
+//     the Zod boundary in src/types/schemas/search-growth-opportunity.ts
+//     reject unsupported/case-mismatched/empty values; no profile/PageFit
+//     computation happens here.
+//   - `page_fit_action` is exactly the canonical V1.0 PageFitAction union
+//     (NEW_PAGE | REFRESH_PAGE | MERGE | DISTRIBUTE_ONLY | EVIDENCE_ONLY |
+//     TECHNICAL_FIX — schemas/domain-types.ts PageFitAction,
+//     21_TEST_ACCEPTANCE_PLAN.md §8). DB text-enum column + named CHECK below +
+//     Zod boundary; storage/contract only.
+//   - `target_page_url` (nullable) is the optional same-site target page the
+//     action applies to (§8 `target_page_url?`).
+//   - The score, data-quality and evidence payloads are IMMUTABLE SNAPSHOT
+//     columns (opaque JSON text, exactly as the migration reference declares
+//     them):
+//       * `score_json` (NOT NULL) holds the whole canonical `scores` snapshot
+//         (schemas/domain-types.ts SearchGrowthOpportunity.scores — the
+//         component scores plus the optional `finalScore`; the migration
+//         reference's separate `final_score REAL` is that same value inside the
+//         snapshot and is NOT duplicated as a second column to avoid two
+//         storage representations of one immutable value drifting).
+//       * `data_quality_json` (NOT NULL) holds the whole canonical DataQuality
+//         snapshot (status + warnings[] + optional sample counts —
+//         schemas/domain-types.ts DataQuality; the migration reference
+//         `data_quality_json`). The DataQuality status/warning enums are the
+//         directly supported boundary (validated in the Zod module); the
+//         snapshot is stored as one JSON payload, never as relational identity.
+//       * `evidence_snapshot_json` (NOT NULL) holds the opaque evidence
+//         payload (§8 `evidence_snapshot_json`; domain-types
+//         `evidenceSnapshot`).
+//     No value inside any snapshot is ever used as a relationship key or
+//     duplicate of the Project/Topic/MarketProfile columns — relational data
+//     stays in typed FK columns only.
+//   - `reason` (NOT NULL) and `recommended_action` (NOT NULL) are the direct
+//     §8 text fields; `source_snapshot_at` (NOT NULL) is the application-
+//     supplied moment the source data snapshot was taken (domain-types
+//     `sourceSnapshotAt`; the TASK field list "source snapshot time"), distinct
+//     from the system `created_at`/`updated_at` timestamps.
+//   - The reference-only `status` lifecycle column in the migration reference
+//     is NOT shipped: §8, the domain type, the TASK field list and the
+//     21_TEST_ACCEPTANCE_PLAN §7–8 profile/PageFit contract define no
+//     opportunity lifecycle union, and no workflow is authorized here.
+//
+// RELATIONSHIP / DELETE BEHAVIOR (explicit typed FK columns, no JSON
+// relationships): `project_id` is a NOT NULL FK to projects(id) ON DELETE
+// CASCADE (the established Project-scoping FK every Search Growth row carries).
+// The SAME-PROJECT composite FKs below lead with this row's project_id:
+//   - (project_id, topic_id)         -> search_topics(project_id, id)
+//   - (project_id, market_profile_id)-> search_market_profiles(project_id, id)
+// so the DB (not application convention) rejects an opportunity whose Topic or
+// MarketProfile belongs to another Project and rejects a row whose own
+// project_id does not match them. The referenced (project_id, id) pairs are
+// unique via the supporting `search_topics_project_id_id_idx` (0046) and
+// `search_market_profiles_project_id_id_idx` (0049) target indexes accepted by
+// earlier tasks — this task adds no supporting target index. Deleting a Topic,
+// a MarketProfile (cascading opportunities scoped to it), or a whole Project
+// cascades the opportunity away, so an opportunity can never dangle.
+//
+// The two non-unique indexes below serve the topic -> opportunities and market
+// profile -> opportunities read paths and their parent-cascade delete paths
+// only. There is no business-rule unique index: no V1.0 artifact constrains
+// how many opportunities a Topic/MarketProfile may carry or dedupes them (the
+// later scoring service defines any refresh policy), and the TASK forbids
+// additional business uniqueness.
+// ============================================================================
+
+export const searchGrowthOpportunities = sqliteTable(
+  "search_growth_opportunities",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The stable SearchTopic id (search_topics.id, ADR-004) this opportunity
+    // belongs to. Bound to the row's project by the composite FK below, which
+    // cascades opportunities away when the topic is deleted.
+    topicId: text("topic_id").notNull(),
+    // Optional same-Project SearchMarketProfile the opportunity is scoped to;
+    // NULL means no profile is attached. The composite FK below keeps it
+    // same-Project and cascades the opportunity away when the profile is
+    // deleted.
+    marketProfileId: text("market_profile_id"),
+    // The opportunity profile (EXISTING_GOOGLE_PAGE | EXISTING_SEARCH_PAGE_PARTIAL
+    // | NEW_TOPIC | GEO_DISTRIBUTION | EVIDENCE_ONLY | TECHNICAL_BLOCKER — the
+    // exact canonical OpportunityProfile union). DB text-enum column + the
+    // named CHECK below; the Zod boundary validates it. No profile computation
+    // exists in this slice.
+    profile: text("profile", {
+      enum: [
+        "EXISTING_GOOGLE_PAGE",
+        "EXISTING_SEARCH_PAGE_PARTIAL",
+        "NEW_TOPIC",
+        "GEO_DISTRIBUTION",
+        "EVIDENCE_ONLY",
+        "TECHNICAL_BLOCKER",
+      ],
+    }).notNull(),
+    // The page-fit action (NEW_PAGE | REFRESH_PAGE | MERGE | DISTRIBUTE_ONLY |
+    // EVIDENCE_ONLY | TECHNICAL_FIX — the exact canonical PageFitAction union).
+    // DB text-enum column + the named CHECK below; the Zod boundary validates
+    // it. No PageFit computation exists in this slice.
+    pageFitAction: text("page_fit_action", {
+      enum: [
+        "NEW_PAGE",
+        "REFRESH_PAGE",
+        "MERGE",
+        "DISTRIBUTE_ONLY",
+        "EVIDENCE_ONLY",
+        "TECHNICAL_FIX",
+      ],
+    }).notNull(),
+    // Optional same-site target page URL the action applies to (NULL = the
+    // action does not target an existing page, e.g. NEW_PAGE/DISTRIBUTE_ONLY).
+    targetPageUrl: text("target_page_url"),
+    // Immutable score snapshot (the whole canonical `scores` object incl. the
+    // optional finalScore). Opaque JSON text; never parsed/queried here and
+    // never used as relational identity.
+    scoreJson: text("score_json").notNull(),
+    // Immutable DataQuality snapshot (status + warnings[] + optional sample
+    // counts). Opaque JSON text; the DataQuality status/warning enums are the
+    // Zod boundary. Never used as relational identity.
+    dataQualityJson: text("data_quality_json").notNull(),
+    // Immutable evidence payload snapshot (opaque JSON text).
+    evidenceSnapshotJson: text("evidence_snapshot_json").notNull(),
+    // The human-readable explanation of why this opportunity exists (§8).
+    reason: text("reason").notNull(),
+    // The concrete recommended action text (§8) — e.g. "Refresh /solutions/rfq",
+    // never a vague "improve content quality".
+    recommendedAction: text("recommended_action").notNull(),
+    // The application-supplied moment the source-data snapshot was taken
+    // (domain-types `sourceSnapshotAt`). Distinct from the system timestamps.
+    sourceSnapshotAt: text("source_snapshot_at").notNull(),
+    // System insert/update timestamps (mutable lifecycle row; the later
+    // re-computation service refreshes the row in place and sets updated_at).
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the topic: the opportunity's project_id must
+    // equal the topic's project_id. Deleting a topic removes its opportunities
+    // (the referenced (project_id, id) pair is unique via the supporting
+    // search_topics_project_id_id_idx index created in 0046).
+    foreignKey({
+      columns: [table.projectId, table.topicId],
+      foreignColumns: [searchTopics.projectId, searchTopics.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the optional market profile: when set, the
+    // opportunity's project_id must equal the profile's project_id. Deleting a
+    // profile removes the opportunities scoped to it (the referenced
+    // (project_id, id) pair is unique via the supporting
+    // search_market_profiles_project_id_id_idx index created in 0049). NULL
+    // market_profile_id means no profile is attached and the FK is not
+    // enforced.
+    foreignKey({
+      columns: [table.projectId, table.marketProfileId],
+      foreignColumns: [searchMarketProfiles.projectId, searchMarketProfiles.id],
+    }).onDelete("cascade"),
+    // DB-level enum rejection for the two canonical unions (the TASK requires
+    // migration-backed enum rejection; the Zod boundary enforces the same lists
+    // at the runtime edge).
+    check(
+      "search_growth_opportunities_profile_valid",
+      sql`(${table.profile} IN ('EXISTING_GOOGLE_PAGE','EXISTING_SEARCH_PAGE_PARTIAL','NEW_TOPIC','GEO_DISTRIBUTION','EVIDENCE_ONLY','TECHNICAL_BLOCKER'))`,
+    ),
+    check(
+      "search_growth_opportunities_page_fit_action_valid",
+      sql`(${table.pageFitAction} IN ('NEW_PAGE','REFRESH_PAGE','MERGE','DISTRIBUTE_ONLY','EVIDENCE_ONLY','TECHNICAL_FIX'))`,
+    ),
+    // Topic -> opportunities reads and the topic-delete cascade path.
+    index("search_growth_opportunities_topic_idx").on(table.topicId),
+    // Market profile -> opportunities reads and the profile-delete cascade path.
+    index("search_growth_opportunities_market_profile_idx").on(
+      table.marketProfileId,
+    ),
   ],
 );

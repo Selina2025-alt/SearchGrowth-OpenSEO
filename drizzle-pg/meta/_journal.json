@@ -232,6 +232,13 @@
       "when": 1788853667369,
       "tag": "0032_eminent_alex_wilder",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1788858136654,
+      "tag": "0033_supreme_talon",
+      "breakpoints": true
     }
   ]
 }
