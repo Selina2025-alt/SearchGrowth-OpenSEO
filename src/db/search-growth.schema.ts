@@ -4,6 +4,7 @@ import {
   foreignKey,
   index,
   integer,
+  real,
   sqliteTable,
   text,
   uniqueIndex,
@@ -63,6 +64,14 @@ export const searchMarketProfiles = sqliteTable(
     // (different engines/locations/devices) are legal and no V1.0 document
     // constrains name or primary uniqueness.
     index("search_market_profiles_project_idx").on(table.projectId),
+    // Supporting unique target for the search_prompts composite FK
+    // ((project_id, market_profile_id) -> search_market_profiles(project_id, id),
+    // defined below). id is already the PK, so this composite accepts exactly the
+    // rows the PK accepts and adds no business uniqueness.
+    uniqueIndex("search_market_profiles_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
   ],
 );
 
@@ -401,5 +410,157 @@ export const entityAliases = sqliteTable(
     index("entity_aliases_project_idx").on(table.projectId),
     // Entity -> aliases reads and the entity cascade delete path.
     index("entity_aliases_entity_idx").on(table.entityId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, Project-scoped search prompts.
+//
+// A search prompt is the versioned, topic-scoped question/instruction the later
+// fresh-GEO observation work sends to a search engine or model API
+// (05_DOMAIN_DATA_MODEL.md §5, schemas/domain-types.ts SearchPrompt). This task
+// is storage and contract only — no generation, normalization algorithm,
+// template, execution, CRUD, or GEO observation code is added here.
+//
+// Every prompt belongs to an existing same-Project SearchTopic; an optional
+// same-Project SearchMarketProfile may scope it to one concrete market. Both
+// relations are DB-enforced with composite FKs whose leading column is this
+// row's project_id, so a prompt can never reference a topic or profile on
+// another Project. Deleting a topic or a market profile cascades its prompts
+// away (and deleting a whole Project cascades through the Project FK), so a
+// prompt can never dangle.
+//
+// The prompt_type text-enum column is the exact V1.0 PromptType list
+// (lowercase, 05_DOMAIN_DATA_MODEL.md §5 / schemas/domain-types.ts); the Zod
+// boundary in src/types/schemas/search-prompt.ts rejects unsupported, case-
+// mismatched and empty values at the runtime boundary.
+//
+// business_fit and priority are explicit REAL score columns on the 0..100 scale
+// the domain contract defines; the two CHECK constraints below enforce the
+// range at the storage boundary. This is score-boundary validation only — no
+// ranking, matching or prompt-behavior rule is added.
+//
+// The SOLE versioned-identity rule (schemas/migrations-reference.sql
+// idx_search_prompts_unique) is the unique index on
+// (project_id, normalized_prompt, market_profile_id, version): a version never
+// overwrites history (05_DOMAIN_DATA_MODEL.md §5 "Prompt version 不覆盖历史") —
+// versioning a prompt inserts a new row with the next version. No other
+// business uniqueness, normalization, generated-prompt or matching rule exists.
+// ============================================================================
+
+export const searchPrompts = sqliteTable(
+  "search_prompts",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The stable SearchTopic id (search_topics.id, ADR-004) this prompt belongs
+    // to. Bound to the row's project by the composite FK below.
+    topicId: text("topic_id").notNull(),
+    // The human-authored prompt text sent to the surface (05_DOMAIN_DATA_MODEL
+    // .md §5). No generation/template code is added in this task.
+    promptText: text("prompt_text").notNull(),
+    // The normalized form of the prompt text. Stored as an explicit typed column
+    // because it is the leading identity input of the versioned-identity rule;
+    // no normalization algorithm is implemented here.
+    normalizedPrompt: text("normalized_prompt").notNull(),
+    // The V1.0 PromptType (exact lowercase values from schemas/domain-types.ts).
+    promptType: text("prompt_type", {
+      enum: [
+        "definition",
+        "problem",
+        "recommendation",
+        "comparison",
+        "alternative",
+        "risk",
+        "security",
+        "pricing",
+        "implementation",
+        "brand_validation",
+        "scenario",
+      ],
+    }).notNull(),
+    // Optional human-facing persona the prompt is written for.
+    persona: text("persona"),
+    // Optional buying-stage label the prompt targets.
+    buyingStage: text("buying_stage"),
+    // Optional same-Project SearchMarketProfile the prompt is scoped to; NULL
+    // means the prompt is not attached to any profile. The composite FK below
+    // keeps it same-Project and cascades prompts away when a profile is deleted.
+    marketProfileId: text("market_profile_id"),
+    // IETF language tag (e.g. "en", "zh-CN") of the prompt text.
+    language: text("language").notNull(),
+    // Business-fit score, 0..100 (domain contract). Explicit REAL column + CHECK
+    // range below; no ranking behavior.
+    businessFit: real("business_fit").notNull(),
+    // Priority/importance score, 0..100 (domain contract). Explicit REAL column
+    // + CHECK range below; storage-only — no ranking behavior.
+    priority: real("priority").notNull(),
+    // Prompt version. Versioning inserts a new row (never overwrites history),
+    // so the (project, normalized_prompt, market_profile_id, version) unique
+    // index below is the versioned-identity rule.
+    version: integer("version").notNull(),
+    // Soft-disable flag: inactive prompts remain stored but are excluded from
+    // later observation selection.
+    active: integer("active", { mode: "boolean" }).notNull().default(true),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the topic: the prompt's project_id must equal
+    // the topic's project_id. Deleting a topic removes its prompts (the
+    // referenced (project_id, id) pair is unique via the supporting
+    // search_topics_project_id_id_idx index created in 0046).
+    foreignKey({
+      columns: [table.projectId, table.topicId],
+      foreignColumns: [searchTopics.projectId, searchTopics.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the optional market profile: when set, the
+    // prompt's project_id must equal the profile's project_id. Deleting a
+    // profile removes the prompts scoped to it (the referenced (project_id, id)
+    // pair is unique via the supporting
+    // search_market_profiles_project_id_id_idx index added to
+    // searchMarketProfiles). NULL market_profile_id means no profile is attached
+    // and the FK is not enforced.
+    foreignKey({
+      columns: [table.projectId, table.marketProfileId],
+      foreignColumns: [searchMarketProfiles.projectId, searchMarketProfiles.id],
+    }).onDelete("cascade"),
+    // The SOLE versioned-identity rule:
+    // (project_id, normalized_prompt, market_profile_id, version)
+    // (schemas/migrations-reference.sql idx_search_prompts_unique). No other
+    // business uniqueness exists.
+    uniqueIndex(
+      "search_prompts_unique_project_normalized_market_version_idx",
+    ).on(
+      table.projectId,
+      table.normalizedPrompt,
+      table.marketProfileId,
+      table.version,
+    ),
+    // Project-scoped prompt reads.
+    index("search_prompts_project_idx").on(table.projectId),
+    // Topic -> prompts reads and the topic cascade delete path.
+    index("search_prompts_topic_idx").on(table.topicId),
+    // Market profile -> prompts reads and the profile cascade delete path.
+    index("search_prompts_market_profile_idx").on(table.marketProfileId),
+    // Score-boundary checks directly required by the domain contract
+    // (schemas/domain-types.ts SearchPrompt: businessFit and priority are
+    // 0..100). These enforce the range only; no ranking behavior is created.
+    check(
+      "search_prompts_business_fit_range",
+      sql`${table.businessFit} >= 0 AND ${table.businessFit} <= 100`,
+    ),
+    check(
+      "search_prompts_priority_range",
+      sql`${table.priority} >= 0 AND ${table.priority} <= 100`,
+    ),
   ],
 );
