@@ -19,4 +19,5 @@
 - T104 SearchPrompt schema and domain contract are accepted and merged.
 - T105 GeoObservationRun schema and domain contract are accepted and merged.
 - T106 GeoObservationParse schema and domain contract are accepted and merged.
+- T107 GeoEntityMention Round 2 is authorized only for the Product Owner-approved forward Project ownership integrity recovery; it is not accepted or merged.
 - M0.5 real connector/account feasibility: pending Human Gates H1/H2; it does not authorize connector implementation or external publishing.
