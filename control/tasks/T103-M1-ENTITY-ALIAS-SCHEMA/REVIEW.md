@@ -24,3 +24,29 @@ REVIEW DATE: 2026-09-08
 ## MERGE DECISION
 
 DO NOT MERGE. Dispatch executor fix round 2. This is a bounded schema-contract correction; no model escalation or Human Gate is required.
+
+---
+
+# REVIEW T103-M1-ENTITY-ALIAS-SCHEMA — ROUND 2
+
+VERDICT: BLOCKED
+REVIEW DATE: 2026-09-08
+
+## VERIFIED
+
+- The Round 2 executor created no new DELIVERY and did not alter the existing Round 1 implementation evidence.
+- Its terminal result records `subtype: error_max_turns` after 121 turns. The recorded denials are shell-environment probes outside the TASK allowlist, rather than a task implementation or gate failure.
+
+## FINDINGS
+
+- BLOCKER — executor did not complete the bounded correction. Evidence: `control/tasks/T103-M1-ENTITY-ALIAS-SCHEMA/runs/claude-round-2-20260908-090046.stdout.json` ends with `Reached maximum number of turns (120)` and no Round 2 DELIVERY exists. The Round 1 contract omissions of `tracked_entities.owning_entity_id` and `entity_aliases.priority` therefore remain unresolved. Expected behavior: implement and validate both fields within the approved task boundary. Reproduction: dispatch Round 2 under the then-current task packet; executor spends turns on disallowed environment probes and exits before delivery.
+
+## ROUND 3 ACCEPTANCE
+
+1. Implement every Round 2 acceptance item exactly as written, with no environment-probe commands.
+2. Write a new DELIVERY with the required command exits and field/invariant mapping.
+3. This is the final executor round. A missing DELIVERY, failed required gate, or unresolved contract field requires a Human Gate.
+
+## MERGE DECISION
+
+DO NOT MERGE. Dispatch the final bounded executor Round 3.

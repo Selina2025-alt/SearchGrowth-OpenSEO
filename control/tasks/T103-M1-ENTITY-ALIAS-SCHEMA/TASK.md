@@ -10,6 +10,12 @@ MAX ROUNDS: 3
 
 Round 1 is blocked only because it omitted two fields that `05_DOMAIN_DATA_MODEL.md` directly requires: optional `tracked_entities.owning_entity_id` and `entity_aliases.priority`. The design-reference SQL and `schemas/domain-types.ts` omissions do not override the accepted domain-model field list. Resume the existing worktree and change only what is necessary to add both fields, their cross-dialect schema/migration/snapshot representation, Zod/domain contracts, relationship/default decisions, and migration-backed tests. Preserve all accepted Round 1 same-Project alias ownership, stable identity, no-dangling behavior, scope, and gate requirements. Do not add parser/matcher/CRUD/UI, hidden business uniqueness, or unrelated fields.
 
+## ROUND 3 RECOVERY CONTEXT — FINAL EXECUTOR ROUND
+
+Round 2 produced no implementation DELIVERY because the executor exhausted its turn budget while attempting unapproved shell-environment diagnostics. Do not run `which`, `command -v`, `where`, `env`, `echo $PATH`, `cd`, `ls`, or any other environment-probe command. The approved commands below are sufficient and the worktree is already provisioned.
+
+Work directly from the existing Round 1 implementation and the Round 1 review finding. Implement only the two required contract fields and their bounded parity/test evidence: nullable same-Project `owning_entity_id` with a no-dangling delete rule, and explicit storage-only alias `priority` with a matching cross-dialect default/type/nullability and Zod contract. Run only the listed approved commands literally, write the updated DELIVERY, and stop. This is the final executor round; no scope expansion or diagnostic detour is permitted.
+
 ## GOAL
 
 Add the normalized, Project-scoped `TrackedEntity` and `EntityAlias` persistence and domain validation foundation for the V1.0 brand/product/competitor model. This task is storage and contract only; parser, matching workflow, CRUD, and UI remain separate.
