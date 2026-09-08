@@ -21,3 +21,28 @@ VERDICT: BLOCKED
 ## MERGE DECISION
 
 Do not merge T107. The missing Project identity needed for database enforcement is a material conflict between the direct GeoObservationParse field list and the repository's explicit ownership invariant; it requires Product Owner direction before a bounded Round 2 can be defined.
+
+---
+
+# REVIEW — T107-M1-GEO-ENTITY-MENTION-SCHEMA, Round 2
+
+VERDICT: BLOCKED
+
+## VERIFIED
+
+- The approved forward-only recovery adds explicit `project_id` to Parse and Mention, and replaces the relevant parent FKs with same-Project composite FKs in both dialects.
+- D1 `0053` rebuilds and backfills Parse/Mention rows from their immutable parent chain; PostgreSQL `0031` backfills before `NOT NULL` and composite constraints. Accepted historical migrations are unmodified.
+- The focused suite, local D1 migration, and final dual-dialect `db:generate` no-op are reported PASS. Targeted SQL inspection confirms the required composite FK chain and supporting non-business unique target indexes.
+- No runtime/parser/provider/CRUD/UI/security-scope expansion is present.
+
+## FINDINGS
+
+### BLOCKER — required aggregate gates lack Round 2 PASS evidence
+
+- **Requirement:** T107 requires `format:check`, `types:check`, `lint`, full `test`, `build`, and `ci:check` to exit 0 on the final ownership-recovery tree.
+- **Evidence:** Round 2 DELIVERY explicitly states each gate was auto-denied by the executor harness and records no final PASS result after the schema/migration change. Round 1 results predate that change and cannot satisfy this acceptance condition.
+- **Fix acceptance condition:** execute the six already-approved aggregate commands independently on the unchanged Round 2 tree; repair only a directly task-local failure; record all final exit-0 results in DELIVERY.
+
+## MERGE DECISION
+
+Do not merge. Dispatch the final permitted executor round as a gate-only recovery.

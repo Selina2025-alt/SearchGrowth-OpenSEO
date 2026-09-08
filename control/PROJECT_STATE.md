@@ -8,10 +8,10 @@ CURRENT TASK: T107-M1-GEO-ENTITY-MENTION-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 1263b360ec96ed98048f8bdf1263a871b33c9a16
 LAST REVIEW: T106-M1-GEO-OBSERVATION-PARSE-SCHEMA ROUND 1 PASS AND MERGED
-CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: Product Owner approved T107's minimal forward-only Project ownership expansion; Codex updated the recovery task and dispatched Claude Round 2.
+CURRENT ROUND: 3 / 3
+LAST COMPLETED ACTION: Codex verified T107 Round 2's ownership repair and dispatched the final gate-only Round 3 because aggregate gates were harness-denied.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T107 Round 2 DELIVERY, then perform targeted Fast Review. Do not merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T107 Round 3 DELIVERY, then perform targeted Fast Review. Do not merge to `main`.
 
 ## COMPLETED
 
@@ -29,7 +29,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T107 Round 2 DELIVERY, then pe
 
 ## IN PROGRESS
 
-T107-M1-GEO-ENTITY-MENTION-SCHEMA Round 2 is executing the approved forward-only Project ownership recovery.
+T107-M1-GEO-ENTITY-MENTION-SCHEMA Round 3 is executing the final gate-only recovery on the approved ownership expansion.
 
 ## BLOCKED
 
@@ -37,4 +37,4 @@ T107-M1-GEO-ENTITY-MENTION-SCHEMA Round 2 is executing the approved forward-only
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR: wait for T107 Round 2 DELIVERY, then perform targeted Fast Review. Never merge to `main`.
+WAITING_FOR_EXECUTOR: wait for T107 Round 3 DELIVERY, then perform targeted Fast Review. Never merge to `main`.

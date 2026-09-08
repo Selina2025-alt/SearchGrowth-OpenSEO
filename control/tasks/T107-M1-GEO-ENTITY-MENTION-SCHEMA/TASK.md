@@ -17,6 +17,10 @@ The Product Owner approved this bounded forward-only expansion to resolve Round 
 5. Add migration-backed negative tests: same-Project Parse + Entity allowed; Project-A Parse + Project-B Entity rejected; explicit mention Project mismatch rejected; normal mention persistence passes. Retain all Round 1 integrity and Parse-version isolation coverage.
 6. Re-run local D1 migration, final dual-dialect `db:generate` no-op, focused tests, format, types, lint, full tests, build, and `ci:check`; record exact exits in an updated DELIVERY. Do not perform environment diagnosis, production action, or unlisted command.
 
+## ROUND 3 — GATE-ONLY FIX CONTEXT
+
+Round 2 resolves the approved ownership design and provides passing focused migration, D1 migration, and dual-dialect generation evidence. It cannot be accepted because the required aggregate gates (`format:check`, `types:check`, `lint`, full `test`, `build`, and `ci:check`) were auto-denied by the executor harness. Do not redesign, expand, or reimplement the schema. Run those already-approved commands literally and independently; repair only a task-local gate failure if one occurs; then update DELIVERY with exact final exit results. Do not run diagnostics or use interactive approvals.
+
 ## GOAL
 
 Add the normalized `GeoEntityMention` persistence and domain-contract foundation for V1.0. This is a schema-and-contract slice only. It must not implement parsing, matching, recommendation scoring, extraction, reparse workflow, CRUD, UI, or provider action.
