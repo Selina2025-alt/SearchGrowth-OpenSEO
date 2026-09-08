@@ -8,10 +8,10 @@ CURRENT TASK: T104-M1-SEARCH-PROMPT-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: fb7b3e7c77cf6b89463367a291a9e52f2924a997
 LAST REVIEW: T103-M1-ENTITY-ALIAS-SCHEMA AUTHORIZED RECOVERY R1 PASS AND MERGED
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: Codex completed the authorized T103 Fast Review, merged it only to `integration/ai-v1`, then created and dispatched the bounded T104 SearchPrompt schema task to Claude; the T104 executor was confirmed live at 2026-09-08 10:42 +08:00 with no DELIVERY or failure signal.
-CURRENT BLOCKER: M0.5 still requires external accounts and publishing Human Gates H1/H2; it does not block the credential-free T104 SearchPrompt domain slice.
-NEXT EXACT ACTION: Wait for T104 Round 1 DELIVERY; then Fast Review its schema, ownership/identity invariants, migrations, scope/security, and gate evidence.
+CURRENT ROUND: 2 / 3
+LAST COMPLETED ACTION: Codex completed T104 Round 1 targeted review and found its six required aggregate gates auto-denied despite being task-approved; it prepared a bounded gate-only Round 2 correction.
+CURRENT BLOCKER: T104 requires `format:check`, `types:check`, `lint`, `test`, `build`, and `ci:check` exit-0 evidence. M0.5 still requires external accounts and publishing Human Gates H1/H2.
+NEXT EXACT ACTION: Dispatch T104 Round 2 gate-only fix; then Fast Review the updated gate evidence without expanding scope.
 
 ## COMPLETED
 

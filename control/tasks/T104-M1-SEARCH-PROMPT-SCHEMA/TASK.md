@@ -6,6 +6,10 @@ OWNER: Claude Code + DeepSeek Implementation Engineer
 CONTROLLER: Codex
 MAX ROUNDS: 3
 
+## ROUND 2 GATE-ONLY FIX CONTEXT
+
+Round 1 implementation is pending acceptance solely because DELIVERY records the required aggregate gates as auto-denied: `format:check`, `types:check`, `lint`, `test`, `build`, and `ci:check`. Do not redesign, expand, or reimplement the prompt schema. Run those already TASK-approved commands literally, diagnose and repair only a task-local gate failure if one occurs, then update DELIVERY with exact exit results. Do not run environment/path/version diagnostics or use interactive approvals.
+
 ## GOAL
 
 Add the normalized, versioned, Project-scoped `SearchPrompt` persistence and domain-validation foundation for V1.0. This task is schema and contract only. It must not implement prompt generation, GEO observation, execution, CRUD, repository/service/server functions, UI, or any external provider action.
