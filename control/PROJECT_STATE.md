@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T108-M1-GEO-CITATION-SCHEMA
+CURRENT TASK: NEXT M1 TASK (NOT YET PLANNED)
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: bdbc03bfdcf5cc9bf8d930856433a598398340a9
-LAST REVIEW: T107-M1-GEO-ENTITY-MENTION-SCHEMA ROUND 3 PASS AND MERGED
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: Codex created and dispatched T108 GeoCitation schema-and-contract Round 1.
+LATEST ACCEPTED COMMIT: 059051b13f340f95ea657ea1523cd039353172ed
+LAST REVIEW: T108-M1-GEO-CITATION-SCHEMA ROUND 1 PASS AND MERGED
+CURRENT ROUND: 0 / 3
+LAST COMPLETED ACTION: Codex Fast Review accepted T108 and merged it only to `integration/ai-v1`.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T108 Round 1 DELIVERY, then Fast Review. Do not merge to `main`.
+NEXT EXACT ACTION: Create and dispatch the next credential-free approved M1 domain task; do not merge to `main`.
 
 ## COMPLETED
 
