@@ -82,6 +82,7 @@ export const {
   searchPrompts,
   geoObservationRuns,
   geoObservationParses,
+  geoEntityMentions,
   savedKeywords,
   savedKeywordTags,
   savedKeywordTagAssignments,

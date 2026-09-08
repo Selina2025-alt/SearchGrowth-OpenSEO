@@ -583,9 +583,14 @@ export const searchPrompts = pgTable(
 //     profile, or a whole Project cascades the run away. Cascade matches the
 //     accepted tree-wide teardown convention.
 //
-// NO UNIQUENESS: there is intentionally no unique index. Fresh GEO sampling
-// must create independent rows for repeats of the same prompt/provider/model/
-// surface (21_TEST_ACCEPTANCE_PLAN.md §3); any uniqueness rule would prevent it.
+// NO BUSINESS UNIQUENESS: fresh GEO sampling must create independent rows for
+// repeats of the same prompt/provider/model/surface (21_TEST_ACCEPTANCE_PLAN.md
+// §3), so no business-rule unique index exists. The one unique index below
+// (`geo_observation_runs_project_id_id_idx`) exists ONLY as the required unique
+// target of the geo_observation_parses composite FK
+// ((project_id, run_id) -> geo_observation_runs(project_id, id)); id is already
+// the PK, so it accepts exactly the rows the PK accepts and adds no business
+// uniqueness.
 // ============================================================================
 
 export const geoObservationRuns = pgTable(
@@ -715,6 +720,14 @@ export const geoObservationRuns = pgTable(
     index("geo_observation_runs_prompt_idx").on(table.promptId),
     // Market profile -> runs reads and the profile cascade delete path.
     index("geo_observation_runs_market_profile_idx").on(table.marketProfileId),
+    // Supporting unique target for the geo_observation_parses composite FK
+    // ((project_id, run_id) -> geo_observation_runs(project_id, id), defined
+    // below). id is already the PK, so this composite accepts exactly the rows
+    // the PK accepts and adds no business uniqueness.
+    uniqueIndex("geo_observation_runs_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
   ],
 );
 
@@ -734,6 +747,12 @@ export const geoObservationRuns = pgTable(
 //   - §7 field list shipped verbatim: id, run_id, parser_version,
 //     parse_status, accuracy_status, parsed_at, is_current, plus the append-only
 //     `created_at` system timestamp.
+//   - `project_id` is the explicit Project ownership key added by the
+//     PO-approved Round 2 data-contract recovery (TASK T107 Round 2): it lets
+//     the DB itself enforce that a Parse belongs to the same Project as its Run
+//     (composite FK below) and that a GeoEntityMention is Project-consistent
+//     with its Parse/Entity. It is an ownership fact on an already-append-only
+//     row — no mutation/current-pointer/reparse behavior is enabled.
 //   - `parser_version` is TEXT; `parse_status` is SUCCESS | PARTIAL | FAILED;
 //     optional `accuracy_status` is ACCURATE | PARTIAL | INACCURATE | UNKNOWN;
 //     `is_current` is a required boolean with documented storage default false.
@@ -745,11 +764,18 @@ export const geoObservationRuns = pgTable(
 // service and no mutation surface — immutability is by schema/contract shape,
 // not a DB trigger (21_TEST_ACCEPTANCE_PLAN.md §6).
 //
-// RELATIONSHIP / DELETE BEHAVIOR: run_id references geo_observation_runs(id);
-// deleting a run (or, through the run's own Project/Prompt cascade, a whole
-// project/prompt) CASCADES its parses away, so a parse can never dangle. The
-// `(run_id, parser_version)` unique index is the SOLE version-identity rule: it
-// permits v1/v2 coexistence and rejects a duplicate parser version per run. No
+// RELATIONSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// ON DELETE CASCADE (the established Project-scoping FK). run_id references the
+// immutable geo_observation_runs(id); the SAME-PROJECT composite FK
+// (project_id, run_id) -> geo_observation_runs(project_id, id) carries this
+// row's project_id as its leading column, so a parse on project A can never be
+// attached to a run on project B. Deleting a run (or, through the run's own
+// Project/Prompt cascade, a whole project/prompt) CASCADES its parses away. The
+// `(run_id, parser_version)` unique index is the SOLE version-identity rule:
+// it permits v1/v2 coexistence and rejects a duplicate parser version per run.
+// The `geo_observation_parses_project_id_id_idx` unique index on (project_id,
+// id) exists ONLY as the required unique target of the geo_entity_mentions
+// composite FK; it adds no business uniqueness (id is already the PK). No
 // global or current-pointer uniqueness rule exists.
 // ============================================================================
 
@@ -757,11 +783,15 @@ export const geoObservationParses = pgTable(
   "geo_observation_parses",
   {
     id: text("id").primaryKey(),
-    // The immutable raw run this parse was computed from (geo_observation_runs
-    // .id). The FK below cascades parses away when the run is deleted.
-    runId: text("run_id")
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the same-Project composite FK below can be enforced.
+    projectId: text("project_id")
       .notNull()
-      .references(() => geoObservationRuns.id, { onDelete: "cascade" }),
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The immutable raw run this parse was computed from (geo_observation_runs
+    // .id). Bound to the row's project by the composite FK below, which cascades
+    // parses away when the run is deleted.
+    runId: text("run_id").notNull(),
     // Parser package/version identifier (TEXT). A parser upgrade inserts a new
     // row with a new version — the unique index below is the versioned-identity
     // rule that lets v1/v2 coexist and rejects a duplicate version per run.
@@ -788,6 +818,15 @@ export const geoObservationParses = pgTable(
     createdAt: text("created_at").notNull().default(isoNow),
   },
   (table) => [
+    // Same-Project composite FK to the run: the parse's project_id must equal
+    // the run's project_id. Deleting a run removes its parses (the referenced
+    // (project_id, id) pair is unique via the supporting
+    // geo_observation_runs_project_id_id_idx unique index on geoObservationRuns,
+    // which the run's Project FK/Prompt FK already lead with).
+    foreignKey({
+      columns: [table.projectId, table.runId],
+      foreignColumns: [geoObservationRuns.projectId, geoObservationRuns.id],
+    }).onDelete("cascade"),
     // The SOLE version-identity rule (migrations-reference.sql
     // idx_geo_parse_version): (run_id, parser_version). v1/v2 parses of the
     // same raw run coexist; a duplicate parser version of the same run is
@@ -797,5 +836,106 @@ export const geoObservationParses = pgTable(
       table.runId,
       table.parserVersion,
     ),
+    // Supporting unique target for the geo_entity_mentions composite FK
+    // ((project_id, parse_id) -> geo_observation_parses(project_id, id), defined
+    // below). id is already the PK, so this composite accepts exactly the rows
+    // the PK accepts and adds no business uniqueness.
+    uniqueIndex("geo_observation_parses_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `geo_entity_mentions` table in
+// ../search-growth.schema.ts (keep the two files structurally identical).
+//
+// A geo entity mention is one normalized mention/recommendation fact extracted
+// from a specific versioned parse (05_DOMAIN_DATA_MODEL.md §7 GeoEntityMention,
+// ADR-004/ADR-005). Storage and contract only — no parsing, extraction,
+// matching, scoring, reparse/current-pointer workflow, CRUD or provider action.
+// See the SQLite mirror for the full field reconciliation; the direct §7 field
+// list is shipped with only the additions the established schema convention
+// requires (stable `id` PK and the append-only `created_at` system timestamp)
+// and the explicit `project_id` ownership key the PO-approved Round 2 data-
+// contract recovery adds so the DB itself can enforce same-Project integrity.
+//
+// RELATIONSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// ON DELETE CASCADE (the established Project-scoping FK). `parse_id` references
+// the immutable `geo_observation_parses(id)` row this mention was computed from
+// and `entity_id` references `tracked_entities(id)` (ADR-004). Two SAME-PROJECT
+// composite FKs lead with the row's project_id —
+// (project_id, parse_id) -> geo_observation_parses(project_id, id) and
+// (project_id, entity_id) -> tracked_entities(project_id, id) — so the DB (not
+// application convention) rejects a mention whose Parse and TrackedEntity
+// belong to different Projects, or whose own project_id does not match either.
+// Parse-version isolation is structural — mentions attach to the concrete
+// source Parse, never to a mutable current pointer. Deleting a parse, an
+// entity, or (through the Project/parse/run cascade) a whole project can never
+// leave a dangling mention. No business-unique index exists; the two non-unique
+// indexes serve the parse -> mentions / entity -> mentions read and cascade
+// paths.
+// ============================================================================
+
+export const geoEntityMentions = pgTable(
+  "geo_entity_mentions",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The immutable, versioned parse this mention was computed from
+    // (geo_observation_parses.id, ADR-005). Bound to the row's project by the
+    // composite FK below, which cascades mentions away when the parse (or,
+    // through the run/parse cascade, a whole project) is deleted.
+    parseId: text("parse_id").notNull(),
+    // The tracked entity this mention is about (tracked_entities.id, ADR-004).
+    // Bound to the row's project by the composite FK below, which cascades
+    // mentions away when the entity is deleted.
+    entityId: text("entity_id").notNull(),
+    // Required mention verdict boolean; no storage default.
+    mentioned: boolean("mentioned").notNull(),
+    // Optional recommendation verdict (nullable boolean).
+    recommended: boolean("recommended"),
+    // Optional mention position in the source answer (nullable integer).
+    mentionPosition: integer("mention_position"),
+    // Optional nuanced sentiment (nullable free text; §7 `sentiment?`). V1.0
+    // defines no sentiment enum/scale — no sentiment enum is invented.
+    sentiment: text("sentiment"),
+    // Optional evidence-span reference realised as the evidence span's literal
+    // text (nullable; domain-types `evidenceText`, migrations-reference
+    // `evidence_text`).
+    evidenceText: text("evidence_text"),
+    // Append-only creation timestamp (system insert time). No updated_at column.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the concrete parse: the mention's project_id
+    // must equal the parse's project_id. Deleting a parse removes its mentions
+    // (the referenced (project_id, id) pair is unique via the supporting
+    // geo_observation_parses_project_id_id_idx unique index above). A mention
+    // whose parse lives on another Project has no matching parent row and is
+    // rejected by the DB.
+    foreignKey({
+      columns: [table.projectId, table.parseId],
+      foreignColumns: [geoObservationParses.projectId, geoObservationParses.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the tracked entity: the mention's project_id
+    // must equal the entity's project_id. Deleting an entity removes its
+    // mentions (the referenced (project_id, id) pair is unique via the
+    // supporting tracked_entities_project_id_id_idx unique index above). A
+    // mention whose entity lives on another Project has no matching parent row
+    // and is rejected by the DB.
+    foreignKey({
+      columns: [table.projectId, table.entityId],
+      foreignColumns: [trackedEntities.projectId, trackedEntities.id],
+    }).onDelete("cascade"),
+    // Parse -> mentions reads and the parse-delete cascade path.
+    index("geo_entity_mentions_parse_idx").on(table.parseId),
+    // Entity -> mentions reads and the entity-delete cascade path.
+    index("geo_entity_mentions_entity_idx").on(table.entityId),
   ],
 );
