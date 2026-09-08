@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 034f757bf993a8266797185813adfe20615bab47
 LAST REVIEW: T102-M1-TOPIC-KEYWORD-REFS-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: Codex accepted T102 after verifying canonical OpenSEO saved-keyword reuse, same-Project composite FKs, duplicate and cascade behavior, dual-dialect 0047/0025 snapshots, and all executor gate evidence; merged only into integration/ai-v1 at 034f757bf993a8266797185813adfe20615bab47. T103 was then dispatched to Claude in its isolated worktree under the approved safe command set.
+LAST COMPLETED ACTION: Codex completed T103 Round 1 Fast Review, found the direct domain-field omission, and dispatched the bounded Round 2 correction to Claude in the existing isolated worktree under the approved safe command set.
 CURRENT BLOCKER: T103 Round 1 omits the direct V1.0 `owning_entity_id?` and alias `priority` fields from 05_DOMAIN_DATA_MODEL.md; the remainder is unaccepted pending the bounded schema-contract correction. M0.5 still requires external accounts and publishing Human Gates H1/H2.
-NEXT EXACT ACTION: Dispatch T103 executor fix round 2 from the existing worktree; wait for DELIVERY; then Fast Review the two required fields, same-Project ownership, migrations/snapshots, scope/security, and gate evidence.
+NEXT EXACT ACTION: Wait for T103 Round 2 DELIVERY; then Fast Review the two required fields, same-Project ownership, migrations/snapshots, scope/security, and gate evidence.
 
 ## COMPLETED
 
