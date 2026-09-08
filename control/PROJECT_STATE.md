@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 034f757bf993a8266797185813adfe20615bab47
 LAST REVIEW: T102-M1-TOPIC-KEYWORD-REFS-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: RECOVERY R1 / 1 (AUTHORIZED)
-LAST COMPLETED ACTION: Product Owner authorized T103 executor recovery and one controlled round reset; Codex verified the corrected safe-mode executor runtime with exit 0 and exact `EXECUTOR_RUNTIME_OK` output.
+LAST COMPLETED ACTION: Product Owner authorized T103 executor recovery and one controlled round reset; Codex verified the corrected safe-mode executor runtime with exit 0 and exact `EXECUTOR_RUNTIME_OK` output, then dispatched Recovery R1 into the existing worktree.
 CURRENT BLOCKER: T103 still requires the direct V1.0 `owning_entity_id?` and alias `priority` corrections. M0.5 still requires external accounts and publishing Human Gates H1/H2.
-NEXT EXACT ACTION: Dispatch the bounded T103 Recovery R1 in the existing worktree; then Fast Review only after a new DELIVERY is written.
+NEXT EXACT ACTION: Wait for the bounded T103 Recovery R1 DELIVERY; then Fast Review only after it is written.
 
 ## COMPLETED
 
