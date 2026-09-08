@@ -4,6 +4,7 @@ import {
   check,
   foreignKey,
   index,
+  integer,
   pgTable,
   text,
   uniqueIndex,
@@ -200,5 +201,168 @@ export const searchTopicKeywordRefs = pgTable(
     ),
     // keyword -> topic reads (the unique index above already leads with topic_id).
     index("search_topic_keyword_refs_keyword_idx").on(table.openSeoKeywordRef),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `tracked_entities` table in
+// ../search-growth.schema.ts (keep the two files structurally identical).
+//
+// A tracked entity is the stable brand/product/competitor identity (ADR-004;
+// 30_TRACEABILITY_MATRIX.md row 品牌/产品/竞品) that the later parser, alias
+// matcher and GEO entity-mention work binds to. This task is storage and
+// contract only — no parser/matcher/CRUD/repository/service is added here.
+//
+// A tracked-entity id is never replaced when canonical_name, canonical domain,
+// product URL, type, owning-entity relation or active state changes: lifecycle
+// mutations update this row in place, so downstream references keep pointing at
+// the same identity.
+//
+// `owning_entity_id` (nullable, 05_DOMAIN_DATA_MODEL.md §4) names an optional
+// same-Project parent entity — a PRODUCT can name its owning BRAND, a
+// COMPETITOR_PRODUCT its owning COMPETITOR, and so on. The composite
+// self-reference FK carries this row's project_id as its leading column, so an
+// entity on project A can never be owned by an entity on project B. Deleting an
+// owner that still has owned entities is BLOCKED (no action — restrictive on
+// both dialects) rather than silently nulled or cascaded, so an ownership
+// reference can never dangle and owned rows keep their stable id/project. (ON
+// DELETE SET NULL is impossible here: it would null the composite FK's leading
+// column project_id, which is NOT NULL.)
+//
+// Same-project integrity for aliases is enforced by the composite FK on
+// `entity_aliases` below. The `tracked_entities_project_id_id_idx` unique index
+// exists ONLY as the required unique target of those composite FKs (aliases and
+// the owning-entity self-reference) — id is already the primary key, so the
+// composite accepts exactly the rows the PK accepts and adds no business
+// uniqueness.
+// ============================================================================
+
+export const trackedEntities = pgTable(
+  "tracked_entities",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The entity kind (05_DOMAIN_DATA_MODEL.md §4, schemas/domain-types.ts
+    // TrackedEntityType). BRAND | PRODUCT | COMPETITOR | COMPETITOR_PRODUCT are
+    // the DB text-enum columns; Zod validates them at the domain boundary. There
+    // is no implicit/unknown fallback.
+    entityType: text("entity_type", {
+      enum: ["BRAND", "PRODUCT", "COMPETITOR", "COMPETITOR_PRODUCT"],
+    }).notNull(),
+    // The canonical, human-facing entity name. Renaming updates this column in
+    // place; the row id (the stable cross-domain reference) is preserved.
+    canonicalName: text("canonical_name").notNull(),
+    // Optional canonical site domain (e.g. "openseo.dev"). Domain aliases can
+    // then match against this exact registered domain.
+    canonicalDomain: text("canonical_domain"),
+    // Optional canonical product landing page URL.
+    productUrl: text("product_url"),
+    // Optional owning/parent entity within the SAME project (05_DOMAIN_DATA_MODEL
+    // .md §4). NULL means the entity is not owned by another tracked entity. The
+    // composite FK below keeps the owner same-Project and blocks deleting an
+    // owner that still has owned entities.
+    owningEntityId: text("owning_entity_id"),
+    // Soft-disable flag: inactive entities remain stored and referenced but are
+    // excluded from active matching later.
+    active: boolean("active").notNull().default(true),
+    createdAt: text("created_at").notNull().default(isoNow),
+    updatedAt: text("updated_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Every entity read is project-scoped, so project_id leads list/active
+    // lookups. No business-rule unique index: no V1.0 artifact constrains
+    // canonical_name (or domain) uniqueness per project.
+    index("tracked_entities_project_idx").on(table.projectId),
+    // Supporting unique target for the entity_aliases composite FK and the
+    // owning-entity composite FK below (both reference (project_id, id)). id is
+    // already the PK, so this adds no business uniqueness.
+    uniqueIndex("tracked_entities_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
+    // Same-Project self-reference for owning_entity_id: the FK's leading column
+    // is this row's project_id, so an entity on project A can never name an
+    // owner on project B (the composite has no matching parent row). Deleting an
+    // owner that still has owned entities is blocked (no action — restrictive on
+    // both dialects), so an ownership reference can never dangle.
+    foreignKey({
+      columns: [table.projectId, table.owningEntityId],
+      foreignColumns: [table.projectId, table.id],
+    }).onDelete("no action"),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `entity_aliases` table in
+// ../search-growth.schema.ts (keep the two files structurally identical).
+//
+// An alias is one surface spelling/domain an entity is matched under
+// (05_DOMAIN_DATA_MODEL.md §4 EntityAlias, schemas/domain-types.ts EntityAlias).
+// Storage/contract only: the alias substring-safety rule against overly short
+// generic substrings belongs to later validation/matching work.
+//
+// Project ownership is EXPLICIT on the row and database-enforced: the alias
+// carries its own project_id and a same-project composite FK
+// ((project_id, entity_id) -> tracked_entities(project_id, id)), so an alias
+// whose entity lives on another Project has no matching parent row and is
+// rejected by the DB. Deleting a Project, a tracked entity, or an alias's
+// entity cascades the alias away, so aliases never dangle.
+//
+// `priority` (05_DOMAIN_DATA_MODEL.md §4 EntityAlias) is an integer
+// storage-only precedence hint for later alias matching; it defaults to 0 and no
+// ranking/matching behavior is implemented in this task.
+// ============================================================================
+
+export const entityAliases = pgTable(
+  "entity_aliases",
+  {
+    id: text("id").primaryKey(),
+    // The alias's own project. Explicit typed column so ownership is never
+    // inferred and the same-project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The tracked_entities.id this alias resolves to (the stable ADR-004 id).
+    entityId: text("entity_id").notNull(),
+    // The alias surface text (e.g. a brand/product variant or a domain).
+    aliasText: text("alias_text").notNull(),
+    // Optional IETF language tag the alias spelling applies to; NULL means the
+    // alias is not locale-restricted.
+    locale: text("locale"),
+    // Approved alias match mode
+    // (EXACT | CASE_INSENSITIVE_EXACT | WORD_BOUNDARY | UNICODE_SUBSTRING |
+    // DOMAIN). DB text-enum columns; Zod validates them at the domain boundary.
+    matchMode: text("match_mode", {
+      enum: [
+        "EXACT",
+        "CASE_INSENSITIVE_EXACT",
+        "WORD_BOUNDARY",
+        "UNICODE_SUBSTRING",
+        "DOMAIN",
+      ],
+    }).notNull(),
+    // Whether alias text comparison is case-sensitive for the given match mode.
+    caseSensitive: boolean("case_sensitive").notNull().default(false),
+    // Storage-only integer precedence hint for later alias matching
+    // (05_DOMAIN_DATA_MODEL.md §4 EntityAlias). 0 is the neutral default; no
+    // ranking or matching behavior is implemented here.
+    priority: integer("priority").notNull().default(0),
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-project composite FK to the owning tracked entity: the alias's
+    // project_id must equal the entity's project_id. Deleting an entity removes
+    // its aliases; the referenced (project_id, id) pair is unique via the
+    // supporting tracked_entities_project_id_id_idx unique index above.
+    foreignKey({
+      columns: [table.projectId, table.entityId],
+      foreignColumns: [trackedEntities.projectId, trackedEntities.id],
+    }).onDelete("cascade"),
+    // Project-scoped alias reads (list aliases within a project).
+    index("entity_aliases_project_idx").on(table.projectId),
+    // Entity -> aliases reads and the entity cascade delete path.
+    index("entity_aliases_entity_idx").on(table.entityId),
   ],
 );

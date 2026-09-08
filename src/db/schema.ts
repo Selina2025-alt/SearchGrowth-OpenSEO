@@ -77,6 +77,8 @@ export const {
   searchMarketProfiles,
   searchTopics,
   searchTopicKeywordRefs,
+  trackedEntities,
+  entityAliases,
   savedKeywords,
   savedKeywordTags,
   savedKeywordTagAssignments,
