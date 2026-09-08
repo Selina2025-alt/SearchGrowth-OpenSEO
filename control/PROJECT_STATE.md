@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: fb7b3e7c77cf6b89463367a291a9e52f2924a997
 LAST REVIEW: T103-M1-ENTITY-ALIAS-SCHEMA AUTHORIZED RECOVERY R1 PASS AND MERGED
 CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: Codex completed T104 Round 1 targeted review and found its six required aggregate gates auto-denied despite being task-approved; it prepared a bounded gate-only Round 2 correction.
+LAST COMPLETED ACTION: Codex completed T104 Round 1 targeted review, found its six required aggregate gates auto-denied despite being task-approved, and dispatched the bounded gate-only Round 2 correction.
 CURRENT BLOCKER: T104 requires `format:check`, `types:check`, `lint`, `test`, `build`, and `ci:check` exit-0 evidence. M0.5 still requires external accounts and publishing Human Gates H1/H2.
-NEXT EXACT ACTION: Dispatch T104 Round 2 gate-only fix; then Fast Review the updated gate evidence without expanding scope.
+NEXT EXACT ACTION: Wait for T104 Round 2 DELIVERY; then Fast Review the updated gate evidence without expanding scope.
 
 ## COMPLETED
 
