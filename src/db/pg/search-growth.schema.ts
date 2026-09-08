@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities and T110 source_refs additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -1224,5 +1224,78 @@ export const searchGrowthOpportunities = pgTable(
     index("search_growth_opportunities_market_profile_idx").on(
       table.marketProfileId,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `source_refs` table in
+// ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift).
+//
+// A source reference is one captured evidence source behind a later Claim or
+// ContentPackageVersion (05_DOMAIN_DATA_MODEL.md §9 SourceRef). Storage and
+// contract ONLY — no claim, verification, crawling, URL fetching, content,
+// reachability/URL validation, source-content classification or inference, CRUD
+// or UI is implemented here. See the SQLite mirror for the full field
+// reconciliation; the direct §9 field list is shipped with only the additions
+// the established schema convention requires (stable `id` PK, explicit
+// `project_id`, append-only `created_at`) and the legacy reference-only
+// `title`/`classification`/`url`/`evidence_ref`/`source_kind` fields are
+// reconciled OUT (no classification union is invented on the row).
+//
+// RELATIONSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// ON DELETE CASCADE (the established Project-scoping FK every Search Growth row
+// carries). source_refs has no other parent in the accepted schema yet (claims
+// and content tables arrive later and reference source refs by id), so deleting
+// a whole Project cascades its source references away and a source reference can
+// never dangle.
+//
+// APPEND-ONLY SHAPE: no `updated_at`, no update/delete API, no repository/
+// service and no mutation surface — a captured source reference is written once
+// and never changed (immutability by schema/contract shape). NO BUSINESS
+// UNIQUENESS: no V1.0 artifact defines an identity rule for source refs, so no
+// unique index exists. The single non-unique index serves the project ->
+// source-refs read/cascade path. The named CHECK below makes the exact V1.0
+// SourceRef type-union enum rejection database-backed in both dialects (the Zod
+// boundary enforces the same list at runtime).
+// ============================================================================
+
+export const sourceRefs = pgTable(
+  "source_refs",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The V1.0 source type (URL | INTERNAL_DOC | PRODUCT_FACT | RESEARCH — the
+    // exact §9 SourceRef union). DB text-enum column + the named CHECK below;
+    // the Zod boundary validates it. No source classification/inference exists
+    // in this slice.
+    type: text("type", {
+      enum: ["URL", "INTERNAL_DOC", "PRODUCT_FACT", "RESEARCH"],
+    }).notNull(),
+    // The §9 reference value exactly as captured (opaque text; meaning follows
+    // `type`). Stored verbatim — no fetch/reachability/normalization/content
+    // processing is performed here.
+    ref: text("ref").notNull(),
+    // The application-supplied moment the source was captured (§9). Distinct
+    // from the append-only system `created_at` insert timestamp below.
+    capturedAt: text("captured_at").notNull(),
+    // Append-only creation timestamp (system insert time). No updated_at column
+    // exists — a captured source reference is written once and never changed.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // DB-level enum rejection for the exact V1.0 SourceRef type union (the TASK
+    // requires migration-backed enum rejection; the Zod boundary enforces the
+    // same list at the runtime edge).
+    check(
+      "source_refs_type_valid",
+      sql`(${table.type} IN ('URL','INTERNAL_DOC','PRODUCT_FACT','RESEARCH'))`,
+    ),
+    // Project -> source-refs reads and the project-delete cascade path.
+    index("source_refs_project_idx").on(table.projectId),
   ],
 );

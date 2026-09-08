@@ -393,6 +393,13 @@
       "when": 1788858131090,
       "tag": "0055_lowly_sumo",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "6",
+      "when": 1788860911249,
+      "tag": "0056_organic_blue_blade",
+      "breakpoints": true
     }
   ]
 }

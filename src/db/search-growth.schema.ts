@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations and the T109 search_growth_opportunities additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities and T110 source_refs additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -1466,5 +1466,113 @@ export const searchGrowthOpportunities = sqliteTable(
     index("search_growth_opportunities_market_profile_idx").on(
       table.marketProfileId,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, append-only source references.
+//
+// A source reference is one captured evidence source behind a later Claim or
+// ContentPackageVersion (05_DOMAIN_DATA_MODEL.md §9 SourceRef;
+// 09_CONTENT_EVIDENCE_WEBPAGE_SPEC.md §10 "Source traceability"). This slice is
+// storage and contract ONLY — no claim, verification, crawling, URL fetching,
+// content, reachability/URL validation, source-content classification or
+// inference, CRUD or UI is implemented here, and the `ref` values in tests are
+// fixtures a later out-of-scope capture/verification task will produce.
+//
+// FIELD RECONCILIATION (05_DOMAIN_DATA_MODEL.md §9 is the direct field contract;
+// schemas/domain-types.ts SourceRef and schemas/migrations-reference.sql
+// source_refs are the legacy reference artifacts this task explicitly
+// reconciles):
+//   - The stable `id` primary key, the explicit `project_id` ownership key and
+//     the append-only `created_at` system timestamp are the additions the
+//     established Search Growth schema convention requires (every V1.0 row has a
+//     stable text id; §9's snippet lists only the relation-facing fields).
+//   - `type` (NOT NULL) is exactly the V1.0 SourceRef type union URL |
+//     INTERNAL_DOC | PRODUCT_FACT | RESEARCH (§9; TASK field contract "V1.0
+//     `type`"). The legacy reference `kind` union (URL | INTERNAL_EVIDENCE |
+//     CLAIM | PUBLICATION | OTHER — schemas/domain-types.ts) and the legacy
+//     `source_kind` column name (schemas/migrations-reference.sql) are NOT
+//     shipped: §9 replaces that union with its own four-value union, and there is
+//     no free-form/OTHER fallback (no implicit/unknown type). The DB text-enum
+//     column plus the named CHECK below reject unsupported/case-mismatched/
+//     empty values at the storage boundary; the Zod boundary in
+//     src/types/schemas/source-ref.ts enforces the same union at runtime.
+//   - `ref` (NOT NULL) is the §9 reference value exactly as captured — an opaque
+//     text reference whose meaning follows `type` (a URL for URL, an internal
+//     document reference for INTERNAL_DOC, a product-fact reference for
+//     PRODUCT_FACT, a research reference for RESEARCH). No fetching,
+//     reachability check, URL normalization or content inspection happens in
+//     this slice. The legacy separate `url`/`evidence_ref` columns collapse into
+//     this single §9 reference field.
+//   - `captured_at` (NOT NULL) is the application-supplied moment the source was
+//     captured (§9). It is distinct from the append-only system `created_at`
+//     insert timestamp below.
+//   - The legacy reference-only fields `title`, `classification` and the
+//     `source_kind`/`url`/`evidence_ref` split are NOT shipped: §9's SourceRef
+//     defines no title or classification (the classification in the §9 Claim
+//     block and on ContentPackageVersion belongs to those rows, not to each
+//     source reference), and V1.0 names a single `ref` value. No classification
+//     union is therefore invented on the row.
+//
+// APPEND-ONLY SHAPE: the row has no `updated_at`, no update/delete API, no
+// repository/service and no mutation surface in this task — a captured source
+// reference is written once and never changed (immutability is by schema/
+// contract shape, matching the accepted run/parse/citation tables).
+//
+// OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// with ON DELETE CASCADE (the established Project-scoping FK every Search Growth
+// row carries). source_refs has no other parent in the accepted schema yet (the
+// claims and content tables arrive in later tasks and reference source refs by
+// id), so Project ownership is the row's only relationship. Deleting a whole
+// Project cascades its source references away, so a source reference can never
+// dangle.
+//
+// NO BUSINESS UNIQUENESS: neither §9, the legacy reference type nor the legacy
+// migration reference defines an identity/uniqueness rule for source refs (the
+// same source ref can be shared by many Claim/ContentVersion rows), so no
+// business-unique index is added. The single non-unique index below serves the
+// project -> source-refs read path and the project-delete cascade path only.
+// ============================================================================
+
+export const sourceRefs = sqliteTable(
+  "source_refs",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The V1.0 source type (URL | INTERNAL_DOC | PRODUCT_FACT | RESEARCH — the
+    // exact §9 SourceRef union). DB text-enum column + the named CHECK below;
+    // the Zod boundary validates it. No source classification/inference exists
+    // in this slice.
+    type: text("type", {
+      enum: ["URL", "INTERNAL_DOC", "PRODUCT_FACT", "RESEARCH"],
+    }).notNull(),
+    // The §9 reference value exactly as captured (opaque text; meaning follows
+    // `type`). Stored verbatim — no fetch/reachability/normalization/content
+    // processing is performed here.
+    ref: text("ref").notNull(),
+    // The application-supplied moment the source was captured (§9). Distinct
+    // from the append-only system `created_at` insert timestamp below.
+    capturedAt: text("captured_at").notNull(),
+    // Append-only creation timestamp (system insert time). No updated_at column
+    // exists — a captured source reference is written once and never changed.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // DB-level enum rejection for the exact V1.0 SourceRef type union (the TASK
+    // requires migration-backed enum rejection; the Zod boundary enforces the
+    // same list at the runtime edge).
+    check(
+      "source_refs_type_valid",
+      sql`(${table.type} IN ('URL','INTERNAL_DOC','PRODUCT_FACT','RESEARCH'))`,
+    ),
+    // Project -> source-refs reads and the project-delete cascade path.
+    index("source_refs_project_idx").on(table.projectId),
   ],
 );

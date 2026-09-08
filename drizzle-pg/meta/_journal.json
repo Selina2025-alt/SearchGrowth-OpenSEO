@@ -239,6 +239,13 @@
       "when": 1788858136654,
       "tag": "0033_supreme_talon",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1788860916350,
+      "tag": "0034_hard_moon_knight",
+      "breakpoints": true
     }
   ]
 }
