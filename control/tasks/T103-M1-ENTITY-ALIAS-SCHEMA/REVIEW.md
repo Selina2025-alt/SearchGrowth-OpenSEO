@@ -70,3 +70,25 @@ REVIEW DATE: 2026-09-08
 ## MERGE DECISION
 
 DO NOT MERGE. All three executor rounds are exhausted. Human Gate required; no further dispatch is authorized.
+
+---
+
+# REVIEW T103-M1-ENTITY-ALIAS-SCHEMA — AUTHORIZED RECOVERY R1
+
+VERDICT: PASS
+REVIEW DATE: 2026-09-08
+
+## VERIFIED
+
+- `tracked_entities.owning_entity_id` is nullable in both dialects and protected by the same-Project composite self-FK `(project_id, owning_entity_id) → tracked_entities(project_id, id)` with `ON DELETE NO ACTION`. Focused migration-backed tests prove same-Project persistence, cross-Project rejection, and restrictive delete behavior.
+- `entity_aliases.priority` is an `integer NOT NULL DEFAULT 0` in both dialects, appears in the Drizzle row/domain contract, and has persistence/default coverage. No ranking or matching behavior was added.
+- D1 `0048` and PostgreSQL `0026`, their journals and snapshots include both fields and constraints. Delivery records clean dual-dialect `db:generate`, local migration exit 0, 248 focused tests, 1,240 full tests, format, types, lint, build, and `ci:check`, all exit 0.
+- Targeted diff and migration inspection confirm no added CRUD, connector, credential, external request, production action, dependency, scope, or ADR change. The unrelated untracked `git` wrapper was dry-run verified and removed before merge.
+
+## FINDINGS
+
+- No blocking or major findings. Live PostgreSQL migration remains intentionally unrun because it requires an unavailable `POSTGRES_DATABASE_URL`; generated PostgreSQL DDL, snapshot parity, and `db:generate` evidence cover this credential-free schema task.
+
+## MERGE DECISION
+
+PASS. Merged only to `integration/ai-v1` as `fb7b3e7c77cf6b89463367a291a9e52f2924a997`.

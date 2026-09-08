@@ -8,8 +8,10 @@
 | `T100-M1-MARKET-PROFILE-SCHEMA`     | PASS (round 3/3) | 2026-09-07    | `control/tasks/T100-M1-MARKET-PROFILE-SCHEMA/REVIEW.md`; dual-dialect schema/migrations, explicit non-null market identity, 192 focused and 1,184 full tests, clean `db:generate`, build and `ci:check` | `7256dd013e860eb3e530aa11059c5c63bf4ecd94` |
 | `T101-M1-SEARCH-TOPIC-SCHEMA`       | PASS (round 2/3) | 2026-09-07    | `control/tasks/T101-M1-SEARCH-TOPIC-SCHEMA/REVIEW.md`; same-Project merge integrity, stable identity, dual-dialect 0046/0024 migrations, 207 focused and 1,199 full tests, build and `ci:check`         | `16ce86f379b6258b8613760a5b11a5211b4932a3` |
 | `T102-M1-TOPIC-KEYWORD-REFS-SCHEMA` | PASS (round 2/3) | 2026-09-07    | `control/tasks/T102-M1-TOPIC-KEYWORD-REFS-SCHEMA/REVIEW.md`; existing OpenSEO keyword reuse, same-Project composite FKs, 0047/0025 migrations, 212 focused and 1,212 full tests, build and `ci:check`   | `034f757bf993a8266797185813adfe20615bab47` |
+| `T103-M1-ENTITY-ALIAS-SCHEMA`       | PASS (recovery)  | 2026-09-08    | `control/tasks/T103-M1-ENTITY-ALIAS-SCHEMA/REVIEW.md`; same-Project owning entity relation, alias priority default, 0048/0026 dual-dialect migrations, 248 focused and 1,240 full tests, build and `ci:check` | `fb7b3e7c77cf6b89463367a291a9e52f2924a997` |
 
 ## Active work
 
-- T103 is the next approved credential-free M1 slice: TrackedEntity and EntityAlias domain foundations.
+- T103 TrackedEntity and EntityAlias domain foundations are accepted and merged.
+- Next approved credential-free M1 slice: SearchPrompt schema and domain contract.
 - M0.5 real connector/account feasibility: pending Human Gates H1/H2; it does not authorize connector implementation or external publishing.

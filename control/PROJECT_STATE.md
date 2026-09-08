@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T103-M1-ENTITY-ALIAS-SCHEMA
+CURRENT TASK: T104-M1-SEARCH-PROMPT-SCHEMA (PREPARING)
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 034f757bf993a8266797185813adfe20615bab47
-LAST REVIEW: T102-M1-TOPIC-KEYWORD-REFS-SCHEMA ROUND 2 PASS AND MERGED
-CURRENT ROUND: RECOVERY R1 / 1 (AUTHORIZED)
-LAST COMPLETED ACTION: Product Owner authorized T103 executor recovery and one controlled round reset; Codex verified the corrected safe-mode executor runtime with exit 0 and exact `EXECUTOR_RUNTIME_OK` output, then dispatched Recovery R1 into the existing worktree.
-CURRENT BLOCKER: T103 still requires the direct V1.0 `owning_entity_id?` and alias `priority` corrections. M0.5 still requires external accounts and publishing Human Gates H1/H2.
-NEXT EXACT ACTION: Wait for the bounded T103 Recovery R1 DELIVERY; then Fast Review only after it is written.
+LATEST ACCEPTED COMMIT: fb7b3e7c77cf6b89463367a291a9e52f2924a997
+LAST REVIEW: T103-M1-ENTITY-ALIAS-SCHEMA AUTHORIZED RECOVERY R1 PASS AND MERGED
+CURRENT ROUND: 0 / 3
+LAST COMPLETED ACTION: Codex completed the authorized T103 Fast Review, removed the dry-run-verified unrelated wrapper artifact, and merged the accepted task only to `integration/ai-v1`.
+CURRENT BLOCKER: M0.5 still requires external accounts and publishing Human Gates H1/H2; it does not block the credential-free T104 SearchPrompt domain slice.
+NEXT EXACT ACTION: Create and dispatch the bounded T104-M1-SEARCH-PROMPT-SCHEMA task to Claude after reading its direct requirement references.
 
 ## COMPLETED
 
@@ -25,7 +25,7 @@ NEXT EXACT ACTION: Wait for the bounded T103 Recovery R1 DELIVERY; then Fast Rev
 
 ## IN PROGRESS
 
-T103-M1-ENTITY-ALIAS-SCHEMA has one Product Owner-authorized bounded Recovery R1 after runtime smoke validation.
+T103-M1-ENTITY-ALIAS-SCHEMA passed its authorized recovery and merged to `integration/ai-v1`.
 
 ## BLOCKED
 
@@ -33,4 +33,4 @@ T103-M1-ENTITY-ALIAS-SCHEMA has one Product Owner-authorized bounded Recovery R1
 
 ## NEXT
 
-Dispatch the authorized bounded T103 Recovery R1, wait for DELIVERY, then perform Fast Review. Never merge to `main`.
+Create and dispatch T104 SearchPrompt schema, then wait for DELIVERY and perform Fast Review. Never merge to `main`.
