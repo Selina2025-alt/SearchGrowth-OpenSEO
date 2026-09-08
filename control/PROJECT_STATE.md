@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 034f757bf993a8266797185813adfe20615bab47
 LAST REVIEW: T102-M1-TOPIC-KEYWORD-REFS-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: Codex completed T103 Round 1 Fast Review, found the direct domain-field omission, and dispatched the bounded Round 2 correction to Claude in the existing isolated worktree under the approved safe command set.
+LAST COMPLETED ACTION: Codex confirmed the dispatched T103 Round 2 Claude executor remains live (PID 323128, started 2026-09-08 09:00:46 +08:00); its CPU time is advancing and no new DELIVERY has been written yet.
 CURRENT BLOCKER: T103 Round 1 omits the direct V1.0 `owning_entity_id?` and alias `priority` fields from 05_DOMAIN_DATA_MODEL.md; the remainder is unaccepted pending the bounded schema-contract correction. M0.5 still requires external accounts and publishing Human Gates H1/H2.
-NEXT EXACT ACTION: Wait for T103 Round 2 DELIVERY; then Fast Review the two required fields, same-Project ownership, migrations/snapshots, scope/security, and gate evidence.
+NEXT EXACT ACTION: Wait for the live T103 Round 2 executor to write DELIVERY; then Fast Review the two required fields, same-Project ownership, migrations/snapshots, scope/security, and gate evidence.
 
 ## COMPLETED
 
