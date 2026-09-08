@@ -9,7 +9,7 @@
 | `T101-M1-SEARCH-TOPIC-SCHEMA`       | PASS (round 2/3) | 2026-09-07    | `control/tasks/T101-M1-SEARCH-TOPIC-SCHEMA/REVIEW.md`; same-Project merge integrity, stable identity, dual-dialect 0046/0024 migrations, 207 focused and 1,199 full tests, build and `ci:check`               | `16ce86f379b6258b8613760a5b11a5211b4932a3` |
 | `T102-M1-TOPIC-KEYWORD-REFS-SCHEMA` | PASS (round 2/3) | 2026-09-07    | `control/tasks/T102-M1-TOPIC-KEYWORD-REFS-SCHEMA/REVIEW.md`; existing OpenSEO keyword reuse, same-Project composite FKs, 0047/0025 migrations, 212 focused and 1,212 full tests, build and `ci:check`         | `034f757bf993a8266797185813adfe20615bab47` |
 | `T103-M1-ENTITY-ALIAS-SCHEMA`       | PASS (recovery)  | 2026-09-08    | `control/tasks/T103-M1-ENTITY-ALIAS-SCHEMA/REVIEW.md`; same-Project owning entity relation, alias priority default, 0048/0026 dual-dialect migrations, 248 focused and 1,240 full tests, build and `ci:check` | `fb7b3e7c77cf6b89463367a291a9e52f2924a997` |
-| `T104-M1-SEARCH-PROMPT-SCHEMA`      | PASS (round 2/3) | 2026-09-08    | `control/tasks/T104-M1-SEARCH-PROMPT-SCHEMA/REVIEW.md`; versioned prompt identity, same-Project Topic/MarketProfile FKs, 0049/0027 migrations, 227 focused and 1,263 full tests, build and `ci:check` | `4b2e420d0375a228279bb3ead4c256aaa9520d08` |
+| `T104-M1-SEARCH-PROMPT-SCHEMA`      | PASS (round 2/3) | 2026-09-08    | `control/tasks/T104-M1-SEARCH-PROMPT-SCHEMA/REVIEW.md`; versioned prompt identity, same-Project Topic/MarketProfile FKs, 0049/0027 migrations, 227 focused and 1,263 full tests, build and `ci:check`         | `4b2e420d0375a228279bb3ead4c256aaa9520d08` |
 
 ## Active work
 

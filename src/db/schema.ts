@@ -80,6 +80,7 @@ export const {
   trackedEntities,
   entityAliases,
   searchPrompts,
+  geoObservationRuns,
   savedKeywords,
   savedKeywordTags,
   savedKeywordTagAssignments,
