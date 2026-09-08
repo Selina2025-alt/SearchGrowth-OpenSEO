@@ -15,7 +15,7 @@
       "--no-session-persistence",
       "--safe-mode",
       "--model",
-      "deepseek-v4-Pro[1m]",
+      "deepseek-v4-Pro",
       "--tools",
       "Read,Glob,Grep,Bash,Write,Edit",
       "--allowedTools",
@@ -23,7 +23,7 @@
     ],
     "windowsFallbackCommand": "claude",
     "observedCliVersion": "2.1.261",
-    "observedBackendModel": "deepseek-v4-Pro[1m]"
+    "observedBackendModel": "deepseek-v4-Pro"
   },
   "safety": {
     "allowMainMerge": false,
