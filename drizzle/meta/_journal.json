@@ -386,6 +386,13 @@
       "when": 1788853662439,
       "tag": "0054_optimal_magik",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "6",
+      "when": 1788858131090,
+      "tag": "0055_lowly_sumo",
+      "breakpoints": true
     }
   ]
 }

@@ -84,6 +84,7 @@ export const {
   geoObservationParses,
   geoEntityMentions,
   geoCitations,
+  searchGrowthOpportunities,
   savedKeywords,
   savedKeywordTags,
   savedKeywordTagAssignments,
