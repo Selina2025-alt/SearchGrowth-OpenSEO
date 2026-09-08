@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T107 geo_entity_mentions ownership keys plus the T108 geo_citations additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -937,5 +938,145 @@ export const geoEntityMentions = pgTable(
     index("geo_entity_mentions_parse_idx").on(table.parseId),
     // Entity -> mentions reads and the entity-delete cascade path.
     index("geo_entity_mentions_entity_idx").on(table.entityId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized geo citations (Postgres mirror).
+//
+// A geo citation is one normalized citation fact the parser recognised in a
+// source answer (05_DOMAIN_DATA_MODEL.md §7 GeoCitation, ADR-005): the raw URL
+// exactly as cited plus the reconciled identity fields (normalized URL, domain,
+// source ownership and, once a later receipt-matching task resolves it, the
+// matched publication receipt). This slice is storage and contract only — no
+// parser, URL normalization implementation, ownership classification logic,
+// receipt matching, attribution, provider/network, CRUD or external action is
+// implemented here, and the raw/normalized URL values in tests are fixtures a
+// later out-of-scope task will produce.
+//
+// FIELD RECONCILIATION (05_DOMAIN_DATA_MODEL.md §7 is the direct field
+// contract; schemas/domain-types.ts GeoCitation and schemas/migrations-reference
+// .sql geo_citations supply reference context):
+//   - The stable `id` primary key and the append-only `created_at` system
+//     timestamp are the additions the established Search Growth schema
+//     convention requires (every V1.0 row has a stable text id and §7's snippet
+//     omits it only because it lists relations first).
+//   - `project_id` is the explicit Project ownership key (the T107 Round 2
+//     pattern): the citation carries its own project so the DB itself binds it
+//     to a same-Project concrete Parse (composite FK below). It is an ownership
+//     fact on an already-append-only row — it enables no mutation/current-
+//     pointer/reparse behavior.
+//   - §7 lists `run_id / parse_id`; this table binds the CONCRETE PARSE
+//     (`parse_id`, NOT NULL) rather than a run. A citation is a parser-
+//     extracted/reconciled output of a specific immutable parser version
+//     (ADR-005; T106/T107 establish that parsed citations are normalized by a
+//     later GeoCitation task), so binding the source parse is what makes
+//     Parse-version isolation structural: a parser upgrade creates a new parse
+//     row whose citations coexist with — and never overwrite — the prior
+//     version's citations. The citation's run is the source parse's run,
+//     reachable through geo_observation_parses.run_id, so no run_id column is
+//     duplicated here. The reference/domain-types `run_id` is reconciled as that
+//     transitive run binding.
+//   - `raw_url` (NOT NULL) is the citation URL exactly as the answer cited it
+//     and `normalized_url` (NOT NULL) is its normalized identity key
+//     (migrations-reference.sql normalized_url; 07_GEO_MEASUREMENT_SPEC.md §8).
+//     No normalization algorithm exists in this slice.
+//   - `domain` (NOT NULL) is the citation site domain; `title` (nullable) and
+//     `position` (nullable integer) are the optional citation title and ordinal
+//     position in the answer. `position` follows §7's direct field name (the
+//     reference `citation_position` is a design-artifact rename).
+//   - `source_ownership` is exactly the V1.0 CitationOwnership union
+//     (OWNED_DOMAIN | CONTROLLED_PUBLICATION | EARNED_THIRD_PARTY | COMPETITOR
+//     | UNKNOWN — schemas/domain-types.ts CitationOwnership). DB text-enum
+//     column; the Zod boundary in src/types/schemas/geo-citation.ts rejects
+//     unsupported/case-mismatched/empty values. No classification logic runs
+//     here.
+//   - `matched_publication_receipt_id` is the optional publication-receipt
+//     relation (§7 `matched_publication_receipt_id?`; migrations-reference.sql
+//     declares the same unconstrained nullable column). The publication_receipts
+//     table does not exist in the accepted schema yet, so this slice stores the
+//     scalar reference exactly as the reference SQL does; the same-Project
+//     composite FK is added by that later task's migration alongside the table
+//     itself.
+//   - The reference-only context fields `source_type` and `safe_url_status` are
+//     NOT shipped: the TASK field list names no source-type/safe-URL column.
+//
+// PROJECT SCOPING / DELETE BEHAVIOR: ownership is EXPLICIT on the row and
+// database-enforced — project_id is a NOT NULL FK to projects(id) ON DELETE
+// CASCADE, and the SAME-PROJECT composite FK
+// (project_id, parse_id) -> geo_observation_parses(project_id, id) rejects a
+// citation whose concrete Parse belongs to another Project or whose own
+// project_id does not match its Parse. Parse-version isolation is structural:
+// citations stay attached to the exact source Parse row (v1 or v2), never to a
+// mutable "current" parse pointer. Deleting a Project or a parse cascades the
+// citation away, so a citation can never dangle.
+//
+// NO BUSINESS UNIQUENESS: the migration reference's `(run_id, normalized_url)`
+// unique index is intentionally NOT shipped — the TASK forbids business
+// uniqueness, and the same URL can legitimately be cited at several positions /
+// by several parse versions. The single non-unique index below serves the
+// parse -> citations read path and its cascade delete path only.
+// ============================================================================
+
+export const geoCitations = pgTable(
+  "geo_citations",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The immutable, versioned parse that extracted/reconciled this citation
+    // (geo_observation_parses.id, ADR-005). Bound to the row's project by the
+    // composite FK below, which cascades citations away when the parse (or,
+    // through the run/parse cascade, a whole project) is deleted.
+    parseId: text("parse_id").notNull(),
+    // The citation URL exactly as cited in the source answer. No normalization
+    // is performed in this slice.
+    rawUrl: text("raw_url").notNull(),
+    // The normalized identity key of the citation URL (later URL-normalization
+    // task output).
+    normalizedUrl: text("normalized_url").notNull(),
+    // The citation site domain (later attribution task output).
+    domain: text("domain").notNull(),
+    // Optional citation title from the source answer (NULL = none given).
+    title: text("title"),
+    // Optional ordinal position of the citation in the source answer (§7
+    // `position`; NULL = no position recorded).
+    position: integer("position"),
+    // Source-ownership classification fact (OWNED_DOMAIN | CONTROLLED_PUBLICATION
+    // | EARNED_THIRD_PARTY | COMPETITOR | UNKNOWN — the exact V1.0
+    // CitationOwnership union). No classification logic exists in this slice.
+    sourceOwnership: text("source_ownership", {
+      enum: [
+        "OWNED_DOMAIN",
+        "CONTROLLED_PUBLICATION",
+        "EARNED_THIRD_PARTY",
+        "COMPETITOR",
+        "UNKNOWN",
+      ],
+    }).notNull(),
+    // Optional publication-receipt relation (§7 `matched_publication_receipt_id?`).
+    // Stored as an unconstrained scalar reference because the publication_receipts
+    // table does not exist in the accepted schema yet; the later task that creates
+    // it adds the same-Project composite FK. NULL = no receipt matched.
+    matchedPublicationReceiptId: text("matched_publication_receipt_id"),
+    // Append-only creation timestamp (system insert time). No updated_at column.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the concrete parse: the citation's project_id
+    // must equal the parse's project_id. Deleting a parse removes its citations
+    // (the referenced (project_id, id) pair is unique via the supporting
+    // geo_observation_parses_project_id_id_idx unique index above). A citation
+    // whose parse lives on another Project has no matching parent row and is
+    // rejected by the DB.
+    foreignKey({
+      columns: [table.projectId, table.parseId],
+      foreignColumns: [geoObservationParses.projectId, geoObservationParses.id],
+    }).onDelete("cascade"),
+    // Parse -> citations reads and the parse-delete cascade path.
+    index("geo_citations_parse_idx").on(table.parseId),
   ],
 );
