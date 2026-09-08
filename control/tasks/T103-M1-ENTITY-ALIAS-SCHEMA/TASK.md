@@ -6,6 +6,10 @@ OWNER: Claude Code + DeepSeek Implementation Engineer
 CONTROLLER: Codex
 MAX ROUNDS: 3
 
+## ROUND 2 FIX CONTEXT
+
+Round 1 is blocked only because it omitted two fields that `05_DOMAIN_DATA_MODEL.md` directly requires: optional `tracked_entities.owning_entity_id` and `entity_aliases.priority`. The design-reference SQL and `schemas/domain-types.ts` omissions do not override the accepted domain-model field list. Resume the existing worktree and change only what is necessary to add both fields, their cross-dialect schema/migration/snapshot representation, Zod/domain contracts, relationship/default decisions, and migration-backed tests. Preserve all accepted Round 1 same-Project alias ownership, stable identity, no-dangling behavior, scope, and gate requirements. Do not add parser/matcher/CRUD/UI, hidden business uniqueness, or unrelated fields.
+
 ## GOAL
 
 Add the normalized, Project-scoped `TrackedEntity` and `EntityAlias` persistence and domain validation foundation for the V1.0 brand/product/competitor model. This task is storage and contract only; parser, matching workflow, CRUD, and UI remain separate.
