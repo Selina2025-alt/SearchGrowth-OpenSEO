@@ -46,3 +46,25 @@ VERDICT: BLOCKED
 ## MERGE DECISION
 
 Do not merge. Dispatch the final permitted executor round as a gate-only recovery.
+
+---
+
+# REVIEW — T107-M1-GEO-ENTITY-MENTION-SCHEMA, Round 3 Final
+
+VERDICT: PASS
+
+## VERIFIED
+
+- Round 3 is gate-only: its only implementation deltas are formatting and documented file-scoped `max-lines` lint suppressions; no DDL, migration, snapshot, ownership invariant, or business behavior changed.
+- Round 2's explicit `project_id` chain and composite FKs remain present in both dialects: Parse → Run, Mention → concrete Parse, and Mention → TrackedEntity. The supporting `(project_id, id)` indexes are limited to composite-FK targets.
+- D1 `0053` and PostgreSQL `0031` are forward-only, preserve pre-existing rows by deriving ownership from the parent chain, and leave accepted historical migrations untouched. Round 2 final dual-dialect generation was a no-op; the focused 251-test suite covers parity and same-Project/cross-Project/mismatch behavior.
+- Raw/parse append-only shape and parse-version isolation remain intact. No provider, parser runtime, CRUD, UI, dependency, credential, publishing, paid, or production change appears.
+- Round 3 records final exit 0 for format, types, lint, full test (156 files / 1,330 tests), build, and `ci:check`. `git diff --check` is clean.
+
+## FINDINGS
+
+None.
+
+## MERGE DECISION
+
+Approve merge of the reviewed T107 task branch into `integration/ai-v1` only. Do not merge to `main`.

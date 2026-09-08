@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T107-M1-GEO-ENTITY-MENTION-SCHEMA
+CURRENT TASK: NEXT M1 TASK (NOT YET PLANNED)
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 1263b360ec96ed98048f8bdf1263a871b33c9a16
-LAST REVIEW: T106-M1-GEO-OBSERVATION-PARSE-SCHEMA ROUND 1 PASS AND MERGED
-CURRENT ROUND: 3 / 3
-LAST COMPLETED ACTION: Codex verified T107 Round 2's ownership repair and dispatched the final gate-only Round 3 because aggregate gates were harness-denied.
+LATEST ACCEPTED COMMIT: bdbc03bfdcf5cc9bf8d930856433a598398340a9
+LAST REVIEW: T107-M1-GEO-ENTITY-MENTION-SCHEMA ROUND 3 PASS AND MERGED
+CURRENT ROUND: 0 / 3
+LAST COMPLETED ACTION: Codex Fast Review accepted T107 and merged it only to `integration/ai-v1`.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T107 Round 3 DELIVERY, then perform targeted Fast Review. Do not merge to `main`.
+NEXT EXACT ACTION: Create and dispatch the next credential-free approved M1 domain task; do not merge to `main`.
 
 ## COMPLETED
 
@@ -29,7 +29,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T107 Round 3 DELIVERY, then pe
 
 ## IN PROGRESS
 
-T107-M1-GEO-ENTITY-MENTION-SCHEMA Round 3 is executing the final gate-only recovery on the approved ownership expansion.
+No implementation task is currently executing. The next approved credential-free M1 domain slice will be dispatched automatically.
 
 ## BLOCKED
 
@@ -37,4 +37,4 @@ T107-M1-GEO-ENTITY-MENTION-SCHEMA Round 3 is executing the final gate-only recov
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR: wait for T107 Round 3 DELIVERY, then perform targeted Fast Review. Never merge to `main`.
+Create and dispatch the next approved M1 Core Domain task. Never merge to `main`.

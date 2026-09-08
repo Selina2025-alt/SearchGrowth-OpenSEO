@@ -12,6 +12,7 @@
 | `T104-M1-SEARCH-PROMPT-SCHEMA`         | PASS (round 2/3) | 2026-09-08    | `control/tasks/T104-M1-SEARCH-PROMPT-SCHEMA/REVIEW.md`; versioned prompt identity, same-Project Topic/MarketProfile FKs, 0049/0027 migrations, 227 focused and 1,263 full tests, build and `ci:check`                      | `4b2e420d0375a228279bb3ead4c256aaa9520d08` |
 | `T105-M1-GEO-OBSERVATION-RUNS-SCHEMA`  | PASS (round 1/3) | 2026-09-08    | `control/tasks/T105-M1-GEO-OBSERVATION-RUNS-SCHEMA/REVIEW.md`; append-only raw observation contract, same-Project Prompt/MarketProfile FKs, 0050/0028 migrations, 234 focused and 1,288 full tests, build and `ci:check`   | `b5924941da794fa2e6b79be22e52d58a16af927b` |
 | `T106-M1-GEO-OBSERVATION-PARSE-SCHEMA` | PASS (round 1/3) | 2026-09-08    | `control/tasks/T106-M1-GEO-OBSERVATION-PARSE-SCHEMA/REVIEW.md`; append-only versioned parse contract, run FK and sole parse-version identity, 0051/0029 migrations, 234 focused and 1,308 full tests, build and `ci:check` | `1263b360ec96ed98048f8bdf1263a871b33c9a16` |
+| `T107-M1-GEO-ENTITY-MENTION-SCHEMA`    | PASS (round 3/3) | 2026-09-08    | `control/tasks/T107-M1-GEO-ENTITY-MENTION-SCHEMA/REVIEW.md`; explicit Project ownership and composite Parse/Entity FKs, forward 0052/0053 and 0030/0031 migrations, 251 focused and 1,330 full tests, build and `ci:check` | `bdbc03bfdcf5cc9bf8d930856433a598398340a9` |
 
 ## Active work
 
@@ -19,5 +20,5 @@
 - T104 SearchPrompt schema and domain contract are accepted and merged.
 - T105 GeoObservationRun schema and domain contract are accepted and merged.
 - T106 GeoObservationParse schema and domain contract are accepted and merged.
-- T107 GeoEntityMention Round 2 is authorized only for the Product Owner-approved forward Project ownership integrity recovery; it is not accepted or merged.
+- T107 GeoEntityMention schema and Project ownership recovery are accepted and merged.
 - M0.5 real connector/account feasibility: pending Human Gates H1/H2; it does not authorize connector implementation or external publishing.
