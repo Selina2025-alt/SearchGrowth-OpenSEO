@@ -511,6 +511,14 @@ export const searchPrompts = pgTable(
     index("search_prompts_topic_idx").on(table.topicId),
     // Market profile -> prompts reads and the profile cascade delete path.
     index("search_prompts_market_profile_idx").on(table.marketProfileId),
+    // Supporting unique target for the geo_observation_runs composite FK
+    // ((project_id, prompt_id) -> search_prompts(project_id, id), defined
+    // below). id is already the PK, so this composite accepts exactly the rows
+    // the PK accepts and adds no business uniqueness.
+    uniqueIndex("search_prompts_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
     // Score-boundary checks directly required by the domain contract
     // (schemas/domain-types.ts SearchPrompt: businessFit and priority are
     // 0..100). These enforce the range only; no ranking behavior is created.
@@ -522,5 +530,190 @@ export const searchPrompts = pgTable(
       "search_prompts_priority_range",
       sql`${table.priority} >= 0 AND ${table.priority} <= 100`,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `geo_observation_runs` table in
+// ../search-growth.schema.ts (keep the two files structurally identical).
+//
+// A geo observation run is the immutable record of ONE observation event — the
+// raw "what occurred" fact (05_DOMAIN_DATA_MODEL.md §6 GeoObservationRun —
+// Immutable). It is storage and contract only: no provider/execution/sampling/
+// cache/parser/metrics/CRUD behavior is added here, and a row is written once
+// and never updated.
+//
+// FIELD RECONCILIATION (05_DOMAIN_DATA_MODEL.md §6 is the direct contract):
+//   - §6 field list is shipped verbatim (id, batch_id, project_id, prompt_id,
+//     prompt_version, surface_type, surface_name, fidelity, provider?, engine?,
+//     model?, model_version?, web_search?, search_mode?, market_profile_id?,
+//     repeat_index, application_cache_bypassed, raw_answer, raw_response,
+//     provider_request_id?, usage/cost, started_at, finished_at, status).
+//   - `fidelity` (not the migration-reference `surface_fidelity`) is the column
+//     name because §6 and the TASK field list name the direct field `fidelity`;
+//     the reference SQL's surface_* prefix is a design-artifact rename.
+//   - Raw payloads are captured as raw text columns only: `raw_answer`, `raw_response`
+//     and `usage_json`. The design-reference `raw_citations_json` and
+//     `raw_response_ref` are NOT separate columns (citations stay inside the raw
+//     response payload; the later Parse task extracts them; V1.0 has no external
+//     raw-response store). No relationship is encoded in JSON.
+//   - The reference/domain-types contextual fields `topic_id`, `country`,
+//     `language` and `observed_at` are NOT shipped (see the SQLite mirror for
+//     the full reconciliation). `created_at` is the append-only creation
+//     timestamp the task requires.
+//
+// APPEND-ONLY SHAPE: the row has no `updated_at`, no update/delete API, no
+// repository/service and no mutation surface in this task — immutability is by
+// schema/contract shape, not a DB trigger. Raw observation and the later
+// versioned parse stay separate (ADR-005).
+//
+// OWNERSHIP / RELATIONSHIPS (every relation is an explicit typed FK column):
+//   - Each run belongs to an existing same-Project SearchPrompt: the composite
+//     FK (project_id, prompt_id) -> search_prompts(project_id, id) carries this
+//     row's project_id as its leading column, so a run on project A can never
+//     reference a prompt on project B. The referenced (project_id, id) pair is
+//     unique via the supporting `search_prompts_project_id_id_idx` index above.
+//   - `prompt_version` records the observed prompt version as a typed fact
+//     snapshot (§6). It is not a second FK: search_prompts.version is a value
+//     on the same row the prompt FK already binds to.
+//   - An optional same-Project market profile may scope the observation; the
+//     composite FK (project_id, market_profile_id) ->
+//     search_market_profiles(project_id, id) keeps it same-Project.
+//   - DELETE BEHAVIOR (no dangling run references): deleting a Prompt, a market
+//     profile, or a whole Project cascades the run away. Cascade matches the
+//     accepted tree-wide teardown convention.
+//
+// NO UNIQUENESS: there is intentionally no unique index. Fresh GEO sampling
+// must create independent rows for repeats of the same prompt/provider/model/
+// surface (21_TEST_ACCEPTANCE_PLAN.md §3); any uniqueness rule would prevent it.
+// ============================================================================
+
+export const geoObservationRuns = pgTable(
+  "geo_observation_runs",
+  {
+    id: text("id").primaryKey(),
+    // The observation batch this run belongs to. Free-form grouping id (V1.0
+    // defines no batch table); a batch of repeats produces multiple run rows.
+    batchId: text("batch_id").notNull(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The stable SearchPrompt id observed (search_prompts.id). Bound to the
+    // run's project by the composite FK below.
+    promptId: text("prompt_id").notNull(),
+    // The observed prompt version, recorded as the fact snapshot (§6). The
+    // referenced prompt row's own `version` is the same value; this is stored
+    // so the immutable run is self-describing without a join.
+    promptVersion: integer("prompt_version").notNull(),
+    // The observation surface kind. DB text-enum column with the canonical
+    // ObservationSurfaceType values (schemas/domain-types.ts); the Zod boundary
+    // rejects unsupported/case-mismatched/empty values at runtime.
+    surfaceType: text("surface_type", {
+      enum: [
+        "AGGREGATED_SEARCH_DATA",
+        "MODEL_API_SEARCH",
+        "CONSUMER_PRODUCT_OBSERVED",
+        "MANUAL_CONSUMER_OBSERVATION",
+      ],
+    }).notNull(),
+    // The concrete surface observed (engine/product/API name). Free text; the
+    // observed surface's identity/name is not an enum in V1.0.
+    surfaceName: text("surface_name").notNull(),
+    // How faithful the observation is to the consumer surface. DB text-enum
+    // column with the canonical SurfaceFidelity values (schemas/domain-types
+    // .ts); the Zod boundary validates it at runtime.
+    fidelity: text("fidelity", {
+      enum: [
+        "AGGREGATED",
+        "API_SIMULATION",
+        "CONSUMER_OBSERVED",
+        "MANUAL_OBSERVED",
+      ],
+    }).notNull(),
+    // Optional provider / engine / model / model version that produced the
+    // observation. Free-text provenance fields; no provider enum is invented.
+    provider: text("provider"),
+    engine: text("engine"),
+    model: text("model"),
+    modelVersion: text("model_version"),
+    // Optional 3-state web-search flag: TRUE = web search enabled, FALSE = not,
+    // NULL = unknown/not applicable for the surface.
+    webSearch: boolean("web_search"),
+    // Optional search-mode label (free text; V1.0 defines no enum for it).
+    searchMode: text("search_mode"),
+    // Optional same-Project SearchMarketProfile the observation is scoped to;
+    // NULL means no profile is attached. The composite FK below keeps it
+    // same-Project and cascades runs away when a profile is deleted.
+    marketProfileId: text("market_profile_id"),
+    // Repeat ordinal of this observation within its sampling loop. Validated as
+    // a non-negative integer at the Zod boundary and by the CHECK constraint
+    // below. Fresh GEO sampling creates independent rows per repeat
+    // (21_TEST_ACCEPTANCE_PLAN.md §3); no uniqueness rule groups them.
+    repeatIndex: integer("repeat_index").notNull(),
+    // Typed fresh-path flag. The direct fresh-path invariant
+    // application_cache_bypassed=true is enforced by the later sampling/
+    // execution path (ADR-003); this slice only persists the typed flag and
+    // does not implement cache behavior.
+    applicationCacheBypassed: boolean("application_cache_bypassed").notNull(),
+    // Raw payload capture (raw text only, never parsed here): the observed
+    // answer text and the full raw provider/engine response. NULL when an
+    // observation ended before the surface returned a payload (e.g. a FAILED
+    // run); the later Parse task extracts entities/citations from these.
+    rawAnswer: text("raw_answer"),
+    rawResponse: text("raw_response"),
+    // The provider's request id for this observation (independent per run).
+    providerRequestId: text("provider_request_id"),
+    // Raw usage/cost payload (input/output tokens, cost, ...) captured as raw
+    // JSON text (migrations-reference.sql usage_json). Not parsed here —
+    // metrics behavior is a later task.
+    usage: text("usage_json"),
+    // The observation request window (§6). started_at is the request start; a
+    // recorded run always started. finished_at is NULL only for a run that did
+    // not reach a clean completion.
+    startedAt: text("started_at").notNull(),
+    finishedAt: text("finished_at"),
+    // Run lifecycle status (PENDING | RUNNING | SUCCEEDED | FAILED — the
+    // canonical run-status union in schemas/domain-types.ts). DB text-enum
+    // column; the Zod boundary validates it. Which states the future execution
+    // path persists is that task's concern, not this storage slice's.
+    status: text("status", {
+      enum: ["PENDING", "RUNNING", "SUCCEEDED", "FAILED"],
+    }).notNull(),
+    // Append-only creation timestamp (system insert time). No updated_at
+    // column exists — the row is immutable once written.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the prompt: the run's project_id must equal
+    // the prompt's project_id. Deleting a prompt removes its runs (referenced
+    // (project_id, id) pair is unique via search_prompts_project_id_id_idx).
+    foreignKey({
+      columns: [table.projectId, table.promptId],
+      foreignColumns: [searchPrompts.projectId, searchPrompts.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the optional market profile: when set, the
+    // run's project_id must equal the profile's project_id. Deleting a profile
+    // removes the runs scoped to it. NULL market_profile_id means no profile is
+    // attached and the FK is not enforced.
+    foreignKey({
+      columns: [table.projectId, table.marketProfileId],
+      foreignColumns: [searchMarketProfiles.projectId, searchMarketProfiles.id],
+    }).onDelete("cascade"),
+    // Repeat index is a non-negative integer (schemas/domain-types.ts
+    // GeoObservationRun.repeatIndex). The Zod boundary enforces the same rule.
+    check(
+      "geo_observation_runs_repeat_index_nonnegative",
+      sql`${table.repeatIndex} >= 0`,
+    ),
+    // Project-scoped run reads.
+    index("geo_observation_runs_project_idx").on(table.projectId),
+    // Batch -> runs reads (a batch of repeats is listed together).
+    index("geo_observation_runs_batch_idx").on(table.batchId),
+    // Prompt -> runs reads and the prompt cascade delete path.
+    index("geo_observation_runs_prompt_idx").on(table.promptId),
+    // Market profile -> runs reads and the profile cascade delete path.
+    index("geo_observation_runs_market_profile_idx").on(table.marketProfileId),
   ],
 );
