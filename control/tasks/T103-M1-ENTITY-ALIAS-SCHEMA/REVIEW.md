@@ -50,3 +50,23 @@ REVIEW DATE: 2026-09-08
 ## MERGE DECISION
 
 DO NOT MERGE. Dispatch the final bounded executor Round 3.
+
+---
+
+# REVIEW T103-M1-ENTITY-ALIAS-SCHEMA — ROUND 3
+
+VERDICT: BLOCKED
+REVIEW DATE: 2026-09-08
+
+## VERIFIED
+
+- The final executor round was dispatched under the corrected controller model configuration and the same task-scoped safety grants.
+- `control/tasks/T103-M1-ENTITY-ALIAS-SCHEMA/runs/claude-round-3-20260908-092409.stdout.json` is empty, its paired stderr contains only the recurring CLI model/session-title warning, and no new DELIVERY was written.
+
+## FINDINGS
+
+- BLOCKER — final executor round ended before implementation and delivery. Evidence: the dispatch session ended with terminal code `1073807364`; Round 3 stdout is zero bytes; task DELIVERY remains the Round 1 file dated 2026-09-07; and the unresolved Round 1 fields remain unaccepted. Expected behavior: implement the reviewed `owning_entity_id` and `priority` correction, execute the approved gates, and write a new DELIVERY. Reproduction: dispatch the final Round 3 recovery packet through the configured orchestrator. Fix acceptance condition: after an authorized executor-runtime remediation and explicit task-round reset, Claude must complete the bounded correction and produce reviewable delivery evidence.
+
+## MERGE DECISION
+
+DO NOT MERGE. All three executor rounds are exhausted. Human Gate required; no further dispatch is authorized.
