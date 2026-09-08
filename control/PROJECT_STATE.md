@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T104-M1-SEARCH-PROMPT-SCHEMA (PREPARING)
+CURRENT TASK: T104-M1-SEARCH-PROMPT-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: fb7b3e7c77cf6b89463367a291a9e52f2924a997
 LAST REVIEW: T103-M1-ENTITY-ALIAS-SCHEMA AUTHORIZED RECOVERY R1 PASS AND MERGED
-CURRENT ROUND: 0 / 3
-LAST COMPLETED ACTION: Codex completed the authorized T103 Fast Review, removed the dry-run-verified unrelated wrapper artifact, and merged the accepted task only to `integration/ai-v1`.
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: Codex completed the authorized T103 Fast Review, merged it only to `integration/ai-v1`, then created and dispatched the bounded T104 SearchPrompt schema task to Claude in its isolated worktree.
 CURRENT BLOCKER: M0.5 still requires external accounts and publishing Human Gates H1/H2; it does not block the credential-free T104 SearchPrompt domain slice.
-NEXT EXACT ACTION: Create and dispatch the bounded T104-M1-SEARCH-PROMPT-SCHEMA task to Claude after reading its direct requirement references.
+NEXT EXACT ACTION: Wait for T104 Round 1 DELIVERY; then Fast Review its schema, ownership/identity invariants, migrations, scope/security, and gate evidence.
 
 ## COMPLETED
 
@@ -33,4 +33,4 @@ T103-M1-ENTITY-ALIAS-SCHEMA passed its authorized recovery and merged to `integr
 
 ## NEXT
 
-Create and dispatch T104 SearchPrompt schema, then wait for DELIVERY and perform Fast Review. Never merge to `main`.
+Wait for T104 Round 1 DELIVERY, then perform Fast Review. Never merge to `main`.
