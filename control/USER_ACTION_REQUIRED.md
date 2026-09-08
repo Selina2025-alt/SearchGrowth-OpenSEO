@@ -2,6 +2,10 @@
 
 Existing external-account, publishing, production, paid-spend, and credential gates remain closed.
 
+STATUS: RESOLVED FOR T103 EXECUTOR RECOVERY ON 2026-09-08
+
+The Product Owner authorized executor-runtime recovery and one controlled T103 task-round reset. The required minimal smoke check passed with exit 0 and exact stdout `EXECUTOR_RUNTIME_OK`. The authorized recovery remains bound to the existing T103 scope, safe mode, `acceptEdits`, `permission-prompts none`, task-scoped commands, and no dangerous permission bypass.
+
 REQUEST TYPE: HUMAN GATE — EXECUTOR RECOVERY AND TASK-ROUND RESET
 CURRENT TASK: T103-M1-ENTITY-ALIAS-SCHEMA
 CURRENT ROUND: 3 / 3 (exhausted)

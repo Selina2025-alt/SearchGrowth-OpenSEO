@@ -6,6 +6,21 @@ OWNER: Claude Code + DeepSeek Implementation Engineer
 CONTROLLER: Codex
 MAX ROUNDS: 3
 
+## AUTHORIZED RECOVERY ROUND R1 / 1 — POST-HUMAN-GATE
+
+The Product Owner authorized one controlled T103 task-round reset after the executor runtime smoke check returned `EXECUTOR_RUNTIME_OK` with exit 0. Reuse the existing task worktree; do not reinitialize it and do not redo accepted Round 1 work.
+
+Read only `CLAUDE.md`, this TASK, the current REVIEW, the relevant `05_DOMAIN_DATA_MODEL.md` entity/alias section, and the two-field schema/migration/test files. Do not read the full PRD, all ADRs, or unrelated repository files. Do not run environment, shell, path, version, or package diagnostics.
+
+Implement only:
+
+1. Nullable `tracked_entities.owning_entity_id`, with an explicit same-Project relationship, matched D1/SQLite and PostgreSQL schema/migration/snapshot representation, no-dangling delete behavior, and migration-backed tests for same-Project acceptance, cross-Project rejection, and delete behavior.
+2. Storage-only `entity_aliases.priority`, with an explicit contract-consistent type, nullability, default, D1/Postgres parity, Zod/domain representation, and persistence/default tests. Do not implement ranking or matching behavior.
+
+Update only the existing unmerged task schema, `0048`/`0026` migrations, snapshots/journals, direct focused tests, and DELIVERY. Finish in this order: implement the two fields, focused tests, local migrations and `db:generate`, required gates, DELIVERY. Final `db:generate` must generate no additional migration.
+
+This recovery is bounded to R1 / 1. If executor runtime prevents a DELIVERY after the smoke check has passed, stop for a new Human Gate; do not retry or expand scope.
+
 ## ROUND 2 FIX CONTEXT
 
 Round 1 is blocked only because it omitted two fields that `05_DOMAIN_DATA_MODEL.md` directly requires: optional `tracked_entities.owning_entity_id` and `entity_aliases.priority`. The design-reference SQL and `schemas/domain-types.ts` omissions do not override the accepted domain-model field list. Resume the existing worktree and change only what is necessary to add both fields, their cross-dialect schema/migration/snapshot representation, Zod/domain contracts, relationship/default decisions, and migration-backed tests. Preserve all accepted Round 1 same-Project alias ownership, stable identity, no-dangling behavior, scope, and gate requirements. Do not add parser/matcher/CRUD/UI, hidden business uniqueness, or unrelated fields.
