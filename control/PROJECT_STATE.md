@@ -6,12 +6,12 @@ OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
 CURRENT TASK: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 2e78b1f
-LAST REVIEW: T116-M1-BASELINE-LINT-HYGIENE ROUND 1 PASS AND MERGED
+LATEST ACCEPTED COMMIT: 3207e00
+LAST REVIEW: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T116 baseline lint hygiene passed Round 1 and merged to integration/ai-v1 at 2e78b1f; T115 remains frozen pending synchronization and re-evidence of its remaining gates.
-CURRENT BLOCKER: T115 needs only lint, build, and ci:check re-evidence after the accepted baseline hygiene fix; M0.5 H1/H2 also remain closed.
-NEXT EXACT ACTION: Synchronize the accepted two-file hygiene fix into the frozen T115 task worktree, then run only T115 lint, build, and ci:check. Do not create a new T115 round or modify T115 business implementation.
+LAST COMPLETED ACTION: T115 Round 1 passed after accepted T116 hygiene synchronization; lint, build, and ci:check re-evidence exited 0 and T115 merged to integration/ai-v1 at 3207e00.
+CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
+NEXT EXACT ACTION: Create and dispatch the next approved small, credential-free M1 Core Domain task. Never merge to `main`.
 
 ## COMPLETED
 
@@ -29,7 +29,7 @@ NEXT EXACT ACTION: Synchronize the accepted two-file hygiene fix into the frozen
 
 ## IN PROGRESS
 
-- T115-M1-PUBLISHED-MEDIA-REF-SCHEMA Round 1 implementation is frozen while its remaining aggregate gates are re-evidenced after accepted baseline hygiene synchronization.
+- T115-M1-PUBLISHED-MEDIA-REF-SCHEMA is accepted and merged.
 - T116-M1-BASELINE-LINT-HYGIENE is accepted and merged.
 
 ## BLOCKED
