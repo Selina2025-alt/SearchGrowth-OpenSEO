@@ -1,11 +1,11 @@
 import type { InferSelectModel } from "drizzle-orm";
 import { z } from "zod";
-import {
+import type {
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,
-  claims,
 } from "@/db/search-growth.schema";
+import { claims } from "@/db/search-growth.schema";
 
 // ---------------------------------------------------------------------------
 // Claim / ClaimSourceRef domain boundary

@@ -57,7 +57,6 @@ const MIGRATION_FILES = [
 ];
 
 const CLAIM_COLUMN_INSERT = `(id, project_id, claim_text, status, classification)`;
-const SOURCE_REF_COLUMN_INSERT = `(id, project_id, type, ref, captured_at)`;
 const LINK_COLUMN_INSERT = `(id, project_id, claim_id, source_ref_id)`;
 
 let client: Client;
