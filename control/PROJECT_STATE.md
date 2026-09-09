@@ -7,11 +7,11 @@ CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
 CURRENT TASK: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: a3231e800981c6169cb594de3027570608c37694
-LAST REVIEW: T114-M1-MEDIA-ASSET-SCHEMA ROUND 1 PASS AND MERGED
-CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: Product Owner-authorized Controller verification completed T114's five missing gates with exit 0; T115 PublishedMediaRef schema Round 1 was dispatched to the safe Claude executor.
-CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T115 Round 1 DELIVERY, then Fast Review. Do not merge to `main`.
+LAST REVIEW: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA ROUND 1 BLOCKED
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: T115 Round 1 Fast Review completed; Controller verification confirmed format/types exit 0 and a real lint exit 1 outside the T115 diff.
+CURRENT BLOCKER: T115 required lint gate exits 1 on pre-existing cross-scope findings in src/types/schemas/claim.ts and src/db/claims.test.ts; M0.5 H1/H2 also remain closed.
+NEXT EXACT ACTION: BLOCKED — preserve T115 Round 1 unchanged. Do not merge or create a T115 round. Await Product Owner direction for a separately scoped quality-baseline repair.
 
 ## COMPLETED
 
@@ -29,7 +29,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T115 Round 1 DELIVERY, then Fa
 
 ## IN PROGRESS
 
-No implementation task is currently executing. The next approved credential-free M1 domain slice is ready for dispatch.
+- T115-M1-PUBLISHED-MEDIA-REF-SCHEMA Round 1 implementation is complete but blocked by the required aggregate lint gate outside its change scope.
 
 ## BLOCKED
 
