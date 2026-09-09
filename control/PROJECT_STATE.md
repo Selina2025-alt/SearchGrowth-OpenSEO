@@ -7,11 +7,11 @@ CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
 CURRENT TASK: T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 3207e00
-LAST REVIEW: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA ROUND 1 PASS AND MERGED
+LAST REVIEW: T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA ROUND 1 BLOCKED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T115 Round 1 passed after accepted T116 hygiene synchronization; T117 ContentPackage container Round 1 was dispatched to the safe Claude executor.
-CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T117 Round 1 DELIVERY, then Fast Review. Never merge to `main`.
+LAST COMPLETED ACTION: T117 Round 1 Fast Review verified schema/migration/test evidence and found a real format:check exit 1 outside the T117 diff.
+CURRENT BLOCKER: T117 aggregate format gate fails on pre-existing control/ACCEPTANCE_LEDGER.md formatting; M0.5 H1/H2 also remain closed.
+NEXT EXACT ACTION: BLOCKED — preserve T117 Round 1 unchanged. Await Product Owner direction for a control-plane formatting repair before re-evidencing T117 aggregate gates. Never merge to `main`.
 
 ## COMPLETED
 
@@ -32,6 +32,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T117 Round 1 DELIVERY, then Fa
 - T115-M1-PUBLISHED-MEDIA-REF-SCHEMA is accepted and merged.
 - T116-M1-BASELINE-LINT-HYGIENE is accepted and merged.
 - T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA is authorized for the core container only.
+- T117 Round 1 is blocked only by the pre-existing ACCEPTANCE_LEDGER formatting regression outside its implementation diff.
 
 ## BLOCKED
 
