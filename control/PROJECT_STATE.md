@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: a3231e800981c6169cb594de3027570608c37694
 LAST REVIEW: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA ROUND 1 BLOCKED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: Provenance check confirmed the two T115 acceptance lint findings existed at T115 merge-base 288153f and are outside the T115 diff; independent baseline hygiene task packet created.
+LAST COMPLETED ACTION: Provenance check confirmed the two T115 acceptance lint findings existed at T115 merge-base 288153f and are outside the T115 diff; T116 Round 1 was dispatched to the safe Claude executor.
 CURRENT BLOCKER: T115 remains frozen pending the independent baseline lint hygiene repair and re-evidence of its remaining gates; M0.5 H1/H2 also remain closed.
-NEXT EXACT ACTION: Dispatch T116 Round 1 to the safe Claude executor. Do not modify or merge T115; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T116 Round 1 DELIVERY, then Fast Review. Do not modify or merge T115; never merge to `main`.
 
 ## COMPLETED
 
