@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles and T113 claim_allowed_languages additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages and T114 media_assets additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -1959,5 +1959,140 @@ export const claimAllowedLanguages = sqliteTable(
     ),
     // language -> claims reads.
     index("claim_allowed_languages_language_idx").on(table.language),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, Project-scoped media asset metadata.
+//
+// A media asset is the R2 source asset metadata record (05_DOMAIN_DATA_MODEL.md
+// §11 MediaAsset; 15_MEDIA_ASSET_SPEC.md §2; TASK item 1). This slice is
+// schema/contract ONLY — it records asset identity, rights and classification
+// without implementing upload, object storage, media processing, CRUD/UI,
+// ContentVersion links, the Rights Gate runtime or any publishing behavior.
+//
+// FIELD RECONCILIATION (§11/15 and the TASK field list are the direct contract;
+// schemas/domain-types.ts MediaAsset and schemas/migrations-reference.sql
+// media_assets supply the legacy reference context):
+//   - The stable `id` primary key and the explicit `project_id` ownership key
+//     are the additions the established Search Growth schema convention requires
+//     (every V1.0 row has a stable text id; §11's snippet lists only the
+//     direct metadata fields).
+//   - `media_type` (NOT NULL) is exactly the V1.0 MediaType union IMAGE | VIDEO
+//     | AUDIO | DOCUMENT | OTHER (the union the legacy reference type carries and
+//     the TASK enumerates), enforced by the DB text-enum column and the named
+//     CHECK below (the Zod boundary in src/types/schemas/media-asset.ts enforces
+//     the same union at runtime). No implicit/OTHER-content guessing exists: the
+//     writer states the type explicitly.
+//   - `mime_type` (NOT NULL) is the direct §11 MIME string, stored verbatim as
+//     an opaque standard IANA media type tag (e.g. "image/png", "video/mp4").
+//     No MIME allowlist, magic-bytes check or normalization is applied here
+//     (those are upload-security behavior, out of scope).
+//   - `bytes` (NOT NULL) is the direct §11 asset size in bytes (the legacy
+//     `size`). No size limit/validation is applied here.
+//   - `sha256` (NOT NULL) is the direct §11 content hash. It is a plain
+//     non-unique column: no content-hash uniqueness/dedup rule is invented
+//     (TASK item 3 forbids it without a direct V1.0 contract).
+//   - `rights_status` (NOT NULL) is exactly the V1.0 MediaRightsStatus union
+//     OWNED | LICENSED | APPROVED_EXTERNAL | UNKNOWN (the §11 snippet, the legacy
+//     reference type and the TASK all carry the same union), enforced by the DB
+//     text-enum column and the named CHECK below. The Rights Gate policy over
+//     this column (UNKNOWN blocks unattended release, 09_CONTENT_EVIDENCE_
+//     WEBPAGE_SPEC.md §9) is NOT implemented here — it is a later runtime slice.
+//   - `classification` (NOT NULL) is exactly the V1.0 DataClassification union
+//     PUBLIC_MARKETING | INTERNAL | RESTRICTED (the union the legacy reference
+//     type also carries, matching the accepted claim/opportunity rows),
+//     enforced by the DB text-enum column and the named CHECK below.
+//   - `created_at` is the ONLY audit column shipped: the TASK limits additions
+//     to "only standard creation audit metadata required by established schema
+//     convention", and the established convention's creation audit metadata is
+//     the append-only `created_at` text timestamp with a current_timestamp
+//     default. The legacy reference's `created_by`, `deleted_at` and the §15
+//     "source"/"created by/time" attribution are NOT shipped (no identity/
+//     soft-delete/source contract exists yet, and the TASK forbids inventing
+//     one). No `updated_at` is shipped: a source asset is content-addressed and
+//     append-only in this slice, and neither the accepted §11/§15 artifacts nor
+//     the legacy reference `media_assets` row carries `updated_at`.
+//   - Legacy reference fields reconciled OUT (never columns on this row):
+//     `storage_key` (object storage key — storage/upload out of scope),
+//     `original_filename` (filename sanitization is upload security, out of
+//     scope), `width`/`height`/`duration_seconds`/`alt_text` (dimensions/
+//     duration/extraction out of scope), `created_by`/`deleted_at` (audit/soft-
+//     delete fields beyond the creation metadata convention), and the §15
+//     `source` attribution field (no source contract authorized here).
+//
+// OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// with ON DELETE CASCADE (the established Project-scoping FK every Search Growth
+// row carries). Deleting a whole Project cascades its media assets away. There
+// is no content-version/relation link yet (ContentVersion.asset_ids[] is a later
+// slice), so no child referential target index is needed on this parent.
+//
+// NO BUSINESS UNIQUENESS: no V1.0 artifact dedupes media assets by sha256 or
+// constrains mime/type/rights/classification uniqueness per project, so the only
+// index below is the non-unique Project lookup/cascade index (TASK item 3). No
+// content-hash, storage-key, filename, dimensional or duplicate rule is added.
+// ============================================================================
+
+export const mediaAssets = sqliteTable(
+  "media_assets",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + delete cascade are enforced by the database.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The direct §11 MediaType union (IMAGE | VIDEO | AUDIO | DOCUMENT | OTHER).
+    // DB text-enum column + the named CHECK below; the Zod boundary validates
+    // it. No type detection/inference exists in this slice.
+    mediaType: text("media_type", {
+      enum: ["IMAGE", "VIDEO", "AUDIO", "DOCUMENT", "OTHER"],
+    }).notNull(),
+    // The direct §11 MIME type string, stored verbatim as an opaque standard
+    // IANA media type tag. No allowlist or magic-bytes check exists here.
+    mimeType: text("mime_type").notNull(),
+    // The direct §11 asset size in bytes.
+    bytes: integer("bytes").notNull(),
+    // The direct §11 SHA-256 content hash. Plain non-unique column: no content-
+    // hash uniqueness/dedup rule is invented in this slice.
+    sha256: text("sha256").notNull(),
+    // The direct §11 MediaRightsStatus union (OWNED | LICENSED |
+    // APPROVED_EXTERNAL | UNKNOWN). DB text-enum column + the named CHECK below;
+    // the Zod boundary validates it. The Rights Gate policy over this value is a
+    // later runtime slice and is not implemented here.
+    rightsStatus: text("rights_status", {
+      enum: ["OWNED", "LICENSED", "APPROVED_EXTERNAL", "UNKNOWN"],
+    }).notNull(),
+    // The direct DataClassification union (PUBLIC_MARKETING | INTERNAL |
+    // RESTRICTED). DB text-enum column + the named CHECK below; the Zod boundary
+    // validates it.
+    classification: text("classification", {
+      enum: ["PUBLIC_MARKETING", "INTERNAL", "RESTRICTED"],
+    }).notNull(),
+    // Append-only creation timestamp (system insert time) — the only audit
+    // column the established schema convention's creation metadata requires.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Project -> media-asset reads and the project-delete cascade path (the only
+    // index required for Project lookup; TASK item 3).
+    index("media_assets_project_idx").on(table.projectId),
+    // DB-level enum rejection for the three direct MediaAsset unions (the TASK
+    // requires migration-backed enum rejection; the Zod boundary enforces the
+    // same lists at the runtime edge).
+    check(
+      "media_assets_media_type_valid",
+      sql`(${table.mediaType} IN ('IMAGE','VIDEO','AUDIO','DOCUMENT','OTHER'))`,
+    ),
+    check(
+      "media_assets_rights_status_valid",
+      sql`(${table.rightsStatus} IN ('OWNED','LICENSED','APPROVED_EXTERNAL','UNKNOWN'))`,
+    ),
+    check(
+      "media_assets_classification_valid",
+      sql`(${table.classification} IN ('PUBLIC_MARKETING','INTERNAL','RESTRICTED'))`,
+    ),
   ],
 );

@@ -87,6 +87,7 @@ export const {
   searchGrowthOpportunities,
   sourceRefs,
   claims,
+  mediaAssets,
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,
