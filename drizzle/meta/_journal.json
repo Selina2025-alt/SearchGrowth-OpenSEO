@@ -400,6 +400,13 @@
       "when": 1788860911249,
       "tag": "0056_organic_blue_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "6",
+      "when": 1788862926582,
+      "tag": "0057_cold_marrow",
+      "breakpoints": true
     }
   ]
 }

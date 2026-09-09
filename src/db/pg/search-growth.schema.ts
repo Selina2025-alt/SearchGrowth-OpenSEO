@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities and T110 source_refs additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs and T111 claims/claim_source_refs additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -1245,17 +1245,21 @@ export const searchGrowthOpportunities = pgTable(
 //
 // RELATIONSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
 // ON DELETE CASCADE (the established Project-scoping FK every Search Growth row
-// carries). source_refs has no other parent in the accepted schema yet (claims
-// and content tables arrive later and reference source refs by id), so deleting
-// a whole Project cascades its source references away and a source reference can
-// never dangle.
+// carries). source_refs is also the parent of the claim_source_refs relation
+// added in T111 (0035): that relation's same-Project composite FK
+// ((project_id, source_ref_id) -> source_refs(project_id, id)) requires the
+// supporting composite unique index below. Deleting a whole Project cascades
+// its source references away and a source reference can never dangle.
 //
 // APPEND-ONLY SHAPE: no `updated_at`, no update/delete API, no repository/
 // service and no mutation surface — a captured source reference is written once
 // and never changed (immutability by schema/contract shape). NO BUSINESS
 // UNIQUENESS: no V1.0 artifact defines an identity rule for source refs, so no
-// unique index exists. The single non-unique index serves the project ->
-// source-refs read/cascade path. The named CHECK below makes the exact V1.0
+// business-unique index exists. The composite unique index below exists ONLY as
+// the required referential target of the claim_source_refs same-Project FK
+// ((project_id, id) is already unique because id is the PK, so the composite
+// adds no business uniqueness). The single non-unique index serves the project
+// -> source-refs read/cascade path. The named CHECK below makes the exact V1.0
 // SourceRef type-union enum rejection database-backed in both dialects (the Zod
 // boundary enforces the same list at runtime).
 // ============================================================================
@@ -1295,7 +1299,166 @@ export const sourceRefs = pgTable(
       "source_refs_type_valid",
       sql`(${table.type} IN ('URL','INTERNAL_DOC','PRODUCT_FACT','RESEARCH'))`,
     ),
+    // Required referential target of the claim_source_refs same-Project
+    // composite FK ((project_id, source_ref_id) -> (project_id, id)). id is
+    // already the PK, so the composite accepts exactly the PK's rows and adds
+    // no business uniqueness.
+    uniqueIndex("source_refs_project_id_id_idx").on(table.projectId, table.id),
     // Project -> source-refs reads and the project-delete cascade path.
     index("source_refs_project_idx").on(table.projectId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `claims` table in
+// ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift).
+//
+// A claim is one verifiable factual assertion a later ContentPackageVersion or
+// content gate will rely on (05_DOMAIN_DATA_MODEL.md §9 Claim;
+// 21_TEST_ACCEPTANCE_PLAN.md §10 "UNVERIFIED hard claim -> BLOCKED"). Storage
+// and contract ONLY — no verification/reverification, blocking logic, content/
+// publication gate, provider call or runtime status transition. See the SQLite
+// mirror for the full field reconciliation; the direct §9/TASK field list is
+// shipped with only the additions the established schema convention requires
+// (stable `id` PK, explicit `project_id`, `created_at`/`updated_at` system
+// timestamps for the mutable lifecycle row). The legacy reference-only
+// `allowed_markets`/`allowed_languages` JSON lists are deferred to a later
+// policy-relation task (never JSON/text on this row); the legacy scalar
+// `evidence_type`/`evidence_ref`/`source_url` evidence fields are reconciled OUT
+// into the normalized claim_source_refs relation below; the legacy
+// `normalized_claim` column is NOT shipped (no normalization in this slice).
+//
+// OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id) ON
+// DELETE CASCADE. The composite unique index below exists ONLY as the required
+// referential target of the claim_source_refs same-Project FK
+// ((project_id, claim_id) -> claims(project_id, id)); id is already the PK, so
+// it adds no business uniqueness. NO BUSINESS UNIQUENESS otherwise: no V1.0
+// artifact constrains claim_text/status uniqueness per project. The named CHECK
+// constraints make the ClaimStatus and Claim classification unions
+// database-backed enum rejections in both dialects.
+// ============================================================================
+
+export const claims = pgTable(
+  "claims",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The direct §9 assertion text. No normalization/derivation exists here.
+    claimText: text("claim_text").notNull(),
+    // The direct §9 ClaimStatus union (APPROVED | UNVERIFIED | EXPIRED |
+    // REJECTED). DB text-enum column + the named CHECK below; the Zod boundary
+    // validates it. No implicit/unknown fallback and no DB default.
+    status: text("status", {
+      enum: ["APPROVED", "UNVERIFIED", "EXPIRED", "REJECTED"],
+    }).notNull(),
+    // Free-text verifier id; NULL until the claim has been verified. The later
+    // verification workflow defines the verifier-identity contract.
+    verifiedBy: text("verified_by"),
+    // The moment the claim was last verified; NULL until verified.
+    lastVerifiedAt: text("last_verified_at"),
+    // The moment the claim expires; NULL when no expiry is set.
+    expiresAt: text("expires_at"),
+    // The direct Claim classification union (PUBLIC_MARKETING | INTERNAL |
+    // RESTRICTED). DB text-enum column + the named CHECK below; the Zod
+    // boundary validates it.
+    classification: text("classification", {
+      enum: ["PUBLIC_MARKETING", "INTERNAL", "RESTRICTED"],
+    }).notNull(),
+    // System insert/update timestamps (mutable lifecycle row; the later
+    // verification workflow updates status/verification fields in place and
+    // sets updated_at).
+    createdAt: text("created_at").notNull().default(isoNow),
+    updatedAt: text("updated_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Project -> claims reads and the project-delete cascade path.
+    index("claims_project_idx").on(table.projectId),
+    // Required referential target of the claim_source_refs same-Project
+    // composite FK ((project_id, claim_id) -> (project_id, id)). id is already
+    // the PK, so the composite accepts exactly the PK's rows and adds no
+    // business uniqueness.
+    uniqueIndex("claims_project_id_id_idx").on(table.projectId, table.id),
+    // DB-level enum rejection for the two direct Claim unions (the TASK requires
+    // migration-backed enum rejection; the Zod boundary enforces the same lists
+    // at the runtime edge).
+    check(
+      "claims_status_valid",
+      sql`(${table.status} IN ('APPROVED','UNVERIFIED','EXPIRED','REJECTED'))`,
+    ),
+    check(
+      "claims_classification_valid",
+      sql`(${table.classification} IN ('PUBLIC_MARKETING','INTERNAL','RESTRICTED'))`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `claim_source_refs` table in
+// ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift).
+//
+// Each row is ONE normalized, same-Project link between a claim and a source
+// reference that backs it (05_DOMAIN_DATA_MODEL.md §9 `source_refs[]`; TASK
+// item 2). The row carries no mutable evidence payload — provenance stays on
+// the linked source_refs rows. Same-Project integrity is enforced by two
+// composite FKs carrying this row's own project_id as their leading column
+// ((project_id, claim_id) -> claims(project_id, id) and
+// (project_id, source_ref_id) -> source_refs(project_id, id)), so the DB
+// rejects a link whose claim and source reference belong to different Projects
+// in either direction. The unique index is the link identity that rejects
+// duplicate Claim/SourceRef edges (TASK item 3); the reverse index serves the
+// source_ref -> claims read path. A link is append-only (`created_at` only) and
+// cascades away when its claim, source reference, or whole Project is deleted.
+// ============================================================================
+
+export const claimSourceRefs = pgTable(
+  "claim_source_refs",
+  {
+    id: text("id").primaryKey(),
+    // This link's own Project. Explicit typed column so the same-Project
+    // composite FKs below can carry it as their leading column.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The linked claim (claims.id). Bound to this row's project by the
+    // composite FK below.
+    claimId: text("claim_id").notNull(),
+    // The linked source reference (source_refs.id). Bound to this row's project
+    // by the composite FK below.
+    sourceRefId: text("source_ref_id").notNull(),
+    // Append-only creation timestamp (system insert time). A link row carries
+    // no mutable payload and no updated_at — provenance lives on the source_ref.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the claim: this link's project_id must equal
+    // the claim's project_id. Deleting a claim removes its source links (the
+    // referenced (project_id, id) pair is unique via claims_project_id_id_idx).
+    foreignKey({
+      columns: [table.projectId, table.claimId],
+      foreignColumns: [claims.projectId, claims.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the source reference: this link's project_id
+    // must equal the source_ref's project_id. Deleting a source reference
+    // removes its claim links (the referenced (project_id, id) pair is unique
+    // via source_refs_project_id_id_idx added to source_refs in this task).
+    foreignKey({
+      columns: [table.projectId, table.sourceRefId],
+      foreignColumns: [sourceRefs.projectId, sourceRefs.id],
+    }).onDelete("cascade"),
+    // Link identity: one row per (claim_id, source_ref_id) edge, so a duplicate
+    // Claim/SourceRef link is rejected by the DB (TASK item 3). The leading
+    // claim_id also serves the claim -> sources read path.
+    uniqueIndex("claim_source_refs_unique_claim_source_idx").on(
+      table.claimId,
+      table.sourceRefId,
+    ),
+    // source_ref -> claims reads.
+    index("claim_source_refs_source_ref_idx").on(table.sourceRefId),
   ],
 );

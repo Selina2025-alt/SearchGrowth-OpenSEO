@@ -86,6 +86,8 @@ export const {
   geoCitations,
   searchGrowthOpportunities,
   sourceRefs,
+  claims,
+  claimSourceRefs,
   savedKeywords,
   savedKeywordTags,
   savedKeywordTagAssignments,
