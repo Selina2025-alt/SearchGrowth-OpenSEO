@@ -1,16 +1,36 @@
 # USER ACTION REQUIRED
 
-REQUEST TYPE: HUMAN GATE — DATA CONTRACT DECISION
-CURRENT TASK: T107-M1-GEO-ENTITY-MENTION-SCHEMA, Round 1
+REQUEST TYPE: HUMAN GATE — REQUIRED GATE EVIDENCE BLOCKED BY TEST ENVIRONMENT
+CURRENT TASK: T111-M1-CLAIM-SOURCE-RELATION-SCHEMA, Round 3 (final permitted executor round)
 
 ## Decision needed
 
-Approve the minimal forward schema expansion that makes GeoEntityMention database-enforce same-Project ownership with its concrete GeoObservationParse and TrackedEntity.
+TASK item 6 requires `format:check`, `types:check`, `lint`, `build`, and
+`ci:check` to each exit 0 on the implemented Claim/SourceRef tree. The
+round-1/2/3 reviews verified the implementation (no code defect; sole BLOCKER
+is missing exit-0 evidence for these five gates). This session's sandbox
+auto-approval grant list does not include any of the five gates (nor their
+underlying binaries), there is no interactive approval surface, and a
+`dangerouslyDisableSandbox` override is not permitted. The same environment
+block recurred in all three executor rounds. The five gates therefore still
+have no exit code to record.
 
 ## Why this is required
 
-The direct `GeoObservationParse` list has no Project identity. T107 therefore can add individual Parse and Entity FKs, but cannot prove that both parents belong to the same Project. The current Round 1 design would permit a Parse under Project A to reference an Entity under Project B.
+The implementation tree is unchanged and healthy — focused Vitest passes
+277/277 and full Vitest passes 164 files / 1421 tests (exit 0), local D1
+migration 0000 → 0057 and clean final dual-dialect `db:generate` exited 0 in
+round 1, and read-only Git inspection is clean — but TASK acceptance requires
+exit-0 evidence for the five full-repo gates, which only a grant-enabled
+session or human approver can produce. No executor round remains.
 
 ## Proposed next action after approval
 
-Define a bounded T107 Round 2 that adds the minimum explicit Project key(s) and composite FKs through new forward migrations, retains append-only raw/parse records, and adds dual-dialect cross-Project rejection tests. No provider, credential, publishing, paid, or production action is involved.
+A Human/Controller/QA gate runner executes the five exact approved commands on
+this unchanged tree and records exit 0 for each:
+`corepack pnpm run format:check`, `corepack pnpm run types:check`,
+`corepack pnpm run lint`, `corepack pnpm run build`,
+`corepack pnpm run ci:check`. If any gate surfaces a genuine implementation
+failure, fix it within T111 scope and re-run the required gates. No scope or
+code rework is otherwise authorized, and no production/publishing/merge action
+is involved.
