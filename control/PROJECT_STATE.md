@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: d196cfc16980c111c41375b765124ed8c5ef0ffa
 LAST REVIEW: T112-M1-CLAIM-ALLOWED-MARKET-RELATION-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: Product Owner-authorized Controller verification completed T112's five missing gates with exit 0; T113 Claim allowed-language relation packet is ready for dispatch.
+LAST COMPLETED ACTION: Product Owner-authorized Controller verification completed T112's five missing gates with exit 0; T113 Claim allowed-language relation Round 1 was dispatched to the safe Claude executor.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T113 Round 1 to the safe Claude executor, then WAITING_FOR_EXECUTOR. Do not merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T113 Round 1 DELIVERY, then Fast Review. Do not merge to `main`.
 
 ## COMPLETED
 
