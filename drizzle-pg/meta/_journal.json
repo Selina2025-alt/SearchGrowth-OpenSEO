@@ -281,6 +281,13 @@
       "when": 1788933507516,
       "tag": "0039_fair_doctor_octopus",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1788940582647,
+      "tag": "0040_panoramic_timeslip",
+      "breakpoints": true
     }
   ]
 }

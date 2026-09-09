@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets and T115 published_media_refs additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs and T117 content_packages additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -1112,7 +1112,13 @@ export const geoCitations = pgTable(
 // (project_id, id) pairs are unique via the supporting
 // `search_topics_project_id_id_idx` / `search_market_profiles_project_id_id_idx`
 // target indexes accepted by earlier tasks (no new supporting target index is
-// added). Deleting a Topic, a MarketProfile, or a whole Project cascades the
+// added for those two FKs). The `search_growth_opportunities_project_id_id_idx`
+// unique index in the table callback below exists ONLY as the required
+// referential target of the T117 content_packages same-Project composite FK
+// ((project_id, opportunity_id) -> search_growth_opportunities(project_id, id),
+// added below by the T117 0040 migration) — id is already the PK, so the
+// composite accepts exactly the rows the PK accepts and adds no business
+// uniqueness. Deleting a Topic, a MarketProfile, or a whole Project cascades the
 // opportunity away. The two non-unique indexes serve the topic -> opportunities
 // and market profile -> opportunities read/cascade paths. No business-rule
 // unique index exists (no V1.0 artifact constrains or dedupes opportunities per
@@ -1223,6 +1229,15 @@ export const searchGrowthOpportunities = pgTable(
     // Market profile -> opportunities reads and the profile-delete cascade path.
     index("search_growth_opportunities_market_profile_idx").on(
       table.marketProfileId,
+    ),
+    // Supporting unique target for the T117 content_packages same-Project
+    // composite FK ((project_id, opportunity_id) ->
+    // search_growth_opportunities(project_id, id), added below by the T117 0040
+    // migration). id is already the PK, so this composite accepts exactly the
+    // rows the PK accepts and adds no business uniqueness.
+    uniqueIndex("search_growth_opportunities_project_id_id_idx").on(
+      table.projectId,
+      table.id,
     ),
   ],
 );
@@ -1789,5 +1804,107 @@ export const publishedMediaRefs = pgTable(
     index("published_media_refs_project_idx").on(table.projectId),
     // Asset -> references reads and the asset-delete cascade path.
     index("published_media_refs_media_asset_idx").on(table.mediaAssetId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `content_packages` table in
+// ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift).
+//
+// A content package is the stable topic container (05_DOMAIN_DATA_MODEL.md §10
+// ContentPackage — "主题容器"; 09_CONTENT_EVIDENCE_WEBPAGE_SPEC.md §2) that later
+// ContentVersion/variant/rendering/publishing slices attach to. Schema/contract
+// ONLY — no ContentVersion, ContentVariant, brief/canonical content,
+// metadata/WebPageSpec JSON, claims/sources/assets mappings, keywords/prompts,
+// market/persona modeling, search intent/PageFit behavior,
+// immutable/version/gate runtime, renderers, CRUD/UI, connector or publishing
+// behavior. See the SQLite mirror for the full field reconciliation; the direct
+// TASK field list is shipped — stable `id` PK, explicit NOT NULL `project_id`,
+// required `topic_id`, nullable `opportunity_id`, required opaque
+// `title`/`locale`/`status`, and the `created_at`/`updated_at` system
+// timestamps. No JSON column exists on the row (no Market/Persona/keyword/prompt
+// relation is inferred from JSON — TASK item 2), and `status` stays opaque
+// (TASK item 3: no lifecycle enum/gate/release/publication-success semantics).
+//
+// OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id) ON
+// DELETE CASCADE. Same-Project ownership against the required Topic and the
+// optional Opportunity is database-enforced by the Project-leading composite FKs
+// (project_id, topic_id) -> search_topics(project_id, id) and
+// (project_id, opportunity_id) -> search_growth_opportunities(project_id, id),
+// so the DB rejects a package whose Topic/Opportunity belongs to another
+// Project (in either direction) or is dangling. The Topic target is unique via
+// the accepted `search_topics_project_id_id_idx`; the Opportunity target is made
+// unique by the `search_growth_opportunities_project_id_id_idx` supporting index
+// this task adds to the accepted T109 opportunities table (the only new
+// referential parent index this slice requires). Deleting a Topic, an
+// Opportunity, or a whole Project cascades the package away, so a container can
+// never dangle. No business-unique index exists on this table; the non-unique
+// indexes serve the project/topic/opportunity -> packages read/cascade paths.
+// ============================================================================
+
+export const contentPackages = pgTable(
+  "content_packages",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The stable SearchTopic id (search_topics.id, ADR-004) this package is a
+    // container for. Bound to the row's project by the composite FK below, which
+    // cascades packages away when the topic is deleted.
+    topicId: text("topic_id").notNull(),
+    // Optional same-Project SearchGrowthOpportunity the package was produced
+    // from; NULL means no opportunity is attached. The composite FK below keeps
+    // it same-Project and cascades the package away when the opportunity is
+    // deleted.
+    opportunityId: text("opportunity_id"),
+    // Required opaque human-facing container title, stored verbatim (no
+    // normalization/format rules exist in this slice).
+    title: text("title").notNull(),
+    // Required opaque locale of the package, stored verbatim (a container is
+    // never locale-less/global).
+    locale: text("locale").notNull(),
+    // Required opaque lifecycle state, stored verbatim. Deliberately NOT an
+    // enum column: this container slice defines no lifecycle union, gate,
+    // release or publication semantics (TASK item 3).
+    status: text("status").notNull(),
+    // System insert/update timestamps (mutable container row; a later CRUD task
+    // mutates the row in place and sets updated_at).
+    createdAt: text("created_at").notNull().default(isoNow),
+    updatedAt: text("updated_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the required topic: this row's project_id
+    // must equal the topic's project_id. Deleting a topic removes its packages
+    // (the referenced (project_id, id) pair is unique via the supporting
+    // search_topics_project_id_id_idx index). A package whose topic lives on
+    // another Project has no matching parent row and is rejected by the DB.
+    foreignKey({
+      columns: [table.projectId, table.topicId],
+      foreignColumns: [searchTopics.projectId, searchTopics.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the optional opportunity: when set, this
+    // row's project_id must equal the opportunity's project_id. Deleting an
+    // opportunity removes the packages produced from it (the referenced
+    // (project_id, id) pair is unique via the
+    // search_growth_opportunities_project_id_id_idx supporting unique index
+    // added by this task's 0040 migration). NULL opportunity_id means no
+    // opportunity is attached and the FK is not enforced.
+    foreignKey({
+      columns: [table.projectId, table.opportunityId],
+      foreignColumns: [
+        searchGrowthOpportunities.projectId,
+        searchGrowthOpportunities.id,
+      ],
+    }).onDelete("cascade"),
+    // Project -> packages reads and the project-delete cascade path.
+    index("content_packages_project_idx").on(table.projectId),
+    // Topic -> packages reads and the topic-delete cascade path.
+    index("content_packages_topic_idx").on(table.topicId),
+    // Opportunity -> packages reads and the opportunity-delete cascade path.
+    index("content_packages_opportunity_idx").on(table.opportunityId),
   ],
 );

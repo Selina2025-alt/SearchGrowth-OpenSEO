@@ -89,6 +89,7 @@ export const {
   claims,
   mediaAssets,
   publishedMediaRefs,
+  contentPackages,
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,
