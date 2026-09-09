@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { claims } from "@/db/search-growth.schema";
 import type {
   Claim,
+  ClaimAllowedLanguage,
   ClaimAllowedMarketProfile,
   ClaimClassification,
   ClaimSourceRef,
@@ -137,6 +138,21 @@ describe("Claim domain boundary", () => {
     };
     expect(marketLink.claimId).toBe("claim_alpha_1");
     expect(marketLink.marketProfileId).toBe("market_profile_alpha_1");
+    // The allowed-language link row exposes only the normalized identity plus
+    // the opaque language tag plus created_at (the §9 `allowed_languages[]`
+    // relation shape).
+    const languageLink: Pick<
+      ClaimAllowedLanguage,
+      "id" | "projectId" | "claimId" | "language" | "createdAt"
+    > = {
+      id: "claim_allowed_language_link_1",
+      projectId: "project_alpha",
+      claimId: "claim_alpha_1",
+      language: "zh-CN",
+      createdAt: "2026-09-08T04:00:05.000Z",
+    };
+    expect(languageLink.claimId).toBe("claim_alpha_1");
+    expect(languageLink.language).toBe("zh-CN");
     // Every approved V1.0 value round-trips at the boundary.
     for (const approved of [
       "APPROVED",

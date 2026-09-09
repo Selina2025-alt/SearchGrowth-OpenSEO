@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs and T112 claim_allowed_market_profiles additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles and T113 claim_allowed_languages additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -1323,11 +1323,13 @@ export const sourceRefs = pgTable(
 // shipped with only the additions the established schema convention requires
 // (stable `id` PK, explicit `project_id`, `created_at`/`updated_at` system
 // timestamps for the mutable lifecycle row). The legacy reference-only
-// `allowed_markets`/`allowed_languages` JSON lists are deferred to a later
-// policy-relation task (never JSON/text on this row); the legacy scalar
-// `evidence_type`/`evidence_ref`/`source_url` evidence fields are reconciled OUT
-// into the normalized claim_source_refs relation below; the legacy
-// `normalized_claim` column is NOT shipped (no normalization in this slice).
+// `allowed_markets`/`allowed_languages` JSON lists are never JSON/text on this
+// row: each is modeled as a normalized same-Project relation table
+// (claim_allowed_market_profiles in T112, claim_allowed_languages in T113); the
+// legacy scalar `evidence_type`/`evidence_ref`/`source_url` evidence fields are
+// reconciled OUT into the normalized claim_source_refs relation below; the
+// legacy `normalized_claim` column is NOT shipped (no normalization in this
+// slice).
 //
 // OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id) ON
 // DELETE CASCADE. The composite unique index below exists ONLY as the required
@@ -1536,5 +1538,70 @@ export const claimAllowedMarketProfiles = pgTable(
     index("claim_allowed_market_profiles_market_profile_idx").on(
       table.marketProfileId,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `claim_allowed_languages` table
+// in ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift).
+//
+// Each row is ONE normalized, same-Project allowed-language edge of a claim
+// (05_DOMAIN_DATA_MODEL.md §9 `allowed_languages[]`; TASK item 1). The relation
+// is a normalized table — never a JSON/text array on the claim row — and stores
+// only identity plus the opaque language tag plus an append-only created_at. The
+// language value is stored verbatim as an explicit tag consistent with the
+// existing V1.0 language fields; no language catalog, locale inference/
+// normalization, enum/format rule, policy-evaluation or Claim-verification
+// behavior is added (TASK item 3). Same-Project integrity is enforced by the
+// composite FK carrying this row's own project_id as its leading column
+// ((project_id, claim_id) -> claims(project_id, id)), so the DB rejects a link
+// whose claim belongs to another Project. The claim parent already exposes the
+// required unique (project_id, id) target index, so no new referential index is
+// added to the parent. The unique index is the link identity that rejects
+// duplicate Claim/language edges (TASK item 4); the reverse index serves the
+// language -> claims read path. A link is append-only (`created_at` only) and
+// cascades away when its claim or whole Project is deleted.
+// ============================================================================
+
+export const claimAllowedLanguages = pgTable(
+  "claim_allowed_languages",
+  {
+    id: text("id").primaryKey(),
+    // This link's own Project. Explicit typed column so the same-Project
+    // composite FK below can carry it as its leading column.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The linked claim (claims.id). Bound to this row's project by the
+    // composite FK below.
+    claimId: text("claim_id").notNull(),
+    // The allowed language, stored as an opaque explicit IETF-style tag exactly
+    // as supplied (e.g. "en", "zh-CN"), matching the existing V1.0 language
+    // fields. No catalog, normalization, inference or format rule is applied.
+    language: text("language").notNull(),
+    // Append-only creation timestamp (system insert time). A link row carries
+    // no mutable payload and no updated_at — the relation is a policy edge, not
+    // a mutable lifecycle row.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the claim: this link's project_id must equal
+    // the claim's project_id. Deleting a claim removes its allowed-language
+    // links (the referenced (project_id, id) pair is unique via
+    // claims_project_id_id_idx).
+    foreignKey({
+      columns: [table.projectId, table.claimId],
+      foreignColumns: [claims.projectId, claims.id],
+    }).onDelete("cascade"),
+    // Link identity: one row per (claim_id, language) edge, so a duplicate
+    // Claim/language link is rejected by the DB (TASK item 4). The leading
+    // claim_id also serves the claim -> allowed-languages read path.
+    uniqueIndex("claim_allowed_languages_unique_claim_language_idx").on(
+      table.claimId,
+      table.language,
+    ),
+    // language -> claims reads.
+    index("claim_allowed_languages_language_idx").on(table.language),
   ],
 );
