@@ -22,6 +22,7 @@
 | `T114-M1-MEDIA-ASSET-SCHEMA`                     | PASS (round 1/3) | 2026-09-09    | `control/tasks/T114-M1-MEDIA-ASSET-SCHEMA/REVIEW.md`; Project-scoped MediaAsset identity/rights/classification contract, 0060/0038 migrations, 280 focused and 1,473 full tests; approved Controller verification completed all five required gates            | `a3231e800981c6169cb594de3027570608c37694` |
 | `T116-M1-BASELINE-LINT-HYGIENE`                  | PASS (round 1/3) | 2026-09-09    | `control/tasks/T116-M1-BASELINE-LINT-HYGIENE/REVIEW.md`; mechanical pre-existing type-only import and dead-constant repair, 15 focused tests and aggregate lint PASS                                                                                           | `2e78b1f`                                  |
 | `T115-M1-PUBLISHED-MEDIA-REF-SCHEMA`             | PASS (round 1/3) | 2026-09-09    | `control/tasks/T115-M1-PUBLISHED-MEDIA-REF-SCHEMA/REVIEW.md`; Project-scoped opaque PublishedMediaRef with MediaAsset composite FK, 0061/0039 migrations, 288 focused and 1,488 full tests; Controller verification completed format/types/lint/build/ci:check | `3207e00`                                  |
+| `T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA`       | PASS (round 1/3) | 2026-09-09    | `control/tasks/T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA/REVIEW.md`; Project-scoped Topic/optional Opportunity container, 0062/0040 migrations, 304 focused and 1,507 full tests; Controller verification completed format/types/lint/build/ci:check            | `2121e79`                                  |
 
 ## Active work
 
@@ -39,5 +40,6 @@
 - T114 MediaAsset schema and domain contract are accepted and merged.
 - T115 PublishedMediaRef schema is accepted and merged after the independent T116 hygiene fix; the same-Project MediaAsset reference contract is now on integration.
 - T116 BASELINE-LINT-HYGIENE is accepted and merged.
+- T117 ContentPackage container schema is accepted and merged; immutable version and typed relation slices remain separate.
 - T117 ContentPackage container schema is authorized; immutable content/version and content relation slices remain separate.
 - M0.5 real connector/account feasibility: pending Human Gates H1/H2; it does not authorize connector implementation or external publishing.

@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA
+CURRENT TASK: T118-M1-CONTENT-VERSION-CORE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 3207e00
-LAST REVIEW: T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA ROUND 1 BLOCKED
+LATEST ACCEPTED COMMIT: 2121e79
+LAST REVIEW: T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T117 Round 1 Fast Review verified schema/migration/test evidence and found a real format:check exit 1 outside the T117 diff.
-CURRENT BLOCKER: T117 aggregate format gate fails on pre-existing control/ACCEPTANCE_LEDGER.md formatting; M0.5 H1/H2 also remain closed.
-NEXT EXACT ACTION: BLOCKED — preserve T117 Round 1 unchanged. Await Product Owner direction for a control-plane formatting repair before re-evidencing T117 aggregate gates. Never merge to `main`.
+LAST COMPLETED ACTION: T117 Round 1 passed after a formatting-only control-plane correction; its five aggregate gates exited 0 and it merged to integration/ai-v1 at 2121e79.
+CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
+NEXT EXACT ACTION: Dispatch T118 Round 1 to the safe Claude executor. Never merge to `main`.
 
 ## COMPLETED
 
@@ -31,8 +31,8 @@ NEXT EXACT ACTION: BLOCKED — preserve T117 Round 1 unchanged. Await Product Ow
 
 - T115-M1-PUBLISHED-MEDIA-REF-SCHEMA is accepted and merged.
 - T116-M1-BASELINE-LINT-HYGIENE is accepted and merged.
-- T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA is authorized for the core container only.
-- T117 Round 1 is blocked only by the pre-existing ACCEPTANCE_LEDGER formatting regression outside its implementation diff.
+- T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA is accepted and merged.
+- T118-M1-CONTENT-VERSION-CORE-SCHEMA is authorized for the immutable core only.
 
 ## BLOCKED
 
