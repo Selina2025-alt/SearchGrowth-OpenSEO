@@ -246,6 +246,13 @@
       "when": 1788860916350,
       "tag": "0034_hard_moon_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1788862930951,
+      "tag": "0035_amazing_bucky",
+      "breakpoints": true
     }
   ]
 }
