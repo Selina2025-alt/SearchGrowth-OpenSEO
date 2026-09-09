@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { claims } from "@/db/search-growth.schema";
 import type {
   Claim,
+  ClaimAllowedMarketProfile,
   ClaimClassification,
   ClaimSourceRef,
   ClaimStatus,
@@ -76,9 +77,10 @@ describe("Claim domain boundary", () => {
     // Compile-time guard: the domain types later Claim/Content tasks will import
     // must stay true to the storage enums and the select row shapes — the claim
     // with its required Project binding/claim_text/status/classification, its
-    // nullable verification fields and its system timestamps, and the link row
-    // with its identity columns plus the append-only created_at only (no
-    // mutable evidence payload, no JSON array column).
+    // nullable verification fields and its system timestamps, and the two
+    // normalized link rows with their identity columns plus the append-only
+    // created_at only (no mutable evidence payload, no market-selection payload,
+    // no JSON array column).
     const status: ClaimStatus = "UNVERIFIED";
     const classification: ClaimClassification = "PUBLIC_MARKETING";
     const claim: Pick<
@@ -108,7 +110,7 @@ describe("Claim domain boundary", () => {
     expect(claim.claimText).toBe("Example.com is the fastest provider.");
     expect(claim.status).toBe("UNVERIFIED");
     expect(claim.classification).toBe("PUBLIC_MARKETING");
-    // The link row exposes only the normalized identity plus created_at.
+    // The source link row exposes only the normalized identity plus created_at.
     const link: Pick<
       ClaimSourceRef,
       "id" | "projectId" | "claimId" | "sourceRefId" | "createdAt"
@@ -121,6 +123,20 @@ describe("Claim domain boundary", () => {
     };
     expect(link.claimId).toBe("claim_alpha_1");
     expect(link.sourceRefId).toBe("source_ref_alpha_1");
+    // The allowed-market link row exposes only the normalized identity plus
+    // created_at (the §9 `allowed_markets[]` relation shape).
+    const marketLink: Pick<
+      ClaimAllowedMarketProfile,
+      "id" | "projectId" | "claimId" | "marketProfileId" | "createdAt"
+    > = {
+      id: "claim_allowed_market_link_1",
+      projectId: "project_alpha",
+      claimId: "claim_alpha_1",
+      marketProfileId: "market_profile_alpha_1",
+      createdAt: "2026-09-08T04:00:05.000Z",
+    };
+    expect(marketLink.claimId).toBe("claim_alpha_1");
+    expect(marketLink.marketProfileId).toBe("market_profile_alpha_1");
     // Every approved V1.0 value round-trips at the boundary.
     for (const approved of [
       "APPROVED",

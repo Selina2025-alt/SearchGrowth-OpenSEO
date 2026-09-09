@@ -253,6 +253,13 @@
       "when": 1788862930951,
       "tag": "0035_amazing_bucky",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1788918777982,
+      "tag": "0036_yummy_squadron_sinister",
+      "breakpoints": true
     }
   ]
 }

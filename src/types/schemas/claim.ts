@@ -1,6 +1,10 @@
 import type { InferSelectModel } from "drizzle-orm";
 import { z } from "zod";
-import { claimSourceRefs, claims } from "@/db/search-growth.schema";
+import {
+  claimAllowedMarketProfiles,
+  claimSourceRefs,
+  claims,
+} from "@/db/search-growth.schema";
 
 // ---------------------------------------------------------------------------
 // Claim / ClaimSourceRef domain boundary
@@ -24,16 +28,21 @@ import { claimSourceRefs, claims } from "@/db/search-growth.schema";
 // blocking logic, content/publication gate, provider call or runtime status
 // transition exists in this slice. `verified_by`, `last_verified_at` and
 // `expires_at` are nullable verification fields the later verification workflow
-// owns; they are not interpreted here. `allowed_markets[]` /
-// `allowed_languages[]` are deferred to a later policy-relation task and are NOT
-// part of the Claim row.
+// owns; they are not interpreted here. `allowed_markets[]` is modeled as the
+// normalized same-Project claim_allowed_market_profiles relation (T112), not as
+// a column on the Claim row, and `allowed_languages[]` is deferred to a later
+// policy-relation task; neither is stored as JSON/text on the row.
 //
 // The exported `Claim` row type is the domain shape later Claim/Content tasks
 // will consume: every scalar storage field of the mutable, Project-scoped claim
 // — including the required claim_text/status/classification fields, the nullable
 // verification fields and the system timestamps. The exported `ClaimSourceRef`
-// row type is the normalized same-Project link shape (identity columns plus the
-// append-only created_at only — no mutable evidence payload, no JSON array).
+// row type is the normalized same-Project source link shape (identity columns
+// plus the append-only created_at only — no mutable evidence payload, no JSON
+// array), and the exported `ClaimAllowedMarketProfile` row type is the
+// normalized same-Project allowed-market link shape (identity columns plus the
+// append-only created_at only — no market-selection/ranking payload, no JSON
+// array for `allowed_markets[]`).
 //
 // NOTE: these types are the V1.0 §9 shapes and intentionally differ from the
 // legacy reference `Claim` interface in schemas/domain-types.ts (which carries
@@ -43,6 +52,9 @@ import { claimSourceRefs, claims } from "@/db/search-growth.schema";
 
 export type Claim = InferSelectModel<typeof claims>;
 export type ClaimSourceRef = InferSelectModel<typeof claimSourceRefs>;
+export type ClaimAllowedMarketProfile = InferSelectModel<
+  typeof claimAllowedMarketProfiles
+>;
 
 export const claimStatusSchema = z.enum(claims.status.enumValues);
 export type ClaimStatus = z.infer<typeof claimStatusSchema>;

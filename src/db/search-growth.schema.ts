@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs and T111 claims/claim_source_refs additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs and T112 claim_allowed_market_profiles additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -1789,5 +1789,95 @@ export const claimSourceRefs = sqliteTable(
     ),
     // source_ref -> claims reads.
     index("claim_source_refs_source_ref_idx").on(table.sourceRefId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, same-Project Claim <-> SearchMarketProfile
+// allowed-market relation.
+//
+// Each row is ONE allowed-market edge of a claim (05_DOMAIN_DATA_MODEL.md §9
+// `allowed_markets[]`; TASK item 1). The allowed-market policy relation is a
+// normalized table — never a JSON/text array column on the claim row (TASK item
+// 2) — and the linked SearchMarketProfile already carries the concrete market
+// identity (engine/location/language/device/country), so the row stores only
+// the relation and an append-only timestamp. This slice is schema/contract
+// only: no market-selection, primary-market, ranking or policy-evaluation
+// behavior is added (TASK item 3).
+//
+// SAME-PROJECT INTEGRITY is database-enforced by two composite foreign keys
+// that carry this row's own project_id as their leading column:
+//   (project_id, claim_id)           -> claims(project_id, id)
+//   (project_id, market_profile_id)  -> search_market_profiles(project_id, id)
+// A link whose claim and market profile belong to different Projects has no
+// matching parent row for at least one FK and is rejected by the DB in either
+// direction. Both parents expose the required unique (project_id, id) target
+// (claims via claims_project_id_id_idx from 0057; search_market_profiles via
+// search_market_profiles_project_id_id_idx from 0049), so this table adds NO
+// new referential index to either parent. Deleting a claim, a market profile,
+// or a whole Project cascades its links away, so a link can never dangle.
+//
+// LINK IDENTITY / DUPLICATE EDGES: the only business uniqueness rule in this
+// slice is the link identity needed to prevent duplicate Claim/MarketProfile
+// edges (TASK item 3), so the unique index below rejects a duplicate
+// (claim_id, market_profile_id) pair. claim_id and market_profile_id are both
+// globally unique primary keys, so once the same-Project FKs hold, the pair is
+// project-isolated without listing project_id in the unique index (the accepted
+// search_topic_keyword_refs / claim_source_refs mapping pattern). No other
+// uniqueness rule is invented. The reverse non-unique index serves the
+// market_profile -> claims read path; the unique index's leading claim_id
+// already serves the claim -> allowed-markets read path.
+// ============================================================================
+
+export const claimAllowedMarketProfiles = sqliteTable(
+  "claim_allowed_market_profiles",
+  {
+    id: text("id").primaryKey(),
+    // This link's own Project. Explicit typed column so the same-Project
+    // composite FKs below can carry it as their leading column.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The linked claim (claims.id). Bound to this row's project by the
+    // composite FK below.
+    claimId: text("claim_id").notNull(),
+    // The allowed SearchMarketProfile (search_market_profiles.id). Bound to
+    // this row's project by the composite FK below.
+    marketProfileId: text("market_profile_id").notNull(),
+    // Append-only creation timestamp (system insert time). A link row carries
+    // no mutable payload and no updated_at — the relation is a policy edge, not
+    // a mutable lifecycle row.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the claim: this link's project_id must equal
+    // the claim's project_id. Deleting a claim removes its allowed-market links
+    // (the referenced (project_id, id) pair is unique via
+    // claims_project_id_id_idx).
+    foreignKey({
+      columns: [table.projectId, table.claimId],
+      foreignColumns: [claims.projectId, claims.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the market profile: this link's project_id
+    // must equal the market profile's project_id. Deleting a market profile
+    // removes its claim links (the referenced (project_id, id) pair is unique
+    // via search_market_profiles_project_id_id_idx).
+    foreignKey({
+      columns: [table.projectId, table.marketProfileId],
+      foreignColumns: [searchMarketProfiles.projectId, searchMarketProfiles.id],
+    }).onDelete("cascade"),
+    // Link identity: one row per (claim_id, market_profile_id) edge, so a
+    // duplicate Claim/MarketProfile link is rejected by the DB (TASK item 3).
+    // The leading claim_id also serves the claim -> allowed-markets read path.
+    uniqueIndex("claim_allowed_market_profiles_unique_claim_market_idx").on(
+      table.claimId,
+      table.marketProfileId,
+    ),
+    // market_profile -> claims reads and the market-profile-delete cascade path.
+    index("claim_allowed_market_profiles_market_profile_idx").on(
+      table.marketProfileId,
+    ),
   ],
 );
