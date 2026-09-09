@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 3207e00
 LAST REVIEW: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T115 Round 1 passed after accepted T116 hygiene synchronization; lint, build, and ci:check re-evidence exited 0 and T115 merged to integration/ai-v1 at 3207e00.
+LAST COMPLETED ACTION: T115 Round 1 passed after accepted T116 hygiene synchronization; T117 ContentPackage container Round 1 was dispatched to the safe Claude executor.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T117 Round 1 to the safe Claude executor. Never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T117 Round 1 DELIVERY, then Fast Review. Never merge to `main`.
 
 ## COMPLETED
 
