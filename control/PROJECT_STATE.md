@@ -8,10 +8,10 @@ CURRENT TASK: T112-M1-CLAIM-ALLOWED-MARKET-RELATION-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 19ecacb6ae6468885fce827dbafaaee6c6c663b6
 LAST REVIEW: T111-M1-CLAIM-SOURCE-RELATION-SCHEMA ROUND 3 PASS AND MERGED
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: Product Owner-approved Controller verification completed T111's five missing gates with exit 0; T112 Claim allowed-market relation Round 1 was dispatched to the safe Claude executor.
+CURRENT ROUND: 2 / 3
+LAST COMPLETED ACTION: T112 Round 1 Fast Review verified the in-scope mapping and parity, but the five required full-repo gates were sandbox-denied without exit evidence.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T112 Round 1 DELIVERY, then Fast Review. Do not merge to `main`.
+NEXT EXACT ACTION: Dispatch T112 Round 2 gate-evidence recovery to the safe Claude executor, then WAITING_FOR_EXECUTOR. Do not merge to `main`.
 
 ## COMPLETED
 
