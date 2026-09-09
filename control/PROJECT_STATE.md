@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T116-M1-BASELINE-LINT-HYGIENE
+CURRENT TASK: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: a3231e800981c6169cb594de3027570608c37694
-LAST REVIEW: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA ROUND 1 BLOCKED
+LATEST ACCEPTED COMMIT: 2e78b1f
+LAST REVIEW: T116-M1-BASELINE-LINT-HYGIENE ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: Provenance check confirmed the two T115 acceptance lint findings existed at T115 merge-base 288153f and are outside the T115 diff; T116 Round 1 was dispatched to the safe Claude executor.
-CURRENT BLOCKER: T115 remains frozen pending the independent baseline lint hygiene repair and re-evidence of its remaining gates; M0.5 H1/H2 also remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T116 Round 1 DELIVERY, then Fast Review. Do not modify or merge T115; never merge to `main`.
+LAST COMPLETED ACTION: T116 baseline lint hygiene passed Round 1 and merged to integration/ai-v1 at 2e78b1f; T115 remains frozen pending synchronization and re-evidence of its remaining gates.
+CURRENT BLOCKER: T115 needs only lint, build, and ci:check re-evidence after the accepted baseline hygiene fix; M0.5 H1/H2 also remain closed.
+NEXT EXACT ACTION: Synchronize the accepted two-file hygiene fix into the frozen T115 task worktree, then run only T115 lint, build, and ci:check. Do not create a new T115 round or modify T115 business implementation.
 
 ## COMPLETED
 
@@ -29,8 +29,8 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T116 Round 1 DELIVERY, then Fa
 
 ## IN PROGRESS
 
-- T115-M1-PUBLISHED-MEDIA-REF-SCHEMA Round 1 implementation is frozen while the independently scoped baseline lint hygiene repair is completed.
-- T116-M1-BASELINE-LINT-HYGIENE is authorized for the two proven pre-existing lint findings only.
+- T115-M1-PUBLISHED-MEDIA-REF-SCHEMA Round 1 implementation is frozen while its remaining aggregate gates are re-evidenced after accepted baseline hygiene synchronization.
+- T116-M1-BASELINE-LINT-HYGIENE is accepted and merged.
 
 ## BLOCKED
 

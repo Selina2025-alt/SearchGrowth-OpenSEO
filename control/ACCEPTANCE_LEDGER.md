@@ -20,6 +20,7 @@
 | `T112-M1-CLAIM-ALLOWED-MARKET-RELATION-SCHEMA`   | PASS (round 2/3) | 2026-09-09    | `control/tasks/T112-M1-CLAIM-ALLOWED-MARKET-RELATION-SCHEMA/REVIEW.md`; same-Project Claim/MarketProfile composite FKs, 0058/0036 migrations, 295 focused and 1,436 full tests; approved Controller verification completed all five required gates  | `d196cfc16980c111c41375b765124ed8c5ef0ffa` |
 | `T113-M1-CLAIM-ALLOWED-LANGUAGE-RELATION-SCHEMA` | PASS (round 1/3) | 2026-09-09    | `control/tasks/T113-M1-CLAIM-ALLOWED-LANGUAGE-RELATION-SCHEMA/REVIEW.md`; same-Project Claim/language relation, 0059/0037 migrations, 298 focused and 1,452 full tests; approved Controller verification completed all five required gates          | `493389b07fe23d0d7625ed1d1c21e6316a043344` |
 | `T114-M1-MEDIA-ASSET-SCHEMA`                     | PASS (round 1/3) | 2026-09-09    | `control/tasks/T114-M1-MEDIA-ASSET-SCHEMA/REVIEW.md`; Project-scoped MediaAsset identity/rights/classification contract, 0060/0038 migrations, 280 focused and 1,473 full tests; approved Controller verification completed all five required gates | `a3231e800981c6169cb594de3027570608c37694` |
+| `T116-M1-BASELINE-LINT-HYGIENE`                  | PASS (round 1/3) | 2026-09-09    | `control/tasks/T116-M1-BASELINE-LINT-HYGIENE/REVIEW.md`; mechanical pre-existing type-only import and dead-constant repair, 15 focused tests and aggregate lint PASS | `2e78b1f` |
 
 ## Active work
 
@@ -36,5 +37,5 @@
 - T113 Claim allowed-language relation schema and domain contract are accepted and merged.
 - T114 MediaAsset schema and domain contract are accepted and merged.
 - T115 PublishedMediaRef schema Round 1 is BLOCKED: Controller verification found real pre-existing lint failures outside the task diff; it is not merged and no implementation was modified.
-- T116 BASELINE-LINT-HYGIENE is authorized to repair only the two proven pre-existing lint findings before T115 gate re-evidence.
+- T116 BASELINE-LINT-HYGIENE is accepted and merged; its two-file fix is being synchronized into frozen T115 for gate re-evidence.
 - M0.5 real connector/account feasibility: pending Human Gates H1/H2; it does not authorize connector implementation or external publishing.
