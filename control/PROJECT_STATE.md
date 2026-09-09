@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T118-M1-CONTENT-VERSION-CORE-SCHEMA
+CURRENT TASK: T119-M1-CONTENT-VERSION-CLAIM-REF-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: b24b487
 LAST REVIEW: T118-M1-CONTENT-VERSION-CORE-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
 LAST COMPLETED ACTION: T118 Round 1 passed; all aggregate gates exited 0 and the immutable ContentVersion core merged to integration/ai-v1 at b24b487.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create and dispatch the next approved small, credential-free M1 Core Domain task. Never merge to `main`.
+NEXT EXACT ACTION: Dispatch T119 Round 1 to the safe Claude executor. Never merge to `main`.
 
 ## COMPLETED
 
