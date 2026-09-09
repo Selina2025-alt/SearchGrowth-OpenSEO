@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA
+CURRENT TASK: T116-M1-BASELINE-LINT-HYGIENE
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: a3231e800981c6169cb594de3027570608c37694
 LAST REVIEW: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA ROUND 1 BLOCKED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T115 Round 1 Fast Review completed; Controller verification confirmed format/types exit 0 and a real lint exit 1 outside the T115 diff.
-CURRENT BLOCKER: T115 required lint gate exits 1 on pre-existing cross-scope findings in src/types/schemas/claim.ts and src/db/claims.test.ts; M0.5 H1/H2 also remain closed.
-NEXT EXACT ACTION: BLOCKED — preserve T115 Round 1 unchanged. Do not merge or create a T115 round. Await Product Owner direction for a separately scoped quality-baseline repair.
+LAST COMPLETED ACTION: Provenance check confirmed the two T115 acceptance lint findings existed at T115 merge-base 288153f and are outside the T115 diff; independent baseline hygiene task packet created.
+CURRENT BLOCKER: T115 remains frozen pending the independent baseline lint hygiene repair and re-evidence of its remaining gates; M0.5 H1/H2 also remain closed.
+NEXT EXACT ACTION: Dispatch T116 Round 1 to the safe Claude executor. Do not modify or merge T115; never merge to `main`.
 
 ## COMPLETED
 
@@ -29,7 +29,8 @@ NEXT EXACT ACTION: BLOCKED — preserve T115 Round 1 unchanged. Do not merge or 
 
 ## IN PROGRESS
 
-- T115-M1-PUBLISHED-MEDIA-REF-SCHEMA Round 1 implementation is complete but blocked by the required aggregate lint gate outside its change scope.
+- T115-M1-PUBLISHED-MEDIA-REF-SCHEMA Round 1 implementation is frozen while the independently scoped baseline lint hygiene repair is completed.
+- T116-M1-BASELINE-LINT-HYGIENE is authorized for the two proven pre-existing lint findings only.
 
 ## BLOCKED
 

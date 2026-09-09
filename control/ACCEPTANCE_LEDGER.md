@@ -36,4 +36,5 @@
 - T113 Claim allowed-language relation schema and domain contract are accepted and merged.
 - T114 MediaAsset schema and domain contract are accepted and merged.
 - T115 PublishedMediaRef schema Round 1 is BLOCKED: Controller verification found real pre-existing lint failures outside the task diff; it is not merged and no implementation was modified.
+- T116 BASELINE-LINT-HYGIENE is authorized to repair only the two proven pre-existing lint findings before T115 gate re-evidence.
 - M0.5 real connector/account feasibility: pending Human Gates H1/H2; it does not authorize connector implementation or external publishing.
