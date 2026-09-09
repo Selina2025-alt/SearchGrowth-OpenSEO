@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T112-M1-CLAIM-ALLOWED-MARKET-RELATION-SCHEMA
+CURRENT TASK: T113-M1-CLAIM-ALLOWED-LANGUAGE-RELATION-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 19ecacb6ae6468885fce827dbafaaee6c6c663b6
-LAST REVIEW: T111-M1-CLAIM-SOURCE-RELATION-SCHEMA ROUND 3 PASS AND MERGED
+LATEST ACCEPTED COMMIT: d196cfc16980c111c41375b765124ed8c5ef0ffa
+LAST REVIEW: T112-M1-CLAIM-ALLOWED-MARKET-RELATION-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T112 Round 1 Fast Review verified the in-scope mapping and parity, but the five required full-repo gates were sandbox-denied; T112 Round 2 gate-evidence recovery was dispatched.
+LAST COMPLETED ACTION: Product Owner-authorized Controller verification completed T112's five missing gates with exit 0; T113 Claim allowed-language relation packet is ready for dispatch.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T112 Round 2 DELIVERY, then Fast Review. Do not merge to `main`.
+NEXT EXACT ACTION: Dispatch T113 Round 1 to the safe Claude executor, then WAITING_FOR_EXECUTOR. Do not merge to `main`.
 
 ## COMPLETED
 
