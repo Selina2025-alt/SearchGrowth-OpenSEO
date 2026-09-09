@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages and T114 media_assets additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets and T115 published_media_refs additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -2025,12 +2025,20 @@ export const claimAllowedLanguages = sqliteTable(
 // with ON DELETE CASCADE (the established Project-scoping FK every Search Growth
 // row carries). Deleting a whole Project cascades its media assets away. There
 // is no content-version/relation link yet (ContentVersion.asset_ids[] is a later
-// slice), so no child referential target index is needed on this parent.
+// slice), but the T115 published_media_refs relation's same-Project composite FK
+// ((project_id, media_asset_id) -> media_assets(project_id, id), defined below)
+// requires the supporting composite unique target index added below in this
+// task's 0061 forward migration.
 //
 // NO BUSINESS UNIQUENESS: no V1.0 artifact dedupes media assets by sha256 or
 // constrains mime/type/rights/classification uniqueness per project, so the only
-// index below is the non-unique Project lookup/cascade index (TASK item 3). No
-// content-hash, storage-key, filename, dimensional or duplicate rule is added.
+// unique index below is `media_assets_project_id_id_idx` on (project_id, id),
+// which exists ONLY as the required referential target of that child composite
+// FK — id is already the PK, so the composite accepts exactly the rows the PK
+// accepts and adds no business uniqueness. No content-hash, storage-key,
+// filename, dimensional or duplicate rule is added. The non-unique Project
+// lookup/cascade index below serves Project-scoped reads and the project-delete
+// cascade path.
 // ============================================================================
 
 export const mediaAssets = sqliteTable(
@@ -2076,9 +2084,15 @@ export const mediaAssets = sqliteTable(
       .default(sql`(current_timestamp)`),
   },
   (table) => [
-    // Project -> media-asset reads and the project-delete cascade path (the only
-    // index required for Project lookup; TASK item 3).
+    // Project -> media-asset reads and the project-delete cascade path (the
+    // non-unique Project lookup index; TASK item 3).
     index("media_assets_project_idx").on(table.projectId),
+    // Supporting unique target for the published_media_refs same-Project
+    // composite FK ((project_id, media_asset_id) -> media_assets(project_id, id),
+    // added below by the T115 0061 migration). id is already the PK, so this
+    // composite accepts exactly the rows the PK accepts and adds no business
+    // uniqueness.
+    uniqueIndex("media_assets_project_id_id_idx").on(table.projectId, table.id),
     // DB-level enum rejection for the three direct MediaAsset unions (the TASK
     // requires migration-backed enum rejection; the Zod boundary enforces the
     // same lists at the runtime edge).
@@ -2094,5 +2108,131 @@ export const mediaAssets = sqliteTable(
       "media_assets_classification_valid",
       sql`(${table.classification} IN ('PUBLIC_MARKETING','INTERNAL','RESTRICTED'))`,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, Project-scoped published media references.
+//
+// A published media reference records ONE media asset's opaque remote reference
+// on an external creator/CMS platform after a later publisher adapter uploads/
+// transfers it (05_DOMAIN_DATA_MODEL.md §11 PublishedMediaRef;
+// 15_MEDIA_ASSET_SPEC.md §3 "asset://id -> upload/transfer -> PublishedMediaRef
+// -> stable platform URL/media id"; ADR-007). This slice is schema/contract
+// ONLY: it adds no publisher connector, account authorization, upload, external
+// request, URL reachability or public-verification behavior, and it invents no
+// success/status semantics — a row is only a STORED REFERENCE, never proof of
+// public success.
+//
+// FIELD RECONCILIATION (§11 and the TASK field list are the direct contract;
+// schemas/domain-types.ts PublishedMediaRef and schemas/migrations-reference.sql
+// published_media_refs supply the legacy reference context):
+//   - The stable `id` primary key and the explicit `project_id` ownership key
+//     are the additions the established Search Growth schema convention requires
+//     (every V1.0 row has a stable text id; §11's snippet lists only the
+//     relation-facing fields, and the legacy reference row has no project
+//     column). `project_id` is required so the DB itself can enforce
+//     same-Project ownership against the source MediaAsset (composite FK below).
+//   - `media_asset_id` (NOT NULL) is the R2 source MediaAsset id this reference
+//     was produced from (§11 `asset_id`, named `media_asset_id` by the TASK).
+//   - `platform` (NOT NULL) is the opaque target platform/CMS identifier. It is
+//     stored verbatim; no platform enum, registry, capability table or
+//     credential data is invented in this slice.
+//   - `account_id` (nullable) is the opaque platform account that performed the
+//     upload (TASK "nullable opaque account_id"). No account credentials or
+//     account FK are stored.
+//   - `external_media_id` (nullable) is the platform's opaque remote media id
+//     (§11 `external_media_id?`); NULL means the platform has not returned one.
+//   - `public_url` (nullable) is the platform/CMS public media URL, stored
+//     verbatim (§11 `public_url?`). No reachability check, URL normalization,
+//     fetch or verification happens here.
+//   - `sha256` (nullable) is the OPTIONAL remote content/media hash the platform
+//     reported (TASK "optional remote sha256"; 15_MEDIA_ASSET_SPEC.md §7
+//     content/media hashes). Plain non-unique column — no content-hash matching
+//     or dedup rule is invented.
+//   - `created_at` is the append-only creation timestamp (system insert time) —
+//     the established creation-audit convention's only audit column.
+//   - The legacy/§15 reference-only `adapter_version`
+//     (15_MEDIA_ASSET_SPEC.md §4 PublishedMediaRef) is NOT shipped: the TASK
+//     field list names no adapter-version column and no adapter contract is
+//     authorized here.
+//   - No success/status/verification/credential field is shipped (TASK item 3):
+//     there is no PUBLIC_VERIFIED/success/status column, no uniqueness that
+//     would imply a single "published" record per platform, and no account
+//     credential value. A row is a stored reference, never proof of public
+//     success.
+//
+// OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// with ON DELETE CASCADE (the established Project-scoping FK). Same-Project
+// ownership against the source asset is database-enforced by the composite FK
+// (project_id, media_asset_id) -> media_assets(project_id, id), whose leading
+// column is this row's project_id, so a reference whose MediaAsset lives on
+// another Project (in either direction) has no matching parent row and is
+// rejected by the DB. The referenced (project_id, id) pair is made unique by the
+// supporting `media_assets_project_id_id_idx` unique index this task adds to the
+// T114 mediaAssets table (0061/0039) — the only referential parent key this FK
+// requires. Deleting a MediaAsset or a whole Project cascades its references
+// away, so a reference can never dangle. (Cascading away the local reference
+// row does NOT delete externally published media — 15_MEDIA_ASSET_SPEC.md §7
+// "不自动删除外部平台已发布媒体" — it only removes the stored pointer.)
+//
+// NO BUSINESS UNIQUENESS: no V1.0 artifact constrains a single "published"
+// reference per asset/platform or dedupes external ids/public URLs, and the TASK
+// forbids inventing publication uniqueness or public-verification behavior, so
+// no business-unique index exists. The two non-unique indexes below serve the
+// project -> references and asset -> references read paths and their cascade
+// delete paths only.
+// ============================================================================
+
+export const publishedMediaRefs = sqliteTable(
+  "published_media_refs",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The R2 source MediaAsset id this reference was produced from
+    // (media_assets.id). Bound to the row's project by the same-Project
+    // composite FK below, which cascades references away when the asset is
+    // deleted.
+    mediaAssetId: text("media_asset_id").notNull(),
+    // The opaque target platform/CMS identifier. Stored verbatim; no platform
+    // enum/registry or capability data exists in this slice.
+    platform: text("platform").notNull(),
+    // The opaque platform account that performed the upload; NULL when the
+    // platform reports no account context. No account credentials are stored.
+    accountId: text("account_id"),
+    // The platform's opaque remote media id; NULL until the platform returns
+    // one. No id format is interpreted here.
+    externalMediaId: text("external_media_id"),
+    // The platform/CMS public media URL, stored verbatim. No reachability or
+    // URL validation is performed here.
+    publicUrl: text("public_url"),
+    // Optional remote content/media hash reported by the platform. Plain
+    // non-unique column: no content-hash matching or dedup rule is invented.
+    sha256: text("sha256"),
+    // Append-only creation timestamp (system insert time). No updated_at column
+    // exists — a reference is written once when the upload is recorded.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the source media asset: this row's
+    // project_id must equal the asset's project_id. Deleting an asset removes
+    // its references (the referenced (project_id, id) pair is unique via the
+    // supporting media_assets_project_id_id_idx unique index added to
+    // mediaAssets by this task's 0061 migration). A reference whose asset lives
+    // on another Project has no matching parent row and is rejected by the DB.
+    foreignKey({
+      columns: [table.projectId, table.mediaAssetId],
+      foreignColumns: [mediaAssets.projectId, mediaAssets.id],
+    }).onDelete("cascade"),
+    // Project -> references reads and the project-delete cascade path.
+    index("published_media_refs_project_idx").on(table.projectId),
+    // Asset -> references reads and the asset-delete cascade path.
+    index("published_media_refs_media_asset_idx").on(table.mediaAssetId),
   ],
 );

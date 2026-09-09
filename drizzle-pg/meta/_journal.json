@@ -274,6 +274,13 @@
       "when": 1788926501975,
       "tag": "0038_goofy_scalphunter",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1788933507516,
+      "tag": "0039_fair_doctor_octopus",
+      "breakpoints": true
     }
   ]
 }
