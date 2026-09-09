@@ -288,6 +288,13 @@
       "when": 1788940582647,
       "tag": "0040_panoramic_timeslip",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1788942962342,
+      "tag": "0041_thick_firelord",
+      "breakpoints": true
     }
   ]
 }
