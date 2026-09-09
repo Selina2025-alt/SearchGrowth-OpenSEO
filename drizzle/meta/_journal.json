@@ -414,6 +414,13 @@
       "when": 1788918773128,
       "tag": "0058_glossy_purple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "6",
+      "when": 1788923176195,
+      "tag": "0059_elite_deathbird",
+      "breakpoints": true
     }
   ]
 }

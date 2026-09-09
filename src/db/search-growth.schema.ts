@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs and T112 claim_allowed_market_profiles additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles and T113 claim_allowed_languages additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -1625,8 +1625,10 @@ export const sourceRefs = sqliteTable(
 //     union the legacy reference type also carries), enforced by the DB
 //     text-enum column and the named CHECK below (Zod boundary at runtime).
 //   - The legacy `allowed_markets[]` / `allowed_languages[]` fields are NOT
-//     shipped as JSON/text lists on this row: T111 defers them to a later
-//     dedicated policy-relation task (TASK item 4).
+//     shipped as JSON/text lists on this row: each is modeled as a normalized
+//     same-Project relation table (claim_allowed_market_profiles in T112 and
+//     claim_allowed_languages in T113), never as a JSON/text column on the
+//     claim row.
 //   - The legacy scalar evidence fields `evidence_type`/`evidence_ref`/
 //     `source_url` are reconciled OUT: source evidence becomes the normalized
 //     claim_source_refs relation below (TASK item 2), so no evidence payload
@@ -1879,5 +1881,83 @@ export const claimAllowedMarketProfiles = sqliteTable(
     index("claim_allowed_market_profiles_market_profile_idx").on(
       table.marketProfileId,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, same-Project Claim allowed-language relation.
+//
+// Each row is ONE allowed-language edge of a claim (05_DOMAIN_DATA_MODEL.md §9
+// `allowed_languages[]`; TASK item 1). The allowed-language policy relation is a
+// normalized table — never a JSON/text array column on the claim row (TASK item
+// 2) — and the language value is stored as one explicit opaque tag per row,
+// consistent with the existing V1.0 language fields (search_prompts.language,
+// search_market_profiles.language_code, search_topics.locale). This slice is
+// schema/contract only: no language catalog, locale inference/normalization,
+// enum/format rule, policy-evaluation, Claim-verification or ranking behavior is
+// added (TASK item 3).
+//
+// SAME-PROJECT INTEGRITY is database-enforced by the composite foreign key that
+// carries this row's own project_id as its leading column:
+//   (project_id, claim_id) -> claims(project_id, id)
+// A link whose claim belongs to another Project has no matching parent row and
+// is rejected by the DB. The parent exposes the required unique (project_id, id)
+// target (claims via claims_project_id_id_idx from 0057), so this table adds NO
+// new referential index to the claim parent. Deleting a claim or a whole Project
+// cascades its links away, so a link can never dangle.
+//
+// LINK IDENTITY / DUPLICATE EDGES: the only business uniqueness rule in this
+// slice is the link identity needed to prevent duplicate Claim/language edges
+// (TASK item 4), so the unique index below rejects a duplicate
+// (claim_id, language) pair. claim_id is a globally unique primary key, so once
+// the same-Project FK holds, the pair is project-isolated without listing
+// project_id in the unique index (the accepted search_topic_keyword_refs /
+// claim_source_refs / claim_allowed_market_profiles mapping pattern). No other
+// uniqueness rule is invented. The non-unique reverse index serves the language
+// -> claims read path; the unique index's leading claim_id already serves the
+// claim -> allowed-languages read path.
+// ============================================================================
+
+export const claimAllowedLanguages = sqliteTable(
+  "claim_allowed_languages",
+  {
+    id: text("id").primaryKey(),
+    // This link's own Project. Explicit typed column so the same-Project
+    // composite FK below can carry it as its leading column.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The linked claim (claims.id). Bound to this row's project by the
+    // composite FK below.
+    claimId: text("claim_id").notNull(),
+    // The allowed language, stored as an opaque explicit IETF-style tag exactly
+    // as supplied (e.g. "en", "zh-CN"), matching the existing V1.0 language
+    // fields. No catalog, normalization, inference or format rule is applied.
+    language: text("language").notNull(),
+    // Append-only creation timestamp (system insert time). A link row carries
+    // no mutable payload and no updated_at — the relation is a policy edge, not
+    // a mutable lifecycle row.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the claim: this link's project_id must equal
+    // the claim's project_id. Deleting a claim removes its allowed-language
+    // links (the referenced (project_id, id) pair is unique via
+    // claims_project_id_id_idx).
+    foreignKey({
+      columns: [table.projectId, table.claimId],
+      foreignColumns: [claims.projectId, claims.id],
+    }).onDelete("cascade"),
+    // Link identity: one row per (claim_id, language) edge, so a duplicate
+    // Claim/language link is rejected by the DB (TASK item 4). The leading
+    // claim_id also serves the claim -> allowed-languages read path.
+    uniqueIndex("claim_allowed_languages_unique_claim_language_idx").on(
+      table.claimId,
+      table.language,
+    ),
+    // language -> claims reads.
+    index("claim_allowed_languages_language_idx").on(table.language),
   ],
 );
