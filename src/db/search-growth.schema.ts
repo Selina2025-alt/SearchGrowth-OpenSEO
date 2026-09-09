@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs and T117 content_packages additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages and T118 content_package_versions additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -2304,16 +2304,21 @@ export const publishedMediaRefs = sqliteTable(
 // dangling Topic/Opportunity. The Topic target (project_id, id) is unique via
 // the accepted `search_topics_project_id_id_idx`; the Opportunity target is made
 // unique by the `search_growth_opportunities_project_id_id_idx` supporting index
-// this task adds to the accepted T109 opportunities table (0062/0040) — the only
-// new referential parent index this slice requires. Deleting a Topic, an
-// Opportunity, or a whole Project cascades the package away, so a container can
-// never dangle.
+// the T117 slice added to the accepted T109 opportunities table (0062/0040).
+// Deleting a Topic, an Opportunity, or a whole Project cascades the package
+// away, so a container can never dangle.
 //
 // NO BUSINESS UNIQUENESS: no V1.0 artifact constrains how many content packages
 // a Topic/Opportunity may carry or dedupes them, and the TASK forbids adding
-// business uniqueness, so no unique index exists on this table. The non-unique
-// indexes below serve the project -> packages, topic -> packages and
-// opportunity -> packages read/cascade paths only.
+// business uniqueness. The one unique index this row now exposes
+// (`content_packages_project_id_id_idx` on (project_id, id), added by the T118
+// 0063/0041 migrations) exists ONLY as the required referential target of the
+// T118 content_package_versions same-Project composite FK
+// ((project_id, content_package_id) -> content_packages(project_id, id)) — id is
+// already the PK, so the composite accepts exactly the rows the PK accepts and
+// adds no business uniqueness. The non-unique indexes below serve the
+// project -> packages, topic -> packages and opportunity -> packages
+// read/cascade paths only.
 // ============================================================================
 
 export const contentPackages = sqliteTable(
@@ -2369,7 +2374,7 @@ export const contentPackages = sqliteTable(
     // opportunity removes the packages produced from it (the referenced
     // (project_id, id) pair is unique via the
     // search_growth_opportunities_project_id_id_idx supporting unique index
-    // added by this task's 0062 migration). NULL opportunity_id means no
+    // added by the T117 0062 migration). NULL opportunity_id means no
     // opportunity is attached and the FK is not enforced.
     foreignKey({
       columns: [table.projectId, table.opportunityId],
@@ -2378,11 +2383,179 @@ export const contentPackages = sqliteTable(
         searchGrowthOpportunities.id,
       ],
     }).onDelete("cascade"),
+    // Supporting unique referential target for the content_package_versions
+    // same-Project composite FK ((project_id, content_package_id) ->
+    // content_packages(project_id, id), added below by the T118 0063
+    // migration). id is already the PK, so this composite accepts exactly the
+    // rows the PK accepts and adds no business uniqueness.
+    uniqueIndex("content_packages_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
     // Project -> packages reads and the project-delete cascade path.
     index("content_packages_project_idx").on(table.projectId),
     // Topic -> packages reads and the topic-delete cascade path.
     index("content_packages_topic_idx").on(table.topicId),
     // Opportunity -> packages reads and the opportunity-delete cascade path.
     index("content_packages_opportunity_idx").on(table.opportunityId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, Project-scoped, immutable content versions.
+//
+// A content version records ONE immutable snapshot of a content package's
+// canonical content and its version identity (05_DOMAIN_DATA_MODEL.md §10
+// ContentVersion — "ContentVersion — Immutable"; 09_CONTENT_EVIDENCE_WEBPAGE_SPEC
+// .md §1 canonical source and §8 immutable versions). This slice is
+// schema/contract ONLY: the TASK records canonical content and version identity
+// only. Normalized Claim/SourceRef/MediaAsset mapping tables, ContentVariant,
+// Gate evaluation, and all release/dry-run/approval/publishing behavior are
+// separate tasks.
+//
+// FIELD RECONCILIATION (the TASK field list is the direct authoritative
+// contract; 05_DOMAIN_DATA_MODEL.md §10 and the legacy references
+// schemas/domain-types.ts ContentPackageVersion and
+// schemas/migrations-reference.sql content_package_versions supply the reference
+// context):
+//   - The stable `id` primary key, the explicit NOT NULL `project_id` ownership
+//     key, and the append-only `created_at` timestamp are the additions the
+//     established Search Growth schema convention requires.
+//   - `content_package_id` (NOT NULL) is the stable id of the owning
+//     content_packages container and `version_no` (NOT NULL) is the monotonic
+//     version number within that package. Together they form the version
+//     identity.
+//   - `canonical_markdown` (NOT NULL) is the canonical Markdown body and
+//     `canonical_metadata_json` (NOT NULL) is the canonical structured metadata
+//     (09 spec §1): both are opaque document payloads stored verbatim.
+//   - `web_page_spec_json` (nullable) is the optional WebPageSpec document
+//     payload; NULL means the version does not (yet) carry a page spec.
+//   - `content_hash` (NOT NULL) is a required opaque content hash, stored
+//     verbatim. It is deliberately a plain non-unique column: no content-hash
+//     matching/dedup rule is invented in this slice.
+//   - `gate_status` (NOT NULL) records only the core value of the
+//     domain-types.ts gateStatus union (DRAFT | BLOCKED | PASSED), enforced by
+//     the DB text-enum column and the named CHECK below. This slice does NOT
+//     implement Gate evaluation and the value cannot be invented by the DB.
+//   - `classification` (NOT NULL) is exactly the V1.0 DataClassification union
+//     PUBLIC_MARKETING | INTERNAL | RESTRICTED (domain-types.ts
+//     DataClassification), enforced by the DB text-enum column and the named
+//     CHECK below.
+//   - The legacy reference fields `brief_json`, `claim_ids_json`,
+//     `source_ref_ids_json`, `asset_ids_json`, `gate_report_json` and
+//     `created_by` are reconciled OUT: the TASK field list does not name them,
+//     and normalized Claim/SourceRef/MediaAsset mappings (never JSON arrays on
+//     this row) plus Gate/release behavior are separate tasks (09 spec §1 asset/
+//     claim/source refs; TASK item 3).
+//   - IMMUTABLE-ROW SHAPE: no `updated_at` column and no mutable workflow,
+//     release approval, publishing or public-success column exists (TASK item
+//     3). A version row is written once; a content change creates a new
+//     version_no rather than mutating this row (09 spec §8).
+//
+// OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// with ON DELETE CASCADE (the established Project-scoping FK every Search Growth
+// row carries). Same-Project ContentPackage ownership is database-enforced by
+// the Project-leading composite FK
+//   (project_id, content_package_id) -> content_packages(project_id, id)
+// so the DB (not application convention) rejects a version whose package belongs
+// to another Project (in either direction) and rejects a dangling package. The
+// parent (project_id, id) target is made unique by the
+// `content_packages_project_id_id_idx` supporting unique index this task adds to
+// the accepted T117 content_packages table (0063/0041) — the only new
+// referential parent index this slice requires. Deleting a content package or a
+// whole Project cascades its versions away, so a version can never dangle.
+//
+// VERSION IDENTITY / NO OTHER BUSINESS UNIQUENESS: the only business uniqueness
+// rule in this slice is the version identity needed to reject a duplicate
+// (content_package_id, version_no) pair (TASK item 2). content_package_id is a
+// globally unique primary key, so once the same-Project FK holds, the pair is
+// project-isolated without listing project_id in the unique index (the accepted
+// mapping/version patterns). No other business uniqueness is added: content_hash
+// is a plain column (no dedup rule) and the version identity index's leading
+// content_package_id already serves the content-package -> versions read path,
+// so no other index exists on this table.
+// ============================================================================
+
+export const contentPackageVersions = sqliteTable(
+  "content_package_versions",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The stable content_packages.id this version belongs to. Bound to the
+    // row's project by the composite FK below, which cascades versions away when
+    // the content package is deleted.
+    contentPackageId: text("content_package_id").notNull(),
+    // The monotonic version number within the content package. The unique index
+    // below enforces one row per (content_package_id, version_no) — a content
+    // change creates a new version_no instead of mutating this immutable row.
+    versionNo: integer("version_no").notNull(),
+    // The canonical Markdown body (09 spec §1), stored verbatim as an opaque
+    // document payload. No rendering or normalization happens in this slice.
+    canonicalMarkdown: text("canonical_markdown").notNull(),
+    // The canonical structured metadata document (09 spec §1), stored verbatim
+    // as an opaque JSON payload. The metadata is a document, not a relational
+    // model: Claim/SourceRef/MediaAsset mappings are never encoded here (TASK
+    // item 3).
+    canonicalMetadataJson: text("canonical_metadata_json").notNull(),
+    // The optional WebPageSpec document payload (05 §10 web_page_spec_json);
+    // NULL means this version does not carry a page spec yet. Also an opaque
+    // JSON payload.
+    webPageSpecJson: text("web_page_spec_json"),
+    // The required opaque content hash, stored verbatim. Plain non-unique
+    // column: no content-hash matching/dedup rule is invented in this slice.
+    contentHash: text("content_hash").notNull(),
+    // The direct ContentPackageVersion gateStatus core union (DRAFT | BLOCKED |
+    // PASSED — domain-types.ts). DB text-enum column + the named CHECK below;
+    // the Zod boundary validates it. This slice records the core value only and
+    // does NOT implement Gate evaluation (TASK item 3).
+    gateStatus: text("gate_status", {
+      enum: ["DRAFT", "BLOCKED", "PASSED"],
+    }).notNull(),
+    // The direct DataClassification union (PUBLIC_MARKETING | INTERNAL |
+    // RESTRICTED). DB text-enum column + the named CHECK below; the Zod boundary
+    // validates it.
+    classification: text("classification", {
+      enum: ["PUBLIC_MARKETING", "INTERNAL", "RESTRICTED"],
+    }).notNull(),
+    // Append-only creation timestamp (system insert time) — the ONLY audit
+    // column: an immutable version row has no updated_at and carries no mutable
+    // workflow/release/publishing state.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the owning content package: this row's
+    // project_id must equal the package's project_id. Deleting a content package
+    // removes its versions (the referenced (project_id, id) pair is unique via
+    // the supporting content_packages_project_id_id_idx unique index added by
+    // this task's 0063 migration). A version whose package lives on another
+    // Project has no matching parent row and is rejected by the DB.
+    foreignKey({
+      columns: [table.projectId, table.contentPackageId],
+      foreignColumns: [contentPackages.projectId, contentPackages.id],
+    }).onDelete("cascade"),
+    // Version identity: one row per (content_package_id, version_no), so a
+    // duplicate version number within a content package is rejected by the DB
+    // (TASK item 2). The leading content_package_id also serves the
+    // content-package -> versions read path.
+    uniqueIndex(
+      "content_package_versions_unique_content_package_version_idx",
+    ).on(table.contentPackageId, table.versionNo),
+    // DB-level enum rejection for the two direct ContentVersion unions (the TASK
+    // requires migration-backed classification enum rejection; the Zod boundary
+    // enforces the same lists at the runtime edge).
+    check(
+      "content_package_versions_gate_status_valid",
+      sql`(${table.gateStatus} IN ('DRAFT','BLOCKED','PASSED'))`,
+    ),
+    check(
+      "content_package_versions_classification_valid",
+      sql`(${table.classification} IN ('PUBLIC_MARKETING','INTERNAL','RESTRICTED'))`,
+    ),
   ],
 );
