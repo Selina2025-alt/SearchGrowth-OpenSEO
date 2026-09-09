@@ -39,4 +39,5 @@
 - T114 MediaAsset schema and domain contract are accepted and merged.
 - T115 PublishedMediaRef schema is accepted and merged after the independent T116 hygiene fix; the same-Project MediaAsset reference contract is now on integration.
 - T116 BASELINE-LINT-HYGIENE is accepted and merged.
+- T117 ContentPackage container schema is authorized; immutable content/version and content relation slices remain separate.
 - M0.5 real connector/account feasibility: pending Human Gates H1/H2; it does not authorize connector implementation or external publishing.

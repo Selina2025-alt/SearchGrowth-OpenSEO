@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA
+CURRENT TASK: T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 3207e00
 LAST REVIEW: T115-M1-PUBLISHED-MEDIA-REF-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
 LAST COMPLETED ACTION: T115 Round 1 passed after accepted T116 hygiene synchronization; lint, build, and ci:check re-evidence exited 0 and T115 merged to integration/ai-v1 at 3207e00.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create and dispatch the next approved small, credential-free M1 Core Domain task. Never merge to `main`.
+NEXT EXACT ACTION: Dispatch T117 Round 1 to the safe Claude executor. Never merge to `main`.
 
 ## COMPLETED
 
@@ -31,6 +31,7 @@ NEXT EXACT ACTION: Create and dispatch the next approved small, credential-free 
 
 - T115-M1-PUBLISHED-MEDIA-REF-SCHEMA is accepted and merged.
 - T116-M1-BASELINE-LINT-HYGIENE is accepted and merged.
+- T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA is authorized for the core container only.
 
 ## BLOCKED
 
