@@ -8,10 +8,10 @@ CURRENT TASK: T120-M1-CONTENT-VERSION-SOURCE-REF-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: b8a80bd
 LAST REVIEW: T119-M1-CONTENT-VERSION-CLAIM-REF-SCHEMA ROUND 1 PASS AND MERGED
-CURRENT ROUND: 0 / 3
-LAST COMPLETED ACTION: T119 Round 1 passed after Controller acceptance-verification gates; normalized ContentVersion-to-Claim references were merged to `integration/ai-v1`.
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: T119 Round 1 passed after Controller acceptance-verification gates; T120 ContentVersion-to-SourceRef Round 1 was dispatched to the safe Claude executor.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create and dispatch T120-M1-CONTENT-VERSION-SOURCE-REF-SCHEMA to the safe Claude executor, then wait for DELIVERY. Never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T120 Round 1 DELIVERY, then Fast Review. Never merge to `main`.
 
 ## COMPLETED
 
