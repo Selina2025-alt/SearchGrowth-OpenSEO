@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: f4e92e4
 LAST REVIEW: T122-M1-CONTENT-VARIANT-CORE-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T122 Round 2 passed; T123 ContentVariant-to-MediaAsset Round 1 was dispatched to the safe Claude executor.
-CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T123 Round 1 DELIVERY, then Fast Review. Never merge to `main`.
+LAST COMPLETED ACTION: T123 Round 1 Delivery Fast Review verified the relation/migrations/tests; Controller format/types/lint/build all exited 0 in the unchanged task worktree.
+CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed; T123 acceptance still requires Controller `ci:check` evidence.
+NEXT EXACT ACTION: Run `corepack pnpm ci:check` only in the unchanged T123 worktree. If exit 0, write PASS REVIEW, merge only to `integration/ai-v1`, update ledger/state, and dispatch the next approved task. Never merge to `main`.
 
 ## COMPLETED
 
