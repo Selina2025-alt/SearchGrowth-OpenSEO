@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages and T118 content_package_versions additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions and T119 content_package_version_claims additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -2472,8 +2472,13 @@ export const contentPackages = sqliteTable(
 // project-isolated without listing project_id in the unique index (the accepted
 // mapping/version patterns). No other business uniqueness is added: content_hash
 // is a plain column (no dedup rule) and the version identity index's leading
-// content_package_id already serves the content-package -> versions read path,
-// so no other index exists on this table.
+// content_package_id already serves the content-package -> versions read path.
+// The one supporting referential index on this table,
+// `content_package_versions_project_id_id_idx` (unique on (project_id, id)), is
+// added by the T119 0064 migration purely as the composite-FK target of the
+// content_package_version_claims same-Project FK below — id is already the PK,
+// so it accepts exactly the PK's rows and adds no business uniqueness. No other
+// index exists on this table.
 // ============================================================================
 
 export const contentPackageVersions = sqliteTable(
@@ -2546,6 +2551,15 @@ export const contentPackageVersions = sqliteTable(
     uniqueIndex(
       "content_package_versions_unique_content_package_version_idx",
     ).on(table.contentPackageId, table.versionNo),
+    // Supporting unique referential target for the content_package_version_claims
+    // same-Project composite FK ((project_id, content_package_version_id) ->
+    // content_package_versions(project_id, id), added below by the T119 0064
+    // migration). id is already the PK, so this composite accepts exactly the
+    // rows the PK accepts and adds no business uniqueness.
+    uniqueIndex("content_package_versions_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
     // DB-level enum rejection for the two direct ContentVersion unions (the TASK
     // requires migration-backed classification enum rejection; the Zod boundary
     // enforces the same lists at the runtime edge).
@@ -2557,5 +2571,104 @@ export const contentPackageVersions = sqliteTable(
       "content_package_versions_classification_valid",
       sql`(${table.classification} IN ('PUBLIC_MARKETING','INTERNAL','RESTRICTED'))`,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, same-Project ContentPackageVersion <->
+// Claim relation.
+//
+// Each row is ONE link between an immutable content package version and a claim
+// that version relies on (05_DOMAIN_DATA_MODEL.md §10 ContentVersion
+// `claim_ids[]`; 09_CONTENT_EVIDENCE_WEBPAGE_SPEC.md §1 claim/source refs and
+// §10 "every piece of content can trace the Claims used"). The relation is a
+// normalized table — never a JSON/text array column on the immutable
+// content_package_versions row (TASK item 3) — and the row carries no mutable
+// evidence payload: claim verification/reverification state stays on the linked
+// claims rows, so a later hard-claim Gate reads the version's claims through the
+// link without copying verification state here. This slice is schema/contract
+// only: no Claim gate evaluation/override, evidence payload, release/publishing
+// behavior, or CRUD/UI is added (TASK item 3).
+//
+// SAME-PROJECT INTEGRITY is database-enforced by two composite foreign keys that
+// carry this row's own project_id as their leading column:
+//   (project_id, content_package_version_id) -> content_package_versions(project_id, id)
+//   (project_id, claim_id)                   -> claims(project_id, id)
+// A link whose content package version and claim belong to different Projects
+// has no matching parent row for at least one FK and is rejected by the DB in
+// either direction. The ContentVersion parent target
+// `content_package_versions_project_id_id_idx` is the ONE new referential parent
+// index this slice requires (added to the accepted T118 table in the new 0064
+// migration); the Claim parent target is the accepted `claims_project_id_id_idx`
+// from 0057 and is reused, so this table adds NO index to `claims`. Deleting a
+// content package version, a claim, or a whole Project cascades its links away,
+// so a link can never dangle.
+//
+// LINK IDENTITY / DUPLICATE EDGES: the only business uniqueness rule in this
+// slice is the link identity needed to prevent duplicate
+// ContentPackageVersion/Claim edges (TASK item 2), so the unique index below
+// rejects a duplicate (content_package_version_id, claim_id) pair.
+// content_package_version_id and claim_id are both globally unique primary keys,
+// so once the same-Project FKs hold, the pair is project-isolated without
+// listing project_id in the unique index (the accepted search_topic_keyword_refs
+// / claim_source_refs mapping pattern). No other uniqueness rule is invented.
+// The reverse non-unique index serves the claim -> versions read path; the
+// unique index's leading content_package_version_id already serves the
+// content-package-version -> claims read path.
+// ============================================================================
+
+export const contentPackageVersionClaims = sqliteTable(
+  "content_package_version_claims",
+  {
+    id: text("id").primaryKey(),
+    // This link's own Project. Explicit typed column so the same-Project
+    // composite FKs below can carry it as their leading column.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The linked immutable content package version (content_package_versions.id).
+    // Bound to this row's project by the composite FK below.
+    contentPackageVersionId: text("content_package_version_id").notNull(),
+    // The linked claim (claims.id). Bound to this row's project by the composite
+    // FK below. Claim verification/reverification state lives on the claim row,
+    // never here.
+    claimId: text("claim_id").notNull(),
+    // Append-only creation timestamp (system insert time). A link row carries no
+    // mutable payload and no updated_at — the reference itself is immutable and
+    // evidence/verification state stays on the linked claim.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the content package version: this link's
+    // project_id must equal the version's project_id. Deleting a content package
+    // version removes its claim links (the referenced (project_id, id) pair is
+    // unique via content_package_versions_project_id_id_idx added by this task's
+    // 0064 migration).
+    foreignKey({
+      columns: [table.projectId, table.contentPackageVersionId],
+      foreignColumns: [
+        contentPackageVersions.projectId,
+        contentPackageVersions.id,
+      ],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the claim: this link's project_id must equal
+    // the claim's project_id. Deleting a claim removes its version links (the
+    // referenced (project_id, id) pair is unique via the accepted
+    // claims_project_id_id_idx from 0057 — reused, not recreated).
+    foreignKey({
+      columns: [table.projectId, table.claimId],
+      foreignColumns: [claims.projectId, claims.id],
+    }).onDelete("cascade"),
+    // Link identity: one row per (content_package_version_id, claim_id) edge, so
+    // a duplicate ContentPackageVersion/Claim link is rejected by the DB (TASK
+    // item 2). The leading content_package_version_id also serves the
+    // content-package-version -> claims read path.
+    uniqueIndex(
+      "content_package_version_claims_unique_content_package_version_claim_idx",
+    ).on(table.contentPackageVersionId, table.claimId),
+    // claim -> content-package-versions reads.
+    index("content_package_version_claims_claim_idx").on(table.claimId),
   ],
 );
