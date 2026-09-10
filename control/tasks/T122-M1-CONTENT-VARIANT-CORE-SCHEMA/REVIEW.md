@@ -33,6 +33,7 @@ BLOCKED
 
 ## MERGE DECISION
 
-Do not merge. The Product Owner explicitly directed the Controller not to create
-T122 Round 2; this review records the real task-local gate failure without a
-Controller implementation edit.
+Do not merge. The Product Owner has authorized a bounded T122 Round 2 that may
+change only the task-local type-only import and then produce the remaining gate
+evidence. No schema, migration, snapshot, or business behavior change is
+authorized.
