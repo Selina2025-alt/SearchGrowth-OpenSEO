@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions and T119 content_package_version_claims additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims and T120 content_package_version_source_refs additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -2670,5 +2670,107 @@ export const contentPackageVersionClaims = sqliteTable(
     ).on(table.contentPackageVersionId, table.claimId),
     // claim -> content-package-versions reads.
     index("content_package_version_claims_claim_idx").on(table.claimId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, same-Project ContentPackageVersion <->
+// SourceRef relation.
+//
+// Each row is ONE link between an immutable content package version and a source
+// reference that version relies on (05_DOMAIN_DATA_MODEL.md §10 ContentVersion
+// `source_refs[]`; 09_CONTENT_EVIDENCE_WEBPAGE_SPEC.md §§2–4 source refs and §10
+// "every piece of content can trace the ... sources used"). The relation is a
+// normalized table — never a JSON/text array column on the immutable
+// content_package_versions row (TASK item 3) — and the row carries no mutable
+// evidence payload: source capture/verification state stays on the linked
+// source_refs rows, so a later evidence read follows the link without copying any
+// source validation/revalidation state here. This slice is schema/contract only:
+// no source assessment/verification/revalidation, evidence payload, Claim gate
+// behavior, release/publishing behavior, or CRUD/UI is added (TASK items 3–4).
+//
+// SAME-PROJECT INTEGRITY is database-enforced by two composite foreign keys that
+// carry this row's own project_id as their leading column:
+//   (project_id, content_package_version_id) -> content_package_versions(project_id, id)
+//   (project_id, source_ref_id)              -> source_refs(project_id, id)
+// A link whose content package version and source reference belong to different
+// Projects has no matching parent row for at least one FK and is rejected by the
+// DB in either direction. Both composite-FK target unique indexes already exist
+// on the accepted parents and are REUSED, so this slice adds NO index to either
+// parent: content_package_versions_project_id_id_idx (T118/T119, D1 0064 / PG
+// 0042) and source_refs_project_id_id_idx (T110, D1 0057 / PG 0035). Deleting a
+// content package version, a source reference, or a whole Project cascades its
+// links away, so a link can never dangle.
+//
+// LINK IDENTITY / DUPLICATE EDGES: the only business uniqueness rule in this
+// slice is the link identity needed to prevent duplicate
+// ContentPackageVersion/SourceRef edges (TASK item 2), so the unique index below
+// rejects a duplicate (content_package_version_id, source_ref_id) pair.
+// content_package_version_id and source_ref_id are both globally unique primary
+// keys, so once the same-Project FKs hold, the pair is project-isolated without
+// listing project_id in the unique index (the accepted search_topic_keyword_refs
+// / claim_source_refs / content_package_version_claims mapping pattern). No other
+// uniqueness rule is invented. The reverse non-unique index serves the
+// source-ref -> versions read path; the unique index's leading
+// content_package_version_id already serves the content-package-version ->
+// source-refs read path.
+// ============================================================================
+
+export const contentPackageVersionSourceRefs = sqliteTable(
+  "content_package_version_source_refs",
+  {
+    id: text("id").primaryKey(),
+    // This link's own Project. Explicit typed column so the same-Project
+    // composite FKs below can carry it as their leading column.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The linked immutable content package version (content_package_versions.id).
+    // Bound to this row's project by the composite FK below.
+    contentPackageVersionId: text("content_package_version_id").notNull(),
+    // The linked source reference (source_refs.id). Bound to this row's project
+    // by the composite FK below. Source capture/verification state lives on the
+    // source_refs row, never here.
+    sourceRefId: text("source_ref_id").notNull(),
+    // Append-only creation timestamp (system insert time). A link row carries no
+    // mutable payload and no updated_at — the reference itself is immutable and
+    // source evidence/verification state stays on the linked source reference.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the content package version: this link's
+    // project_id must equal the version's project_id. Deleting a content package
+    // version removes its source links (the referenced (project_id, id) pair is
+    // unique via the accepted content_package_versions_project_id_id_idx from
+    // 0064 — reused, not recreated).
+    foreignKey({
+      columns: [table.projectId, table.contentPackageVersionId],
+      foreignColumns: [
+        contentPackageVersions.projectId,
+        contentPackageVersions.id,
+      ],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the source reference: this link's project_id
+    // must equal the source reference's project_id. Deleting a source reference
+    // removes its version links (the referenced (project_id, id) pair is unique
+    // via the accepted source_refs_project_id_id_idx from 0057 — reused, not
+    // recreated).
+    foreignKey({
+      columns: [table.projectId, table.sourceRefId],
+      foreignColumns: [sourceRefs.projectId, sourceRefs.id],
+    }).onDelete("cascade"),
+    // Link identity: one row per (content_package_version_id, source_ref_id)
+    // edge, so a duplicate ContentPackageVersion/SourceRef link is rejected by
+    // the DB (TASK item 2). The leading content_package_version_id also serves
+    // the content-package-version -> source-refs read path.
+    uniqueIndex(
+      "content_package_version_source_refs_unique_content_package_version_source_ref_idx",
+    ).on(table.contentPackageVersionId, table.sourceRefId),
+    // source-ref -> content-package-versions reads.
+    index("content_package_version_source_refs_source_ref_idx").on(
+      table.sourceRefId,
+    ),
   ],
 );

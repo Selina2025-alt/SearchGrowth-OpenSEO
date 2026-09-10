@@ -1,0 +1,440 @@
+/* eslint-disable max-lines, max-lines-per-function -- one migration-backed spec covers the whole content_package_version_source_refs storage contract (valid same-Project persistence/cross-Project rejection in both directions/dangling parent rejection/duplicate edge rejection/NOT NULL required-field rejection/content-package-version + source-ref + whole-Project delete cascades/normalized relation shape) through the shipped 0065 DDL; splitting would scatter the invariants asserted together */
+import { readFileSync } from "node:fs";
+import { createClient, type Client } from "@libsql/client";
+import { eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/libsql";
+import { sort } from "remeda";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  contentPackageVersionSourceRefs,
+  contentPackageVersions,
+  contentPackages,
+  searchTopics,
+  sourceRefs,
+} from "./search-growth.schema";
+
+// Real in-memory SQLite built from the actual forward migration DDL for the
+// Project-scoped ContentPackageVersion <-> SourceRef relation table and its
+// parents: market profile 0045, topic 0046, prompt 0049 (composite-FK target the
+// accepted opportunity table requires), opportunity 0055, source_ref 0056, claim
+// 0057 (creates the reused `source_refs_project_id_id_idx` composite-FK target
+// this relation's SourceRef FK requires), content package 0062, content package
+// version 0063, content package version claim 0064 (creates the reused
+// `content_package_versions_project_id_id_idx` composite-FK target this
+// relation's ContentVersion FK requires), then 0065 (which creates
+// content_package_version_source_refs). The spec creates the `projects` table
+// directly and applies the DDL in order. Foreign keys are ON so the Project FK,
+// the two same-Project composite FKs (version and source reference), the
+// duplicate-edge unique index and the delete cascades are exercised against the
+// shipped DDL — not an application convention.
+//
+// Invariants under test:
+//   - A valid same-Project ContentPackageVersion/SourceRef link persists with the
+//     full TASK field set (id, project_id, content_package_version_id,
+//     source_ref_id) plus the append-only created_at timestamp.
+//   - A link whose SourceRef or ContentPackageVersion belongs to another Project
+//     — in EITHER direction — is rejected by the composite FK; a link whose
+//     version, source reference, or Project is missing is rejected.
+//   - A duplicate (content_package_version_id, source_ref_id) pair is rejected.
+//   - Deleting a content package version, a source reference, or a whole Project
+//     cascades its links away, so an edge can never dangle.
+//   - The relation ships ONLY the normalized link field set (no updated_at, no
+//     mutable evidence/verification payload, no JSON id array column).
+
+const DRIZZLE_STATEMENT_SEPARATOR = "--> statement-breakpoint";
+
+const statementParts = (ddl: string) =>
+  ddl
+    .split(DRIZZLE_STATEMENT_SEPARATOR)
+    .map((statement) => statement.trim())
+    .filter((statement) => statement.length > 0);
+
+async function applyMigrationFiles(target: Client, files: string[]) {
+  for (const file of files) {
+    for (const statement of statementParts(readFileSync(file, "utf8"))) {
+      await target.execute(statement);
+    }
+  }
+}
+
+const MIGRATION_FILES = [
+  "drizzle/0045_search_market_profiles.sql",
+  "drizzle/0046_search_topics.sql",
+  "drizzle/0049_gigantic_johnny_blaze.sql",
+  "drizzle/0055_lowly_sumo.sql",
+  "drizzle/0056_organic_blue_blade.sql",
+  "drizzle/0057_cold_marrow.sql",
+  "drizzle/0062_calm_nightcrawler.sql",
+  "drizzle/0063_sudden_lyja.sql",
+  "drizzle/0064_needy_lady_vermin.sql",
+  "drizzle/0065_sloppy_iron_man.sql",
+];
+
+// Canonical opaque version metadata fixture (stored verbatim; the link stores no
+// evidence payload — source capture/verification state lives on the source_refs
+// row).
+const CANONICAL_METADATA = JSON.stringify({
+  intent: "commercial",
+  briefTitle: "RFQ portals explained",
+  targetAudience: "procurement",
+});
+
+const LINK_COLUMN_INSERT = `(id, project_id, content_package_version_id, source_ref_id)`;
+const VERSION_COLUMN_INSERT = `(id, project_id, content_package_id, version_no,
+  canonical_markdown, canonical_metadata_json, content_hash, gate_status,
+  classification)`;
+
+let client: Client;
+let db: ReturnType<typeof drizzle>;
+
+beforeAll(async () => {
+  client = createClient({ url: "file::memory:" });
+  db = drizzle(client);
+  await client.execute("PRAGMA foreign_keys = ON");
+  await client.execute(`CREATE TABLE projects (id text PRIMARY KEY);`);
+  await client.execute(
+    `INSERT INTO projects (id) VALUES ('proj_alpha'), ('proj_beta'), ('proj_delete');`,
+  );
+  await applyMigrationFiles(client, MIGRATION_FILES);
+});
+
+afterAll(() => {
+  client.close();
+});
+
+beforeEach(async () => {
+  // Child-first teardown: content_package_version_source_refs references both
+  // content_package_versions and source_refs; content_package_versions references
+  // content_packages; content_packages references search_topics.
+  await db.delete(contentPackageVersionSourceRefs);
+  await db.delete(sourceRefs);
+  await db.delete(contentPackageVersions);
+  await db.delete(contentPackages);
+  await db.delete(searchTopics);
+});
+
+async function seedTopic(id: string, projectId: string) {
+  await db.insert(searchTopics).values({
+    id,
+    projectId,
+    canonicalName: `Topic ${id}`,
+    locale: "en",
+    status: "ACTIVE",
+  });
+}
+
+async function seedPackage(id: string, projectId: string, topicId: string) {
+  await db.insert(contentPackages).values({
+    id,
+    projectId,
+    topicId,
+    title: `Package ${id}`,
+    locale: "en",
+    status: "planned",
+  });
+}
+
+async function seedVersion(
+  id: string,
+  projectId: string,
+  packageId: string,
+  versionNo: number,
+) {
+  await client.execute(
+    `INSERT INTO content_package_versions ${VERSION_COLUMN_INSERT}
+     VALUES ('${id}', '${projectId}', '${packageId}', ${versionNo},
+             '# Version ${id}', '${CANONICAL_METADATA}', 'sha256-${id}',
+             'DRAFT', 'INTERNAL')`,
+  );
+}
+
+async function seedSourceRef(id: string, projectId: string) {
+  await client.execute(
+    `INSERT INTO source_refs (id, project_id, type, ref, captured_at)
+     VALUES ('${id}', '${projectId}', 'URL', 'https://example.com/${id}',
+             '2026-01-01T00:00:00.000Z')`,
+  );
+}
+
+async function columnNames(tableName: string) {
+  const tableInfo = await client.execute(
+    `SELECT name FROM pragma_table_info('${tableName}')`,
+  );
+  return sort(
+    tableInfo.rows
+      .map((row) => row.name)
+      .filter((name): name is string => typeof name === "string"),
+    (a, b) => a.localeCompare(b),
+  );
+}
+
+describe("content_package_version_source_refs storage contract", () => {
+  it("persists a valid same-Project version/source-ref link with the full field set", async () => {
+    await seedTopic("topic_alpha", "proj_alpha");
+    await seedPackage("package_alpha", "proj_alpha", "topic_alpha");
+    await seedVersion("ver_alpha_1", "proj_alpha", "package_alpha", 1);
+    await seedSourceRef("source_alpha_1", "proj_alpha");
+    // The full TASK field set: required content_package_version_id + source_ref_id
+    // under the link's own project_id, plus the append-only created_at.
+    await client.execute(
+      `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+       VALUES ('link_alpha_1', 'proj_alpha', 'ver_alpha_1', 'source_alpha_1')`,
+    );
+
+    const rows = await db
+      .select()
+      .from(contentPackageVersionSourceRefs)
+      .where(eq(contentPackageVersionSourceRefs.id, "link_alpha_1"));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      id: "link_alpha_1",
+      projectId: "proj_alpha",
+      contentPackageVersionId: "ver_alpha_1",
+      sourceRefId: "source_alpha_1",
+    });
+    expect(rows[0].createdAt).toBeTruthy();
+  });
+
+  it("rejects a link whose SourceRef belongs to another Project", async () => {
+    // source_beta lives beneath proj_beta while the link names proj_alpha as its
+    // own project and links a proj_alpha version. The composite FK
+    // (project_id, source_ref_id) -> source_refs(project_id, id) has no matching
+    // parent row under proj_alpha.
+    await seedTopic("topic_alpha", "proj_alpha");
+    await seedPackage("package_alpha", "proj_alpha", "topic_alpha");
+    await seedVersion("ver_alpha_1", "proj_alpha", "package_alpha", 1);
+    await seedSourceRef("source_alpha", "proj_alpha");
+    await seedTopic("topic_beta", "proj_beta");
+    await seedPackage("package_beta", "proj_beta", "topic_beta");
+    await seedVersion("ver_beta_1", "proj_beta", "package_beta", 1);
+    await seedSourceRef("source_beta", "proj_beta");
+
+    await expect(
+      client.execute(
+        `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+         VALUES ('link_cross_source', 'proj_alpha', 'ver_alpha_1', 'source_beta')`,
+      ),
+    ).rejects.toThrow(/FOREIGN KEY constraint failed/i);
+  });
+
+  it("rejects a link whose ContentPackageVersion belongs to another Project", async () => {
+    // ver_alpha_1 lives beneath proj_alpha while the link names proj_beta as its
+    // own project (matching source_beta). The composite FK
+    // (project_id, content_package_version_id) -> content_package_versions
+    // (project_id, id) has no matching parent row in the reverse direction.
+    await seedTopic("topic_alpha", "proj_alpha");
+    await seedPackage("package_alpha", "proj_alpha", "topic_alpha");
+    await seedVersion("ver_alpha_1", "proj_alpha", "package_alpha", 1);
+    await seedTopic("topic_beta", "proj_beta");
+    await seedPackage("package_beta", "proj_beta", "topic_beta");
+    await seedVersion("ver_beta_1", "proj_beta", "package_beta", 1);
+    await seedSourceRef("source_beta", "proj_beta");
+
+    await expect(
+      client.execute(
+        `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+         VALUES ('link_cross_version', 'proj_beta', 'ver_alpha_1', 'source_beta')`,
+      ),
+    ).rejects.toThrow(/FOREIGN KEY constraint failed/i);
+  });
+
+  it("rejects a link whose ContentPackageVersion does not exist (dangling version)", async () => {
+    await seedTopic("topic_alpha", "proj_alpha");
+    await seedPackage("package_alpha", "proj_alpha", "topic_alpha");
+    await seedVersion("ver_alpha_1", "proj_alpha", "package_alpha", 1);
+    await seedSourceRef("source_alpha", "proj_alpha");
+    await expect(
+      client.execute(
+        `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+         VALUES ('link_dangling_version', 'proj_alpha', 'ver_missing', 'source_alpha')`,
+      ),
+    ).rejects.toThrow(/FOREIGN KEY constraint failed/i);
+  });
+
+  it("rejects a link whose SourceRef does not exist (dangling source reference)", async () => {
+    await seedTopic("topic_alpha", "proj_alpha");
+    await seedPackage("package_alpha", "proj_alpha", "topic_alpha");
+    await seedVersion("ver_alpha_1", "proj_alpha", "package_alpha", 1);
+    await seedSourceRef("source_alpha", "proj_alpha");
+    await expect(
+      client.execute(
+        `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+         VALUES ('link_dangling_source', 'proj_alpha', 'ver_alpha_1', 'source_missing')`,
+      ),
+    ).rejects.toThrow(/FOREIGN KEY constraint failed/i);
+  });
+
+  it("rejects a link whose Project does not exist (dangling Project)", async () => {
+    await seedTopic("topic_alpha", "proj_alpha");
+    await seedPackage("package_alpha", "proj_alpha", "topic_alpha");
+    await seedVersion("ver_alpha_1", "proj_alpha", "package_alpha", 1);
+    await seedSourceRef("source_alpha", "proj_alpha");
+    await expect(
+      client.execute(
+        `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+         VALUES ('link_dangling_project', 'proj_missing', 'ver_alpha_1', 'source_alpha')`,
+      ),
+    ).rejects.toThrow(/FOREIGN KEY constraint failed/i);
+  });
+
+  it("rejects a duplicate (content_package_version_id, source_ref_id) pair", async () => {
+    await seedTopic("topic_alpha", "proj_alpha");
+    await seedPackage("package_alpha", "proj_alpha", "topic_alpha");
+    await seedVersion("ver_alpha_1", "proj_alpha", "package_alpha", 1);
+    await seedSourceRef("source_alpha", "proj_alpha");
+    await client.execute(
+      `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+       VALUES ('link_dup_1', 'proj_alpha', 'ver_alpha_1', 'source_alpha')`,
+    );
+
+    // The link-identity unique index rejects a second edge between the same
+    // version and source reference.
+    await expect(
+      client.execute(
+        `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+         VALUES ('link_dup_2', 'proj_alpha', 'ver_alpha_1', 'source_alpha')`,
+      ),
+    ).rejects.toThrow(/UNIQUE constraint failed/i);
+  });
+
+  it("requires the direct link columns (NOT NULL)", async () => {
+    await seedTopic("topic_alpha", "proj_alpha");
+    await seedPackage("package_alpha", "proj_alpha", "topic_alpha");
+    await seedVersion("ver_alpha_1", "proj_alpha", "package_alpha", 1);
+    await seedSourceRef("source_alpha", "proj_alpha");
+
+    // id has no default and is required.
+    await expect(
+      client.execute(
+        `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+         VALUES (NULL, 'proj_alpha', 'ver_alpha_1', 'source_alpha')`,
+      ),
+    ).rejects.toThrow(/NOT NULL constraint failed/i);
+
+    // project_id has no default and is required.
+    await expect(
+      client.execute(
+        `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+         VALUES ('link_no_project', NULL, 'ver_alpha_1', 'source_alpha')`,
+      ),
+    ).rejects.toThrow(/NOT NULL constraint failed/i);
+
+    // content_package_version_id has no default and is required.
+    await expect(
+      client.execute(
+        `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+         VALUES ('link_no_version', 'proj_alpha', NULL, 'source_alpha')`,
+      ),
+    ).rejects.toThrow(/NOT NULL constraint failed/i);
+
+    // source_ref_id has no default and is required.
+    await expect(
+      client.execute(
+        `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+         VALUES ('link_no_source', 'proj_alpha', 'ver_alpha_1', NULL)`,
+      ),
+    ).rejects.toThrow(/NOT NULL constraint failed/i);
+  });
+
+  it("cascades links away when their content package version is deleted", async () => {
+    await seedTopic("topic_delete", "proj_alpha");
+    await seedPackage("package_delete", "proj_alpha", "topic_delete");
+    await seedVersion("ver_delete", "proj_alpha", "package_delete", 1);
+    await seedSourceRef("source_delete", "proj_alpha");
+    await client.execute(
+      `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+       VALUES ('link_delete_version', 'proj_alpha', 'ver_delete', 'source_delete')`,
+    );
+
+    await client.execute(
+      "DELETE FROM content_package_versions WHERE id = 'ver_delete'",
+    );
+
+    const rows = await db
+      .select()
+      .from(contentPackageVersionSourceRefs)
+      .where(eq(contentPackageVersionSourceRefs.id, "link_delete_version"));
+    expect(rows).toHaveLength(0);
+  });
+
+  it("cascades links away when their source reference is deleted", async () => {
+    await seedTopic("topic_delete", "proj_alpha");
+    await seedPackage("package_delete", "proj_alpha", "topic_delete");
+    await seedVersion("ver_delete", "proj_alpha", "package_delete", 1);
+    await seedSourceRef("source_delete", "proj_alpha");
+    await client.execute(
+      `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+       VALUES ('link_delete_source', 'proj_alpha', 'ver_delete', 'source_delete')`,
+    );
+
+    await client.execute("DELETE FROM source_refs WHERE id = 'source_delete'");
+
+    const rows = await db
+      .select()
+      .from(contentPackageVersionSourceRefs)
+      .where(eq(contentPackageVersionSourceRefs.id, "link_delete_source"));
+    expect(rows).toHaveLength(0);
+  });
+
+  it("cascades links, versions, source refs, packages and topics away when their whole Project is deleted", async () => {
+    await seedTopic("topic_proj_delete", "proj_delete");
+    await seedPackage(
+      "package_proj_delete",
+      "proj_delete",
+      "topic_proj_delete",
+    );
+    await seedVersion(
+      "ver_proj_delete",
+      "proj_delete",
+      "package_proj_delete",
+      1,
+    );
+    await seedSourceRef("source_proj_delete", "proj_delete");
+    await client.execute(
+      `INSERT INTO content_package_version_source_refs ${LINK_COLUMN_INSERT}
+       VALUES ('link_proj_delete', 'proj_delete', 'ver_proj_delete', 'source_proj_delete')`,
+    );
+
+    await client.execute("DELETE FROM projects WHERE id = 'proj_delete'");
+
+    const links = await db
+      .select()
+      .from(contentPackageVersionSourceRefs)
+      .where(eq(contentPackageVersionSourceRefs.projectId, "proj_delete"));
+    expect(links).toHaveLength(0);
+    const versions = await db
+      .select()
+      .from(contentPackageVersions)
+      .where(eq(contentPackageVersions.projectId, "proj_delete"));
+    expect(versions).toHaveLength(0);
+    const deletedSources = await db
+      .select()
+      .from(sourceRefs)
+      .where(eq(sourceRefs.projectId, "proj_delete"));
+    expect(deletedSources).toHaveLength(0);
+    const packages = await db
+      .select()
+      .from(contentPackages)
+      .where(eq(contentPackages.projectId, "proj_delete"));
+    expect(packages).toHaveLength(0);
+    const topics = await db
+      .select()
+      .from(searchTopics)
+      .where(eq(searchTopics.id, "topic_proj_delete"));
+    expect(topics).toHaveLength(0);
+  });
+
+  it("ships ONLY the normalized relation field set", async () => {
+    // The exact TASK field list (id, project_id, content_package_version_id,
+    // source_ref_id) plus the append-only created_at. No updated_at, no mutable
+    // evidence/validation/revalidation payload, and no JSON id-array column: the
+    // source_refs[] conceptual array is this normalized relation (TASK item 3).
+    expect(await columnNames("content_package_version_source_refs")).toEqual([
+      "content_package_version_id",
+      "created_at",
+      "id",
+      "project_id",
+      "source_ref_id",
+    ]);
+  });
+});
