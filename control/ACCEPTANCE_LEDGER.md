@@ -27,6 +27,7 @@
 | `T119-M1-CONTENT-VERSION-CLAIM-REF-SCHEMA`       | PASS (round 1/3) | 2026-09-10    | `control/tasks/T119-M1-CONTENT-VERSION-CLAIM-REF-SCHEMA/REVIEW.md`; normalized same-Project ContentVersion/Claim relation, 0064/0042 migrations, 339 focused and 1,543 full tests; Controller verification completed format/types/lint/build/ci:check            | `b8a80bd`                                  |
 | `T120-M1-CONTENT-VERSION-SOURCE-REF-SCHEMA`      | PASS (round 1/3) | 2026-09-10    | `control/tasks/T120-M1-CONTENT-VERSION-SOURCE-REF-SCHEMA/REVIEW.md`; normalized same-Project ContentVersion/SourceRef relation, 0065/0043 migrations, 334 focused and 1,560 full tests; Controller verification completed format/types/lint/build/ci:check       | `ef9d2dc`                                  |
 | `T121-M1-CONTENT-VERSION-MEDIA-ASSET-REF-SCHEMA` | PASS (round 1/3) | 2026-09-10    | `control/tasks/T121-M1-CONTENT-VERSION-MEDIA-ASSET-REF-SCHEMA/REVIEW.md`; normalized same-Project ContentVersion/MediaAsset relation, 0066/0044 migrations, 363 focused and 1,577 full tests; Controller verification completed format/types/lint/build/ci:check | `bd862ff`                                  |
+| `T122-M1-CONTENT-VARIANT-CORE-SCHEMA`            | PASS (round 2/3) | 2026-09-10    | `control/tasks/T122-M1-CONTENT-VARIANT-CORE-SCHEMA/REVIEW.md`; immutable same-Project ContentVariant contract, 0067/0045 migrations, 312 focused and 1,595 full tests; format/types/lint/build/ci:check exited 0 in executor Round 2                             | `f4e92e4`                                  |
 
 ## Active work
 
@@ -49,4 +50,5 @@
 - T119 ContentVersion Claim references are accepted and merged at `b8a80bd`; normalized same-Project Claim traceability is available to later content gates.
 - T120 ContentVersion SourceRef references are accepted and merged at `ef9d2dc`; normalized same-Project source traceability is available to later content gates.
 - T121 ContentVersion MediaAsset references are accepted and merged at `bd862ff`; immutable content now has normalized Project-scoped asset traceability.
+- T122 ContentVariant core is accepted and merged at `f4e92e4`; platform-native immutable body contracts are ready for separately scoped typed relations.
 - M0.5 real connector/account feasibility: pending Human Gates H1/H2; it does not authorize connector implementation or external publishing.

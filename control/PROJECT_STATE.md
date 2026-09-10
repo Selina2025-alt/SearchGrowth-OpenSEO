@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T122-M1-CONTENT-VARIANT-CORE-SCHEMA
+CURRENT TASK: T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: bd862ff
-LAST REVIEW: T121-M1-CONTENT-VERSION-MEDIA-ASSET-REF-SCHEMA ROUND 1 PASS AND MERGED
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T122 Round 2 was dispatched to the safe Claude executor with the task-local lint repair and remaining acceptance evidence scope.
+LATEST ACCEPTED COMMIT: f4e92e4
+LAST REVIEW: T122-M1-CONTENT-VARIANT-CORE-SCHEMA ROUND 2 PASS AND MERGED
+CURRENT ROUND: 0 / 3
+LAST COMPLETED ACTION: T122 Round 2 passed; its type-only import repair and immutable ContentVariant core were merged to `integration/ai-v1`.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T122 Round 2 DELIVERY, then Fast Review. Never merge to `main`.
+NEXT EXACT ACTION: Create and dispatch T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA to the safe Claude executor, then wait for DELIVERY. Never merge to `main`.
 
 ## COMPLETED
 
@@ -41,10 +41,11 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T122 Round 2 DELIVERY, then Fa
 - T119-M1-CONTENT-VERSION-CLAIM-REF-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T120-M1-CONTENT-VERSION-SOURCE-REF-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T121-M1-CONTENT-VERSION-MEDIA-ASSET-REF-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
+- T122-M1-CONTENT-VARIANT-CORE-SCHEMA accepted in round 2 of 3 and merged to `integration/ai-v1`.
 
 ## IN PROGRESS
 
-- T122-M1-CONTENT-VARIANT-CORE-SCHEMA Round 2 is authorized solely to repair its task-local type-only import lint failure and complete remaining gate evidence.
+- T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA is the next credential-free M1 relation slice.
 
 ## BLOCKED
 
@@ -52,4 +53,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T122 Round 2 DELIVERY, then Fa
 
 ## NEXT
 
-Dispatch and review T122 Round 2. Never merge to `main`.
+Create and dispatch T123. Never merge to `main`.
