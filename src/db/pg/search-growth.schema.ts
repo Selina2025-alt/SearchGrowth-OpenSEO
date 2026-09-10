@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles and T125 release_targets additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets and T126 search_growth_audit_events additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -2723,6 +2723,55 @@ export const releaseTargets = pgTable(
     check(
       "release_targets_target_intent_valid",
       sql`(${table.targetIntent} IN ('DRAFT','PUBLIC','SUBMIT_FOR_REVIEW','PAID_SUBMIT'))`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — append-only, Project-scoped audit events (Postgres mirror
+// of ../search-growth.schema.ts; keep the two structurally identical and note
+// that schema-parity compares CHECK NAMES, so the metadata validity check has
+// the same name with a dialect-native JSON expression). See the SQLite table for
+// the full field/ownership/append-only reconciliation. The append-only UPDATE/
+// DELETE triggers are not expressible in a Drizzle schema; they are added by
+// this task's forward migration (PostgreSQL 0049) exactly as on D1 (0071).
+// ============================================================================
+
+export const searchGrowthAuditEvents = pgTable(
+  "search_growth_audit_events",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project; explicit so ownership is never inferred and the
+    // Project FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // Opaque actor identity; deliberately not a foreign key (TASK item 3).
+    actorId: text("actor_id").notNull(),
+    // Opaque action label; no action taxonomy/enum is invented (TASK item 3).
+    action: text("action").notNull(),
+    // Opaque object type/id; not foreign keys (TASK item 3).
+    objectType: text("object_type").notNull(),
+    objectId: text("object_id").notNull(),
+    // Optional opaque before/after references; NULL = none. Not foreign keys.
+    beforeRef: text("before_ref"),
+    afterRef: text("after_ref"),
+    // Required metadata document as JSON text; the CHECK below rejects malformed
+    // JSON on this dialect via an equivalent JSON cast.
+    metadataJson: text("metadata_json").notNull(),
+    // Opaque correlation id; not a foreign key (TASK item 3).
+    correlationId: text("correlation_id").notNull(),
+    // Append-only creation timestamp (the ONLY audit column; no updated_at).
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Project-scoped audit reads; no business-rule unique index.
+    index("search_growth_audit_events_project_idx").on(table.projectId),
+    // Metadata validity (same name as the SQLite JSON check): casting malformed
+    // text to jsonb raises and rejects the insert.
+    check(
+      "search_growth_audit_events_metadata_valid",
+      sql`(${table.metadataJson})::jsonb IS NOT NULL`,
     ),
   ],
 );
