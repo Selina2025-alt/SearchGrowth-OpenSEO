@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T126-M1-AUDIT-EVENT-CORE-SCHEMA
+CURRENT TASK: T127-M1-EXPERIMENT-CORE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 5aa2bb8
-LAST REVIEW: T125-M1-RELEASE-TARGET-CORE-SCHEMA ROUND 1 PASS AND MERGED
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T126 Round 1 continuation was dispatched in the preserved worktree after the recorded provider 429 interruption.
+LATEST ACCEPTED COMMIT: 4bbca63
+LAST REVIEW: T126-M1-AUDIT-EVENT-CORE-SCHEMA ROUND 1 CONTINUATION PASS AND MERGED
+CURRENT ROUND: 0 / 3
+LAST COMPLETED ACTION: T126 Round 1 continuation passed; the append-only AuditEvent core was merged to `integration/ai-v1`.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On DELIVERY, perform the T126 Fast Review; never merge to `main`.
+NEXT EXACT ACTION: Create and dispatch T127-M1-EXPERIMENT-CORE-SCHEMA to the safe Claude executor, then wait for DELIVERY. Never merge to `main`.
 
 ## COMPLETED
 
@@ -45,10 +45,11 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On DELIVERY, perform the T126 Fast Revi
 - T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T124-M1-RELEASE-BUNDLE-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T125-M1-RELEASE-TARGET-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
+- T126-M1-AUDIT-EVENT-CORE-SCHEMA accepted in its preserved round 1 continuation and merged to `integration/ai-v1`.
 
 ## IN PROGRESS
 
-- T126-M1-AUDIT-EVENT-CORE-SCHEMA Round 1 continuation is executing in its preserved isolated Claude worktree; the earlier provider 429 is recorded in the task control record.
+- T127-M1-EXPERIMENT-CORE-SCHEMA is the next credential-free M1 domain schema slice.
 
 ## BLOCKED
 
@@ -56,4 +57,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On DELIVERY, perform the T126 Fast Revi
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR. Review T126 DELIVERY when the executor returns. Never merge to `main`.
+Create and dispatch T127. Never merge to `main`.

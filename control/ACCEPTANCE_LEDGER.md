@@ -31,6 +31,7 @@
 | `T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA` | PASS (round 1/3) | 2026-09-10    | `control/tasks/T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA/REVIEW.md`; normalized same-Project ContentVariant/MediaAsset relation, 0068/0046 migrations, 326 focused and 1,612 full tests; Controller verification completed format/types/lint/build/ci:check            | `1bc883f`                                  |
 | `T124-M1-RELEASE-BUNDLE-CORE-SCHEMA`             | PASS (round 1/3) | 2026-09-10    | `control/tasks/T124-M1-RELEASE-BUNDLE-CORE-SCHEMA/REVIEW.md`; immutable Project-scoped ReleaseBundle contract, 0069/0047 migrations, 330 focused and 1,638 full tests; executor format/types/lint/build/ci:check PASS                                                       | `13d5795`                                  |
 | `T125-M1-RELEASE-TARGET-CORE-SCHEMA`             | PASS (round 1/3) | 2026-09-10    | `control/tasks/T125-M1-RELEASE-TARGET-CORE-SCHEMA/REVIEW.md`; immutable Project-scoped ReleaseTarget core, same-Project ReleaseBundle/ContentVariant/dependency FKs, 0070/0048 migrations, 335 focused and 1,664 full tests; executor format/types/lint/build/ci:check PASS | `5aa2bb8`                                  |
+| `T126-M1-AUDIT-EVENT-CORE-SCHEMA`                | PASS (round 1)   | 2026-09-10    | `control/tasks/T126-M1-AUDIT-EVENT-CORE-SCHEMA/REVIEW.md`; Project-scoped append-only AuditEvent core, JSON validation and mutation guards, 0071/0049 migrations, 334 focused and 1,684 full tests; Controller verification completed all five required gates | `4bbca63`                                  |
 
 ## Active work
 
@@ -57,4 +58,5 @@
 - T123 ContentVariant MediaAsset references are accepted and merged at `1bc883f`; platform-native content has normalized Project-scoped asset traceability.
 - T124 ReleaseBundle immutable core is accepted and merged at `13d5795`.
 - T125 ReleaseTarget immutable core is accepted and merged at `5aa2bb8`; connector/account and route execution remain separately gated.
+- T126 append-only AuditEvent core is accepted and merged at `4bbca63`; no audit-writing workflow or runtime-control behavior is implemented yet.
 - M0.5 real connector/account feasibility: pending Human Gates H1/H2; it does not authorize connector implementation or external publishing.
