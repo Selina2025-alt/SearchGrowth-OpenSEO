@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA
+CURRENT TASK: T124-M1-RELEASE-BUNDLE-CORE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: f4e92e4
-LAST REVIEW: T122-M1-CONTENT-VARIANT-CORE-SCHEMA ROUND 2 PASS AND MERGED
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T123 Round 1 Delivery Fast Review verified the relation/migrations/tests; Controller format/types/lint/build all exited 0 in the unchanged task worktree.
-CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed; T123 acceptance still requires Controller `ci:check` evidence.
-NEXT EXACT ACTION: Run `corepack pnpm ci:check` only in the unchanged T123 worktree. If exit 0, write PASS REVIEW, merge only to `integration/ai-v1`, update ledger/state, and dispatch the next approved task. Never merge to `main`.
+LATEST ACCEPTED COMMIT: 1bc883f
+LAST REVIEW: T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA ROUND 1 PASS AND MERGED
+CURRENT ROUND: 0 / 3
+LAST COMPLETED ACTION: T123 Round 1 passed after Controller acceptance-verification gates; normalized ContentVariant-to-MediaAsset references were merged to `integration/ai-v1`.
+CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
+NEXT EXACT ACTION: Create and dispatch T124-M1-RELEASE-BUNDLE-CORE-SCHEMA to the safe Claude executor, then wait for DELIVERY. Never merge to `main`.
 
 ## COMPLETED
 
@@ -42,10 +42,11 @@ NEXT EXACT ACTION: Run `corepack pnpm ci:check` only in the unchanged T123 workt
 - T120-M1-CONTENT-VERSION-SOURCE-REF-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T121-M1-CONTENT-VERSION-MEDIA-ASSET-REF-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T122-M1-CONTENT-VARIANT-CORE-SCHEMA accepted in round 2 of 3 and merged to `integration/ai-v1`.
+- T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 
 ## IN PROGRESS
 
-- T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA is the next credential-free M1 relation slice.
+- T124-M1-RELEASE-BUNDLE-CORE-SCHEMA is the next credential-free M1 schema slice.
 
 ## BLOCKED
 
@@ -53,4 +54,4 @@ NEXT EXACT ACTION: Run `corepack pnpm ci:check` only in the unchanged T123 workt
 
 ## NEXT
 
-Create and dispatch T123. Never merge to `main`.
+Create and dispatch T124. Never merge to `main`.
