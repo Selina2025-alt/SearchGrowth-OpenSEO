@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants and T123 content_variant_media_assets additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets and T124 release_bundles additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -3095,6 +3095,188 @@ export const contentVariantMediaAssets = sqliteTable(
     // media-asset -> content-variants reads.
     index("content_variant_media_assets_media_asset_idx").on(
       table.mediaAssetId,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — immutable, Project-scoped ReleaseBundle.
+//
+// A ReleaseBundle is the ONE frozen business approval unit (05_DOMAIN_DATA_MODEL
+// .md §12 "ReleaseBundle — Immutable approval unit"; 10_DISTRIBUTION_ARCHITECTURE
+// .md §6 One Approval; docs/adr/ADR-008-releasebundle-approval.md: one approval
+// freezes content/assets/targets/UTM/execution-plan hash, and changing any item
+// creates a new release version; 21_TEST_ACCEPTANCE_PLAN.md §12 Release
+// Immutability). This slice is the storage/contract core ONLY: it records the
+// frozen bundle identity and the approval metadata, but implements NO state
+// transition/CAS, NO approval action, NO dry-run execution, NO target/connector/
+// account logic, NO publishing and NO paid action (TASK item 4). A row is never a
+// publish instruction, execution result, approval action or public-success proof.
+//
+// FIELD RECONCILIATION (the TASK field list is the direct authoritative contract;
+// 05_DOMAIN_DATA_MODEL.md §12, 10_DISTRIBUTION_ARCHITECTURE.md, the status
+// machine in 18_WORKFLOW_STATE_MACHINES.md §1, and the legacy references
+// schemas/domain-types.ts ReleaseBundle and schemas/migrations-reference.sql
+// release_bundles supply the reference context):
+//   - The stable `id` primary key and the explicit NOT NULL `project_id`
+//     ownership key are the additions the established Search Growth schema
+//     convention requires.
+//   - `content_package_version_id` (NOT NULL) is the stable id of the immutable
+//     ContentVersion this bundle freezes (domain-types.ts ReleaseBundle
+//     contentPackageVersionId; migrations-reference content_package_version_id).
+//   - `release_version` (NOT NULL) is the immutable release version number
+//     (R1/R2/...) within that ContentVersion (21 plan §12 "Content v1 → Release
+//     R1 → ... R2"). The unique index below makes it the release identity.
+//   - `status` (NOT NULL) is exactly the V1.0 release lifecycle union
+//     (DRAFT | DRY_RUN_READY | READY_FOR_APPROVAL | APPROVED | EXECUTING |
+//     COMPLETED | PARTIAL | PAUSED | CANCELLED — 18 §1 / domain-types.ts
+//     ReleaseBundle.status), enforced by the DB text-enum column and the named
+//     CHECK below. This slice records the current value only; it implements no
+//     transition and no CAS (TASK item 4).
+//   - `release_strategy` (NOT NULL) is the source-defined strategy union
+//     WEBSITE_FIRST | PARALLEL | SOCIAL_ONLY (domain-types.ts ReleaseBundle
+//     strategy; 10 §5 Website First), enforced by the named CHECK below.
+//   - `utm_policy_json` (NOT NULL) is the required opaque UTM policy document
+//     frozen with the bundle (ADR-008; 21 §12 changing UTM requires a new
+//     release). Opaque JSON payload stored verbatim — never a relational model.
+//   - `bundle_hash` (NOT NULL) is the required opaque frozen-bundle hash
+//     (ADR-008 "执行计划hash"; 21 §12 "Approve hash H1"/"Execute hash 必须等于
+//     approved H1"), stored verbatim. Plain non-unique column: no hash
+//     matching/dedup rule is invented in this slice.
+//   - `dry_run_report_json` (nullable) is the optional opaque dry-run report
+//     document (migrations-reference dry_run_report_json); NULL means no dry-run
+//     report has been attached yet (the dry-run step itself is out of scope).
+//   - `approved_by` / `approved_at` (nullable) are the approval fields
+//     (domain-types.ts ReleaseBundle approvedBy/approvedAt); NULL means the
+//     bundle is not approved. Recording them does NOT implement an approval
+//     action (TASK item 4).
+//   - The legacy `updated_at` column is reconciled OUT: the TASK field list names
+//     the creation timestamp only, and this slice implements no state transition
+//     or CAS (TASK item 4), matching the accepted immutable ContentVersion/
+//     ContentVariant row shape. The row is written once; a content/asset/target/
+//     UTM change creates a new release_version rather than mutating a row
+//     (ADR-008; 21 §12).
+//   - The legacy ReleaseTarget/PublicationExecutionPlan/PlatformDraft/PublishingJob
+//     /PublicationReceipt tables are separate tasks (TASK OUT OF SCOPE): no
+//     target, execution plan, job, receipt or connector/account column exists here.
+//
+// OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id) with
+// ON DELETE CASCADE (the established Project-scoping FK every Search Growth row
+// carries). Same-Project ContentVersion ownership is database-enforced by the
+// Project-leading composite FK
+//   (project_id, content_package_version_id) -> content_package_versions(project_id, id)
+// so the DB (not application convention) rejects a bundle whose ContentVersion
+// belongs to another Project (in either direction) and rejects a dangling
+// version. The parent (project_id, id) target is the accepted
+// `content_package_versions_project_id_id_idx` (added by T119, D1 0064 / PG 0042)
+// and is REUSED, so this slice adds NO index to any parent (TASK item 2).
+// Deleting a ContentVersion or a whole Project cascades its bundles away, so a
+// bundle can never dangle.
+//
+// IDENTITY / UNIQUENESS: the only business uniqueness rule in this slice is the
+// release identity needed to reject a duplicate (content_package_version_id,
+// release_version) pair (TASK item 2), so the unique index below enforces one
+// row per release version within a ContentVersion (the accepted
+// content_package_versions identity pattern). content_package_version_id is a
+// globally unique primary key, so once the same-Project FK holds, the pair is
+// project-isolated without listing project_id in the unique index. The unique
+// index's leading content_package_version_id also serves the ContentVersion ->
+// release-bundles read path. No other uniqueness rule and no extra lookup index
+// is invented.
+// ============================================================================
+
+export const releaseBundles = sqliteTable(
+  "release_bundles",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The immutable ContentVersion this bundle freezes. Bound to the row's
+    // project by the composite FK below, which cascades bundles away when the
+    // version is deleted.
+    contentPackageVersionId: text("content_package_version_id").notNull(),
+    // The immutable release version number (R1/R2/...) within the ContentVersion.
+    // The unique index below enforces one release per version number — a change
+    // to any frozen item creates a new release_version instead of mutating a row
+    // (ADR-008; 21 §12). No insert-time default exists.
+    releaseVersion: integer("release_version").notNull(),
+    // The direct V1.0 release lifecycle union (18 §1). DB text-enum column + the
+    // named CHECK below; the Zod boundary validates the same list. This slice
+    // records the value only — no transition/CAS is implemented (TASK item 4).
+    status: text("status", {
+      enum: [
+        "DRAFT",
+        "DRY_RUN_READY",
+        "READY_FOR_APPROVAL",
+        "APPROVED",
+        "EXECUTING",
+        "COMPLETED",
+        "PARTIAL",
+        "PAUSED",
+        "CANCELLED",
+      ],
+    }).notNull(),
+    // The direct source-defined release strategy union (domain-types.ts
+    // ReleaseBundle.strategy; 10 §5). DB text-enum column + the named CHECK
+    // below.
+    releaseStrategy: text("release_strategy", {
+      enum: ["WEBSITE_FIRST", "PARALLEL", "SOCIAL_ONLY"],
+    }).notNull(),
+    // Required opaque UTM policy document frozen with the bundle (ADR-008; 21
+    // §12). Stored verbatim — no UTM normalization/expansion happens in this
+    // slice and no relational model is encoded here.
+    utmPolicyJson: text("utm_policy_json").notNull(),
+    // Required opaque frozen-bundle hash (ADR-008; 21 §12 "Approve hash H1").
+    // Stored verbatim. Plain non-unique column: no hash matching/dedup rule.
+    bundleHash: text("bundle_hash").notNull(),
+    // Optional opaque dry-run report document; NULL means no report is attached
+    // yet. The dry-run step itself is out of scope (TASK item 4).
+    dryRunReportJson: text("dry_run_report_json"),
+    // Approval fields; NULL means the bundle is not approved. Recording them does
+    // NOT implement an approval action (TASK item 4).
+    approvedBy: text("approved_by"),
+    approvedAt: text("approved_at"),
+    // Append-only creation timestamp (system insert time) — the ONLY audit
+    // column: the TASK field list names the creation timestamp only and no state
+    // transition/CAS is implemented, so there is no updated_at (TASK item 4).
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the ContentVersion: this row's project_id must
+    // equal the version's project_id. Deleting a content package version removes
+    // its release bundles (the referenced (project_id, id) pair is unique via the
+    // accepted content_package_versions_project_id_id_idx from 0064 — reused, not
+    // recreated). A bundle whose version lives on another Project has no matching
+    // parent row and is rejected by the DB.
+    foreignKey({
+      columns: [table.projectId, table.contentPackageVersionId],
+      foreignColumns: [
+        contentPackageVersions.projectId,
+        contentPackageVersions.id,
+      ],
+    }).onDelete("cascade"),
+    // Release identity: one row per (content_package_version_id, release_version),
+    // so a duplicate release version within a ContentVersion is rejected by the DB
+    // (TASK item 2). The leading content_package_version_id also serves the
+    // ContentVersion -> release-bundles read path.
+    uniqueIndex(
+      "release_bundles_unique_content_package_version_release_version_idx",
+    ).on(table.contentPackageVersionId, table.releaseVersion),
+    // DB-level enum rejection for the two direct release unions (the TASK requires
+    // migration-backed enum rejection; the Zod boundary enforces the same lists at
+    // the runtime edge).
+    check(
+      "release_bundles_status_valid",
+      sql`(${table.status} IN ('DRAFT','DRY_RUN_READY','READY_FOR_APPROVAL','APPROVED','EXECUTING','COMPLETED','PARTIAL','PAUSED','CANCELLED'))`,
+    ),
+    check(
+      "release_bundles_release_strategy_valid",
+      sql`(${table.releaseStrategy} IN ('WEBSITE_FIRST','PARALLEL','SOCIAL_ONLY'))`,
     ),
   ],
 );
