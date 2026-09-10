@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T121-M1-CONTENT-VERSION-MEDIA-ASSET-REF-SCHEMA
+CURRENT TASK: T122-M1-CONTENT-VARIANT-CORE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: ef9d2dc
-LAST REVIEW: T120-M1-CONTENT-VERSION-SOURCE-REF-SCHEMA ROUND 1 PASS AND MERGED
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T120 Round 1 passed after Controller acceptance-verification gates; T121 ContentVersion-to-MediaAsset Round 1 was dispatched to the safe Claude executor.
+LATEST ACCEPTED COMMIT: bd862ff
+LAST REVIEW: T121-M1-CONTENT-VERSION-MEDIA-ASSET-REF-SCHEMA ROUND 1 PASS AND MERGED
+CURRENT ROUND: 0 / 3
+LAST COMPLETED ACTION: T121 Round 1 passed after Controller acceptance-verification gates; normalized ContentVersion-to-MediaAsset references were merged to `integration/ai-v1`.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T121 Round 1 DELIVERY, then Fast Review. Never merge to `main`.
+NEXT EXACT ACTION: Create and dispatch T122-M1-CONTENT-VARIANT-CORE-SCHEMA to the safe Claude executor, then wait for DELIVERY. Never merge to `main`.
 
 ## COMPLETED
 
@@ -40,10 +40,11 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T121 Round 1 DELIVERY, then Fa
 - T118-M1-CONTENT-VERSION-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T119-M1-CONTENT-VERSION-CLAIM-REF-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T120-M1-CONTENT-VERSION-SOURCE-REF-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
+- T121-M1-CONTENT-VERSION-MEDIA-ASSET-REF-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 
 ## IN PROGRESS
 
-- T121-M1-CONTENT-VERSION-MEDIA-ASSET-REF-SCHEMA is the next credential-free M1 relation slice.
+- T122-M1-CONTENT-VARIANT-CORE-SCHEMA is the next credential-free M1 schema slice.
 
 ## BLOCKED
 
@@ -51,4 +52,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T121 Round 1 DELIVERY, then Fa
 
 ## NEXT
 
-Create and dispatch T121. Never merge to `main`.
+Create and dispatch T122. Never merge to `main`.
