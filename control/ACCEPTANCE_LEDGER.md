@@ -23,6 +23,8 @@
 | `T116-M1-BASELINE-LINT-HYGIENE`                  | PASS (round 1/3) | 2026-09-09    | `control/tasks/T116-M1-BASELINE-LINT-HYGIENE/REVIEW.md`; mechanical pre-existing type-only import and dead-constant repair, 15 focused tests and aggregate lint PASS                                                                                           | `2e78b1f`                                  |
 | `T115-M1-PUBLISHED-MEDIA-REF-SCHEMA`             | PASS (round 1/3) | 2026-09-09    | `control/tasks/T115-M1-PUBLISHED-MEDIA-REF-SCHEMA/REVIEW.md`; Project-scoped opaque PublishedMediaRef with MediaAsset composite FK, 0061/0039 migrations, 288 focused and 1,488 full tests; Controller verification completed format/types/lint/build/ci:check | `3207e00`                                  |
 | `T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA`       | PASS (round 1/3) | 2026-09-09    | `control/tasks/T117-M1-CONTENT-PACKAGE-CONTAINER-SCHEMA/REVIEW.md`; Project-scoped Topic/optional Opportunity container, 0062/0040 migrations, 304 focused and 1,507 full tests; Controller verification completed format/types/lint/build/ci:check            | `2121e79`                                  |
+| `T118-M1-CONTENT-VERSION-CORE-SCHEMA`            | PASS (round 1/3) | 2026-09-09    | `control/tasks/T118-M1-CONTENT-VERSION-CORE-SCHEMA/REVIEW.md`; immutable Project-scoped ContentVersion and ContentPackage relation, 0063/0041 migrations, 307 focused and 1,526 full tests; Controller verification completed format/types/lint/build/ci:check | `b24b487`                                  |
+| `T119-M1-CONTENT-VERSION-CLAIM-REF-SCHEMA`       | PASS (round 1/3) | 2026-09-10    | `control/tasks/T119-M1-CONTENT-VERSION-CLAIM-REF-SCHEMA/REVIEW.md`; normalized same-Project ContentVersion/Claim relation, 0064/0042 migrations, 339 focused and 1,543 full tests; Controller verification completed format/types/lint/build/ci:check          | `b8a80bd`                                  |
 
 ## Active work
 
@@ -42,5 +44,5 @@
 - T116 BASELINE-LINT-HYGIENE is accepted and merged.
 - T117 ContentPackage container schema is accepted and merged; immutable version and typed relation slices remain separate.
 - T118 ContentVersion core is accepted and merged at `b24b487`; immutable version identity, same-Project package ownership, and typed relation boundaries are accepted.
-- T117 ContentPackage container schema is authorized; immutable content/version and content relation slices remain separate.
+- T119 ContentVersion Claim references are accepted and merged at `b8a80bd`; normalized same-Project Claim traceability is available to later content gates.
 - M0.5 real connector/account feasibility: pending Human Gates H1/H2; it does not authorize connector implementation or external publishing.
