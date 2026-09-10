@@ -97,6 +97,7 @@ export const {
   contentVariants,
   contentVariantMediaAssets,
   releaseBundles,
+  releaseTargets,
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,
