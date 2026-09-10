@@ -8,10 +8,10 @@ CURRENT TASK: T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: f4e92e4
 LAST REVIEW: T122-M1-CONTENT-VARIANT-CORE-SCHEMA ROUND 2 PASS AND MERGED
-CURRENT ROUND: 0 / 3
-LAST COMPLETED ACTION: T122 Round 2 passed; its type-only import repair and immutable ContentVariant core were merged to `integration/ai-v1`.
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: T122 Round 2 passed; T123 ContentVariant-to-MediaAsset Round 1 was dispatched to the safe Claude executor.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create and dispatch T123-M1-CONTENT-VARIANT-MEDIA-ASSET-REF-SCHEMA to the safe Claude executor, then wait for DELIVERY. Never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T123 Round 1 DELIVERY, then Fast Review. Never merge to `main`.
 
 ## COMPLETED
 
