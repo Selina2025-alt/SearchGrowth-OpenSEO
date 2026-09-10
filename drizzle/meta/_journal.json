@@ -477,6 +477,13 @@
       "when": 1789008461884,
       "tag": "0067_old_silhouette",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "6",
+      "when": 1789012084040,
+      "tag": "0068_steep_pandemic",
+      "breakpoints": true
     }
   ]
 }
