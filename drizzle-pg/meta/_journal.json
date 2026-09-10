@@ -309,6 +309,13 @@
       "when": 1789003275388,
       "tag": "0043_special_speedball",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1789005902578,
+      "tag": "0044_silly_gideon",
+      "breakpoints": true
     }
   ]
 }

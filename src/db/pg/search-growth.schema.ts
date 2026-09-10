@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims and T120 content_package_version_source_refs additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs and T121 content_package_version_media_assets additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -2218,6 +2218,94 @@ export const contentPackageVersionSourceRefs = pgTable(
     // source-ref -> content-package-versions reads.
     index("content_package_version_source_refs_source_ref_idx").on(
       table.sourceRefId,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the
+// `content_package_version_media_assets` table in ../search-growth.schema.ts
+// (keep the two files structurally identical; schema-parity.test.ts fails on
+// drift).
+//
+// Each row is ONE link between an immutable content package version and a media
+// asset that version references (05_DOMAIN_DATA_MODEL.md §10 ContentVersion
+// `asset_ids[]`; 09_CONTENT_EVIDENCE_WEBPAGE_SPEC.md §1 canonical source
+// `asset://<id>`, §2). Schema/contract ONLY — no asset upload, object storage,
+// transformation, rights evaluation, rendered/published behavior, release/
+// publishing behavior, or CRUD/UI. See the SQLite mirror for the full field
+// reconciliation; the direct TASK field list is shipped verbatim — stable `id`
+// PK, explicit NOT NULL `project_id`, required `content_package_version_id`,
+// required `media_asset_id`, and the append-only `created_at` timestamp only (no
+// `updated_at`, no asset/rights payload on the link row).
+//
+// SAME-PROJECT INTEGRITY is database-enforced by two Project-leading composite
+// FKs: (project_id, content_package_version_id) ->
+// content_package_versions(project_id, id) and (project_id, media_asset_id) ->
+// media_assets(project_id, id), so the DB rejects a link whose version and media
+// asset belong to different Projects (in either direction) or a dangling parent.
+// Both parent targets already exist on the accepted parents and are reused, so
+// this slice adds NO parent index: the accepted
+// `content_package_versions_project_id_id_idx` (T118/T119, PG 0042) and
+// `media_assets_project_id_id_idx` (T114, PG 0039). Deleting a version, a media
+// asset, or a whole Project cascades its links away (it does not delete the R2
+// source asset — 15_MEDIA_ASSET_SPEC.md §7). The only business uniqueness is the
+// link identity (content_package_version_id, media_asset_id); the media_asset_id
+// reverse index serves the media-asset -> versions read path and no other index
+// or uniqueness rule exists on this table.
+// ============================================================================
+
+export const contentPackageVersionMediaAssets = pgTable(
+  "content_package_version_media_assets",
+  {
+    id: text("id").primaryKey(),
+    // This link's own Project. Explicit typed column so the same-Project
+    // composite FKs below can carry it as their leading column.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The linked immutable content package version (content_package_versions.id).
+    // Bound to this row's project by the composite FK below.
+    contentPackageVersionId: text("content_package_version_id").notNull(),
+    // The linked media asset (media_assets.id). Bound to this row's project by
+    // the composite FK below. Asset metadata/rights/classification state lives on
+    // the media_assets row, never here.
+    mediaAssetId: text("media_asset_id").notNull(),
+    // Append-only creation timestamp (system insert time). A link row carries no
+    // mutable payload and no updated_at.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the content package version: this link's
+    // project_id must equal the version's project_id. Deleting a content package
+    // version removes its media links (the referenced (project_id, id) pair is
+    // unique via the accepted content_package_versions_project_id_id_idx from
+    // 0042 — reused, not recreated).
+    foreignKey({
+      columns: [table.projectId, table.contentPackageVersionId],
+      foreignColumns: [
+        contentPackageVersions.projectId,
+        contentPackageVersions.id,
+      ],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the media asset: this link's project_id must
+    // equal the asset's project_id. Deleting a media asset removes its version
+    // links (the referenced (project_id, id) pair is unique via the accepted
+    // media_assets_project_id_id_idx from 0039 — reused, not recreated).
+    foreignKey({
+      columns: [table.projectId, table.mediaAssetId],
+      foreignColumns: [mediaAssets.projectId, mediaAssets.id],
+    }).onDelete("cascade"),
+    // Link identity: one row per (content_package_version_id, media_asset_id)
+    // edge, so a duplicate ContentPackageVersion/MediaAsset link is rejected by
+    // the DB (TASK item 2). The leading content_package_version_id also serves
+    // the content-package-version -> media-assets read path.
+    uniqueIndex(
+      "content_package_version_media_assets_unique_content_package_version_media_asset_idx",
+    ).on(table.contentPackageVersionId, table.mediaAssetId),
+    // media-asset -> content-package-versions reads.
+    index("content_package_version_media_assets_media_asset_idx").on(
+      table.mediaAssetId,
     ),
   ],
 );

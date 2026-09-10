@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims and T120 content_package_version_source_refs additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs and T121 content_package_version_media_assets additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -2771,6 +2771,110 @@ export const contentPackageVersionSourceRefs = sqliteTable(
     // source-ref -> content-package-versions reads.
     index("content_package_version_source_refs_source_ref_idx").on(
       table.sourceRefId,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, same-Project ContentPackageVersion <->
+// MediaAsset relation.
+//
+// Each row is ONE link between an immutable content package version and a media
+// asset that version references (05_DOMAIN_DATA_MODEL.md §10 ContentVersion
+// `asset_ids[]`; 09_CONTENT_EVIDENCE_WEBPAGE_SPEC.md §1 canonical source
+// `asset://<id>` and §2 "assets"). The relation is a normalized table — never a
+// JSON/text array column on the immutable content_package_versions row (TASK
+// item 3) — and the row carries no mutable payload: asset metadata, rights and
+// classification stay on the linked media_assets row, so a later Rights Gate /
+// renderer reads the asset through this link without copying any
+// rights/classification/verification state here. This slice is schema/contract
+// only: no asset upload, object storage, transformation, rights evaluation,
+// rendered/published behavior, release/publishing behavior, or CRUD/UI is added
+// (TASK items 3–4).
+//
+// SAME-PROJECT INTEGRITY is database-enforced by two composite foreign keys that
+// carry this row's own project_id as their leading column:
+//   (project_id, content_package_version_id) -> content_package_versions(project_id, id)
+//   (project_id, media_asset_id)             -> media_assets(project_id, id)
+// A link whose content package version and media asset belong to different
+// Projects has no matching parent row for at least one FK and is rejected by the
+// DB in either direction. Both composite-FK target unique indexes already exist
+// on the accepted parents and are REUSED, so this slice adds NO index to either
+// parent: content_package_versions_project_id_id_idx (T118/T119, D1 0064 / PG
+// 0042) and media_assets_project_id_id_idx (T114, D1 0061 / PG 0039). Deleting a
+// content package version, a media asset, or a whole Project cascades its links
+// away, so a link can never dangle. (Cascading away the local link row does NOT
+// delete the R2 source asset — 15_MEDIA_ASSET_SPEC.md §7 — it only removes the
+// stored pointer.)
+//
+// LINK IDENTITY / DUPLICATE EDGES: the only business uniqueness rule in this
+// slice is the link identity needed to prevent duplicate
+// ContentPackageVersion/MediaAsset edges (TASK item 2), so the unique index below
+// rejects a duplicate (content_package_version_id, media_asset_id) pair.
+// content_package_version_id and media_asset_id are both globally unique primary
+// keys, so once the same-Project FKs hold, the pair is project-isolated without
+// listing project_id in the unique index (the accepted search_topic_keyword_refs
+// / claim_source_refs / content_package_version_claims / content_package_version_
+// source_refs mapping pattern). No other uniqueness rule is invented. The reverse
+// non-unique index serves the media-asset -> versions read path; the unique
+// index's leading content_package_version_id already serves the
+// content-package-version -> media-assets read path.
+// ============================================================================
+
+export const contentPackageVersionMediaAssets = sqliteTable(
+  "content_package_version_media_assets",
+  {
+    id: text("id").primaryKey(),
+    // This link's own Project. Explicit typed column so the same-Project
+    // composite FKs below can carry it as their leading column.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The linked immutable content package version (content_package_versions.id).
+    // Bound to this row's project by the composite FK below.
+    contentPackageVersionId: text("content_package_version_id").notNull(),
+    // The linked media asset (media_assets.id). Bound to this row's project by
+    // the composite FK below. Asset metadata/rights/classification state lives on
+    // the media_assets row, never here.
+    mediaAssetId: text("media_asset_id").notNull(),
+    // Append-only creation timestamp (system insert time). A link row carries no
+    // mutable payload and no updated_at — the reference itself is immutable and
+    // asset rights/classification state stays on the linked media asset.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the content package version: this link's
+    // project_id must equal the version's project_id. Deleting a content package
+    // version removes its media links (the referenced (project_id, id) pair is
+    // unique via the accepted content_package_versions_project_id_id_idx from
+    // 0064 — reused, not recreated).
+    foreignKey({
+      columns: [table.projectId, table.contentPackageVersionId],
+      foreignColumns: [
+        contentPackageVersions.projectId,
+        contentPackageVersions.id,
+      ],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the media asset: this link's project_id must
+    // equal the asset's project_id. Deleting a media asset removes its version
+    // links (the referenced (project_id, id) pair is unique via the accepted
+    // media_assets_project_id_id_idx from 0061 — reused, not recreated).
+    foreignKey({
+      columns: [table.projectId, table.mediaAssetId],
+      foreignColumns: [mediaAssets.projectId, mediaAssets.id],
+    }).onDelete("cascade"),
+    // Link identity: one row per (content_package_version_id, media_asset_id)
+    // edge, so a duplicate ContentPackageVersion/MediaAsset link is rejected by
+    // the DB (TASK item 2). The leading content_package_version_id also serves
+    // the content-package-version -> media-assets read path.
+    uniqueIndex(
+      "content_package_version_media_assets_unique_content_package_version_media_asset_idx",
+    ).on(table.contentPackageVersionId, table.mediaAssetId),
+    // media-asset -> content-package-versions reads.
+    index("content_package_version_media_assets_media_asset_idx").on(
+      table.mediaAssetId,
     ),
   ],
 );
