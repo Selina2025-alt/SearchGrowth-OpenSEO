@@ -92,6 +92,7 @@ export const {
   contentPackages,
   contentPackageVersions,
   contentPackageVersionClaims,
+  contentPackageVersionSourceRefs,
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,
