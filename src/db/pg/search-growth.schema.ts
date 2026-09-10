@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants and T123 content_variant_media_assets additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets and T124 release_bundles additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -2488,6 +2488,125 @@ export const contentVariantMediaAssets = pgTable(
     // media-asset -> content-variants reads.
     index("content_variant_media_assets_media_asset_idx").on(
       table.mediaAssetId,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `release_bundles` table in
+// ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift).
+//
+// The ONE immutable, Project-scoped ReleaseBundle business approval unit
+// (05_DOMAIN_DATA_MODEL.md §12; 10_DISTRIBUTION_ARCHITECTURE.md §6; ADR-008;
+// 21_TEST_ACCEPTANCE_PLAN.md §12; 18_WORKFLOW_STATE_MACHINES.md §1). Schema/
+// contract ONLY — no state transition/CAS, approval action, dry-run execution,
+// target/connector/account logic, publishing, paid action, or CRUD/UI (TASK
+// item 4). See the SQLite mirror for the full field reconciliation; the direct
+// TASK field list is shipped verbatim — stable `id` PK, explicit NOT NULL
+// `project_id`, required `content_package_version_id`, required `release_version`,
+// required `status`/`release_strategy` enums, required opaque `utm_policy_json`,
+// required opaque `bundle_hash`, nullable `dry_run_report_json`, nullable
+// `approved_by`/`approved_at`, and the append-only `created_at` timestamp only
+// (no `updated_at`; the legacy `updated_at` is reconciled out because the TASK
+// field list names the creation timestamp only and no state transition/CAS is
+// implemented).
+//
+// SAME-PROJECT INTEGRITY is database-enforced by the Project-leading composite FK
+// (project_id, content_package_version_id) ->
+// content_package_versions(project_id, id), so the DB rejects a bundle whose
+// ContentVersion belongs to another Project (in either direction) or a dangling
+// parent. The parent target already exists on the accepted
+// content_package_versions table (`content_package_versions_project_id_id_idx`,
+// T119, PG 0042) and is REUSED, so this slice adds NO parent index. Deleting a
+// ContentVersion or a whole Project cascades its bundles away. The only business
+// uniqueness is the release identity (content_package_version_id,
+// release_version), whose leading column also serves the ContentVersion ->
+// release-bundles read path; no other index or uniqueness rule exists.
+// ============================================================================
+
+export const releaseBundles = pgTable(
+  "release_bundles",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The immutable ContentVersion this bundle freezes. Bound to the row's
+    // project by the composite FK below, which cascades bundles away when the
+    // version is deleted.
+    contentPackageVersionId: text("content_package_version_id").notNull(),
+    // The immutable release version number (R1/R2/...) within the ContentVersion;
+    // the unique index below is the release identity.
+    releaseVersion: integer("release_version").notNull(),
+    // The direct V1.0 release lifecycle union (18 §1). DB text-enum column + the
+    // named CHECK below; the Zod boundary validates the same list.
+    status: text("status", {
+      enum: [
+        "DRAFT",
+        "DRY_RUN_READY",
+        "READY_FOR_APPROVAL",
+        "APPROVED",
+        "EXECUTING",
+        "COMPLETED",
+        "PARTIAL",
+        "PAUSED",
+        "CANCELLED",
+      ],
+    }).notNull(),
+    // The direct source-defined release strategy union (domain-types.ts; 10 §5).
+    releaseStrategy: text("release_strategy", {
+      enum: ["WEBSITE_FIRST", "PARALLEL", "SOCIAL_ONLY"],
+    }).notNull(),
+    // Required opaque UTM policy document frozen with the bundle (ADR-008; 21
+    // §12), stored verbatim.
+    utmPolicyJson: text("utm_policy_json").notNull(),
+    // Required opaque frozen-bundle hash (ADR-008; 21 §12), stored verbatim;
+    // plain non-unique column.
+    bundleHash: text("bundle_hash").notNull(),
+    // Optional opaque dry-run report document; NULL = not attached yet. The
+    // dry-run step is out of scope.
+    dryRunReportJson: text("dry_run_report_json"),
+    // Approval fields; NULL = not approved. Recording them does NOT implement an
+    // approval action (TASK item 4).
+    approvedBy: text("approved_by"),
+    approvedAt: text("approved_at"),
+    // Append-only creation timestamp (system insert time) — the ONLY audit
+    // column (no updated_at).
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the ContentVersion: this row's project_id must
+    // equal the version's project_id. Deleting a content package version removes
+    // its release bundles (the referenced (project_id, id) pair is unique via the
+    // accepted content_package_versions_project_id_id_idx from 0042 — reused, not
+    // recreated).
+    foreignKey({
+      columns: [table.projectId, table.contentPackageVersionId],
+      foreignColumns: [
+        contentPackageVersions.projectId,
+        contentPackageVersions.id,
+      ],
+    }).onDelete("cascade"),
+    // Release identity: one row per (content_package_version_id, release_version),
+    // so a duplicate release version within a ContentVersion is rejected by the DB
+    // (TASK item 2). The leading content_package_version_id also serves the
+    // ContentVersion -> release-bundles read path.
+    uniqueIndex(
+      "release_bundles_unique_content_package_version_release_version_idx",
+    ).on(table.contentPackageVersionId, table.releaseVersion),
+    // DB-level enum rejection for the two direct release unions (migration-backed
+    // enum rejection; the Zod boundary enforces the same lists at the runtime
+    // edge).
+    check(
+      "release_bundles_status_valid",
+      sql`(${table.status} IN ('DRAFT','DRY_RUN_READY','READY_FOR_APPROVAL','APPROVED','EXECUTING','COMPLETED','PARTIAL','PAUSED','CANCELLED'))`,
+    ),
+    check(
+      "release_bundles_release_strategy_valid",
+      sql`(${table.releaseStrategy} IN ('WEBSITE_FIRST','PARALLEL','SOCIAL_ONLY'))`,
     ),
   ],
 );

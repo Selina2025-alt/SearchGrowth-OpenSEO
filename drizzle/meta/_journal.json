@@ -484,6 +484,13 @@
       "when": 1789012084040,
       "tag": "0068_steep_pandemic",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "6",
+      "when": 1789019693498,
+      "tag": "0069_clumsy_legion",
+      "breakpoints": true
     }
   ]
 }
