@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets and T122 content_variants additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants and T123 content_variant_media_assets additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -2335,9 +2335,13 @@ export const contentPackageVersionMediaAssets = pgTable(
 // version belongs to another Project (in either direction) or a dangling parent.
 // The parent target already exists on the accepted content_package_versions table
 // (`content_package_versions_project_id_id_idx`, T118/T119, PG 0042) and is
-// REUSED, so this slice adds NO parent index. Deleting a version or a whole
-// Project cascades its variants away. `id` is the ONLY identity (TASK item 2): no
-// business uniqueness rule and no extra lookup index exists on this table.
+// REUSED, so this slice adds NO parent index. The later T123 relation adds the
+// supporting `content_variants_project_id_id_idx` unique index below as the
+// composite-FK target for content_variant_media_assets (id is already the PK, so
+// it accepts exactly the PK's rows and adds no business uniqueness). Deleting a
+// version or a whole Project cascades its variants away. `id` is the ONLY
+// identity (TASK item 2): no business uniqueness rule and no extra lookup index
+// exists on this table.
 // ============================================================================
 
 export const contentVariants = pgTable(
@@ -2391,5 +2395,99 @@ export const contentVariants = pgTable(
         contentPackageVersions.id,
       ],
     }).onDelete("cascade"),
+    // Supporting unique referential target for the content_variant_media_assets
+    // same-Project composite FK ((project_id, content_variant_id) ->
+    // content_variants(project_id, id), added by the T123 0046 migration). id is
+    // already the PK, so this composite accepts exactly the rows the PK accepts
+    // and adds no business uniqueness.
+    uniqueIndex("content_variants_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `content_variant_media_assets`
+// table in ../search-growth.schema.ts (keep the two files structurally
+// identical; schema-parity.test.ts fails on drift).
+//
+// Each row is ONE link between an immutable platform-native ContentVariant and a
+// media asset that variant references (05_DOMAIN_DATA_MODEL.md §10 ContentVariant
+// derived from ContentVersion `asset_ids[]`; 09_CONTENT_EVIDENCE_WEBPAGE_SPEC.md
+// §1 `asset://<id>`, §2, §7; legacy `assetRefs: string[]` /
+// `asset_refs_json`). Schema/contract ONLY — no asset upload, object storage,
+// download, transformation, rights evaluation, rendered/published behavior,
+// PublishedMediaRef behavior, release/publishing behavior, or CRUD/UI. See the
+// SQLite mirror for the full field reconciliation; the direct TASK field list is
+// shipped verbatim — stable `id` PK, explicit NOT NULL `project_id`, required
+// `content_variant_id`, required `media_asset_id`, and the append-only
+// `created_at` timestamp only (no `updated_at`, no asset/rights payload on the
+// link row).
+//
+// SAME-PROJECT INTEGRITY is database-enforced by two Project-leading composite
+// FKs: (project_id, content_variant_id) -> content_variants(project_id, id) and
+// (project_id, media_asset_id) -> media_assets(project_id, id), so the DB rejects
+// a link whose variant and media asset belong to different Projects (in either
+// direction) or a dangling parent. The MediaAsset parent target already exists on
+// the accepted media_assets table (`media_assets_project_id_id_idx`, T114, PG
+// 0039) and is reused, so this slice adds NO index to `media_assets`. The
+// ContentVariant parent target is the ONE new referential index this slice adds
+// (`content_variants_project_id_id_idx`, from the T122 table in this same 0046
+// migration). Deleting a variant, a media asset, or a whole Project cascades its
+// links away (it does not delete the R2 source asset — 15_MEDIA_ASSET_SPEC.md
+// §7). The only business uniqueness is the link identity (content_variant_id,
+// media_asset_id); the media_asset_id reverse index serves the media-asset ->
+// variants read path and no other index or uniqueness rule exists on this table.
+// ============================================================================
+
+export const contentVariantMediaAssets = pgTable(
+  "content_variant_media_assets",
+  {
+    id: text("id").primaryKey(),
+    // This link's own Project. Explicit typed column so the same-Project
+    // composite FKs below can carry it as their leading column.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The linked immutable ContentVariant (content_variants.id). Bound to this
+    // row's project by the composite FK below.
+    contentVariantId: text("content_variant_id").notNull(),
+    // The linked media asset (media_assets.id). Bound to this row's project by
+    // the composite FK below. Asset metadata/rights/classification state lives on
+    // the media_assets row, never here.
+    mediaAssetId: text("media_asset_id").notNull(),
+    // Append-only creation timestamp (system insert time). A link row carries no
+    // mutable payload and no updated_at.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the ContentVariant: this link's project_id
+    // must equal the variant's project_id. Deleting a content variant removes its
+    // media links (the referenced (project_id, id) pair is unique via
+    // content_variants_project_id_id_idx added by this task's 0046 migration).
+    foreignKey({
+      columns: [table.projectId, table.contentVariantId],
+      foreignColumns: [contentVariants.projectId, contentVariants.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the media asset: this link's project_id must
+    // equal the asset's project_id. Deleting a media asset removes its variant
+    // links (the referenced (project_id, id) pair is unique via the accepted
+    // media_assets_project_id_id_idx from 0039 — reused, not recreated).
+    foreignKey({
+      columns: [table.projectId, table.mediaAssetId],
+      foreignColumns: [mediaAssets.projectId, mediaAssets.id],
+    }).onDelete("cascade"),
+    // Link identity: one row per (content_variant_id, media_asset_id) edge, so a
+    // duplicate ContentVariant/MediaAsset link is rejected by the DB (TASK item
+    // 2). The leading content_variant_id also serves the variant -> media-assets
+    // read path.
+    uniqueIndex(
+      "content_variant_media_assets_unique_content_variant_media_asset_idx",
+    ).on(table.contentVariantId, table.mediaAssetId),
+    // media-asset -> content-variants reads.
+    index("content_variant_media_assets_media_asset_idx").on(
+      table.mediaAssetId,
+    ),
   ],
 );
