@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets and T124 release_bundles additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles and T125 release_targets additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -2597,6 +2597,15 @@ export const releaseBundles = pgTable(
     uniqueIndex(
       "release_bundles_unique_content_package_version_release_version_idx",
     ).on(table.contentPackageVersionId, table.releaseVersion),
+    // Supporting unique referential target for the release_targets same-Project
+    // composite FK ((project_id, release_bundle_id) ->
+    // release_bundles(project_id, id), added by the T125 0048 migration). id is
+    // already the PK, so this composite accepts exactly the rows the PK accepts
+    // and adds no business uniqueness.
+    uniqueIndex("release_bundles_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
     // DB-level enum rejection for the two direct release unions (migration-backed
     // enum rejection; the Zod boundary enforces the same lists at the runtime
     // edge).
@@ -2607,6 +2616,113 @@ export const releaseBundles = pgTable(
     check(
       "release_bundles_release_strategy_valid",
       sql`(${table.releaseStrategy} IN ('WEBSITE_FIRST','PARALLEL','SOCIAL_ONLY'))`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `release_targets` table in
+// ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift).
+//
+// The immutable, Project-scoped ReleaseTarget core (05_DOMAIN_DATA_MODEL.md §12;
+// 10_DISTRIBUTION_ARCHITECTURE.md §2/§4; 16_ATTRIBUTION_EXPERIMENT_SPEC.md;
+// 21_TEST_ACCEPTANCE_PLAN.md §14; legacy `schemas/domain-types.ts` ReleaseTarget
+// and `schemas/migrations-reference.sql` release_targets). Schema/contract ONLY
+// — no approve/execute/publish/spend/external-system/credential/account/connector
+// behavior (TASK items 1, 3, 4). See the SQLite mirror for the full field and
+// delete reconciliation; the direct TASK field list is shipped verbatim — stable
+// `id` PK, explicit NOT NULL `project_id`, required `release_bundle_id` and
+// `content_variant_id`, opaque free-form `platform`, source-defined
+// `target_intent` enum, `required` flag (default true), nullable `scheduled_at`,
+// nullable `dependency_target_id`, nullable `utm_url`, required opaque
+// `target_hash`, and the append-only `created_at` timestamp only. The legacy
+// `publisher_connection_id` is DELIBERATELY NOT persisted (TASK item 3), and
+// there is no `updated_at` (an immutable target row has no mutable state).
+//
+// SAME-PROJECT INTEGRITY is database-enforced by two Project-leading composite
+// FKs — (project_id, release_bundle_id) -> release_bundles(project_id, id) and
+// (project_id, content_variant_id) -> content_variants(project_id, id) — both
+// ON DELETE CASCADE. The ReleaseBundle parent target
+// `release_bundles_project_id_id_idx` is added by this migration (the accepted
+// T124 table gains its referential supporting index); the ContentVariant target
+// `content_variants_project_id_id_idx` is reused from the accepted T123 0046
+// migration. The optional dependency is a Project-leading composite self-FK
+// (project_id, dependency_target_id) -> release_targets(project_id, id) with
+// ON DELETE no action (restrictive on both dialects). No source-defined business
+// uniqueness exists, so none is invented: the only unique indexes are the
+// referential supporting targets the composite FKs require.
+// ============================================================================
+
+export const releaseTargets = pgTable(
+  "release_targets",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project; explicit so ownership is never inferred and the
+    // Project FK + same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The immutable ReleaseBundle this target is frozen inside; bound to the
+    // row's project by the composite FK below (cascades targets away on delete).
+    releaseBundleId: text("release_bundle_id").notNull(),
+    // The immutable ContentVariant this target publishes; bound to the row's
+    // project by the composite FK below (cascades targets away on delete).
+    contentVariantId: text("content_variant_id").notNull(),
+    // Opaque free-form platform slug; no platform enum is invented in this core
+    // slice (TASK item 3).
+    platform: text("platform").notNull(),
+    // The direct source-defined target intent union (domain-types.ts
+    // TargetIntent; 10 §2 targetIntent), DB-checked below and narrowed by the Zod
+    // boundary.
+    targetIntent: text("target_intent", {
+      enum: ["DRAFT", "PUBLIC", "SUBMIT_FOR_REVIEW", "PAID_SUBMIT"],
+    }).notNull(),
+    // Source-defined required flag (16 spec; legacy DEFAULT 1).
+    required: boolean("required").notNull().default(true),
+    // Optional schedule; NULL = not scheduled. No scheduler exists in this slice.
+    scheduledAt: text("scheduled_at"),
+    // Optional same-Project target dependency; NULL = no dependency.
+    dependencyTargetId: text("dependency_target_id"),
+    // Optional UTM URL stored verbatim; NULL = none.
+    utmUrl: text("utm_url"),
+    // Required opaque target hash stored verbatim; plain non-unique column.
+    targetHash: text("target_hash").notNull(),
+    // Append-only creation timestamp (the ONLY audit column; no updated_at).
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the ReleaseBundle (cascade); the referenced
+    // (project_id, id) pair is unique via `release_bundles_project_id_id_idx`
+    // added by this migration.
+    foreignKey({
+      columns: [table.projectId, table.releaseBundleId],
+      foreignColumns: [releaseBundles.projectId, releaseBundles.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the ContentVariant (cascade), reusing the
+    // accepted content_variants_project_id_id_idx from T123 0046.
+    foreignKey({
+      columns: [table.projectId, table.contentVariantId],
+      foreignColumns: [contentVariants.projectId, contentVariants.id],
+    }).onDelete("cascade"),
+    // Optional same-Project dependency self-reference. A NULL dependency is
+    // unconstrained (MATCH SIMPLE); a non-NULL one must name a same-Project
+    // target. Deleting a referenced target is blocked (no action) rather than
+    // SET NULL, which a composite FK cannot do for the NOT NULL project_id.
+    foreignKey({
+      columns: [table.projectId, table.dependencyTargetId],
+      foreignColumns: [table.projectId, table.id],
+    }).onDelete("no action"),
+    // Supporting unique referential target for the dependency self-FK; id is
+    // already the PK, so it adds no business uniqueness.
+    uniqueIndex("release_targets_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
+    // DB-level enum rejection for the source-defined target intent.
+    check(
+      "release_targets_target_intent_valid",
+      sql`(${table.targetIntent} IN ('DRAFT','PUBLIC','SUBMIT_FOR_REVIEW','PAID_SUBMIT'))`,
     ),
   ],
 );
