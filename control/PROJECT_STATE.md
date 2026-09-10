@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: bd862ff
 LAST REVIEW: T121-M1-CONTENT-VERSION-MEDIA-ASSET-REF-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T121 Round 1 passed after Controller acceptance-verification gates; T122 ContentVariant core Round 1 was dispatched to the safe Claude executor.
-CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T122 Round 1 DELIVERY, then Fast Review. Never merge to `main`.
+LAST COMPLETED ACTION: T122 Round 1 DELIVERY was reviewed; Controller format and types gates passed, but lint failed on a task-local type-only import.
+CURRENT BLOCKER: T122 is blocked by `src/types/schemas/content-variant.ts:3` failing lint; M0.5 external accounts/publishing Human Gates H1/H2 also remain closed.
+NEXT EXACT ACTION: Await Product Owner direction because the current instruction forbids creating T122 Round 2. Do not merge to `main`.
 
 ## COMPLETED
 
@@ -44,7 +44,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T122 Round 1 DELIVERY, then Fa
 
 ## IN PROGRESS
 
-- T122-M1-CONTENT-VARIANT-CORE-SCHEMA is the next credential-free M1 schema slice.
+- T122-M1-CONTENT-VARIANT-CORE-SCHEMA is blocked after Round 1 on a task-local lint failure; no merge occurred.
 
 ## BLOCKED
 
@@ -52,4 +52,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T122 Round 1 DELIVERY, then Fa
 
 ## NEXT
 
-Create and dispatch T122. Never merge to `main`.
+Await direction for T122's task-local lint failure. Never merge to `main`.
