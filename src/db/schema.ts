@@ -91,6 +91,7 @@ export const {
   publishedMediaRefs,
   contentPackages,
   contentPackageVersions,
+  contentPackageVersionClaims,
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,
