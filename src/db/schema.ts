@@ -98,6 +98,7 @@ export const {
   contentVariantMediaAssets,
   releaseBundles,
   releaseTargets,
+  searchGrowthAuditEvents,
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,

@@ -498,6 +498,13 @@
       "when": 1789021553907,
       "tag": "0070_youthful_bill_hollister",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "6",
+      "when": 1789024118788,
+      "tag": "0071_stiff_the_professor",
+      "breakpoints": true
     }
   ]
 }

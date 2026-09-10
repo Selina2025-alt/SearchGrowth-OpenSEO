@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles and T125 release_targets additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets and T126 search_growth_audit_events additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -3468,6 +3468,119 @@ export const releaseTargets = sqliteTable(
     check(
       "release_targets_target_intent_valid",
       sql`(${table.targetIntent} IN ('DRAFT','PUBLIC','SUBMIT_FOR_REVIEW','PAID_SUBMIT'))`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — append-only, Project-scoped audit events.
+//
+// ONE audit event is the immutable governance fact that records what happened to
+// a Project-scoped object (05_DOMAIN_DATA_MODEL.md §13 "AuditEvent — append
+// only"; 20_DATABASE_SCHEMA_GUIDE.md §§1/3/6; 24_RISK_REGISTER.md R42
+// "Audit缺失 → append-only audit"; 30_TRACEABILITY_MATRIX.md row
+// "可审计 | AuditEvent | assertions"). This is the credential-free
+// schema/validation core slice ONLY: it records no external action and
+// implements no runtime-control mutation, release execution, publishing,
+// spend, credential/account/connector model, CRUD, UI or production behavior
+// (TASK items 1, 3, 4).
+//
+// FIELD RECONCILIATION (TASK item 1 direct field list; the legacy read-only
+// reference artifacts `schemas/domain-types.ts` AuditEvent and
+// `schemas/migrations-reference.sql` `search_growth_audit_events`):
+//   - `id` (PK) is the stable audit-event id and `project_id` (NOT NULL) is the
+//     explicit Project ownership column, so ownership is never inferred and the
+//     Project FK below can be enforced.
+//   - `actor_id`, `action`, `object_type`, `object_id` and `correlation_id` are
+//     NOT NULL opaque audit data. They are deliberately plain text: actor,
+//     object and correlation values must not become foreign keys, and no event
+//     action/object taxonomy or enum is invented in this core slice (TASK item
+//     3).
+//   - `before_ref` / `after_ref` are the optional before/after references,
+//     stored verbatim as nullable opaque text (NULL = the event carries no
+//     before/after reference). They are not foreign keys either (TASK item 3).
+//   - `metadata_json` (NOT NULL) is the event's metadata document. It is stored
+//     as validated JSON text (the accepted JSON-column convention,
+//     20_DATABASE_SCHEMA_GUIDE.md §6) with a DB-level validity CHECK below, so
+//     malformed metadata cannot be persisted on either dialect. As with every
+//     sibling table, relational ids are never encoded in this JSON.
+//   - `created_at` (NOT NULL) is the append-only creation timestamp. There is no
+//     `updated_at`, no state-transition/current-pointer column and no mutable
+//     runtime-control state on the row.
+//
+// APPEND-ONLY ENFORCEMENT AT THE DATABASE BOUNDARY (TASK item 2): immutability
+// is not left to application convention. The forward migration adds two
+// dialect-equivalent guards to the table itself:
+//   - a BEFORE UPDATE trigger and a BEFORE DELETE trigger that ABORT every
+//     update/delete attempt on an event row (SQLite `RAISE(ABORT, ...)`,
+//     PostgreSQL `RAISE EXCEPTION`), so a direct UPDATE or DELETE is rejected by
+//     the database. The migration-backed storage test asserts both rejections.
+//   - Because foreign-key cascade actions fire these row triggers on both
+//     dialects (verified in the SQLite test), deleting a whole Project that still
+//     owns audit events is blocked as well — immutable audit history is never
+//     silently dropped (R42). A row can therefore only ever be INSERTed.
+//
+// OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// with ON DELETE CASCADE (the established Project-scoping FK every Search Growth
+// row carries). The cascade can never remove audit history because the DELETE
+// trigger above aborts it; the FK still guarantees a dangling event can never
+// exist and that an event's project is a real Project.
+//
+// IDENTITY / UNIQUENESS: no source-defined business uniqueness exists for an
+// audit event (neither 05 §13, the legacy reference table, nor the TASK defines
+// one) and none is invented (TASK item 3): the same action/object/correlation
+// may legitimately produce several event rows. The single non-unique
+// project_id index serves project-scoped audit reads only.
+// ============================================================================
+
+export const searchGrowthAuditEvents = sqliteTable(
+  "search_growth_audit_events",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // Opaque actor identity (who/what performed the action). Deliberately not a
+    // foreign key — no account/user/credential model is invented in this slice
+    // (TASK item 3).
+    actorId: text("actor_id").notNull(),
+    // Opaque action label. No action taxonomy/enum is invented here (TASK item
+    // 3).
+    action: text("action").notNull(),
+    // Opaque object type and object id the action applied to. Not foreign keys —
+    // an audit event must be recordable for any object kind without inventing a
+    // polymorphic relation (TASK item 3).
+    objectType: text("object_type").notNull(),
+    objectId: text("object_id").notNull(),
+    // Optional before/after references, stored verbatim as nullable opaque text;
+    // NULL = no reference recorded. Not foreign keys (TASK item 3).
+    beforeRef: text("before_ref"),
+    afterRef: text("after_ref"),
+    // The event metadata document persisted as JSON text. Required; the named
+    // CHECK below rejects malformed JSON on both dialects. Never a relational id
+    // container.
+    metadataJson: text("metadata_json").notNull(),
+    // Opaque correlation id grouping related events. Not a foreign key (TASK
+    // item 3).
+    correlationId: text("correlation_id").notNull(),
+    // Append-only creation timestamp (system insert time). The row has no
+    // updated_at and the migration triggers reject every UPDATE/DELETE.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Project-scoped audit reads. No business-rule unique index: several events
+    // may share action/object/correlation (TASK item 3).
+    index("search_growth_audit_events_project_idx").on(table.projectId),
+    // Metadata validity at the storage boundary: malformed JSON is rejected.
+    // PostgreSQL has no json_valid(); its mirror migration uses an equivalent
+    // JSON-cast CHECK with the same name (schema-parity compares check names).
+    check(
+      "search_growth_audit_events_metadata_valid",
+      sql`json_valid(${table.metadataJson})`,
     ),
   ],
 );
