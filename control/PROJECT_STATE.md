@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 4bbca63
 LAST REVIEW: T126-M1-AUDIT-EVENT-CORE-SCHEMA ROUND 1 CONTINUATION PASS AND MERGED
 CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T127 Round 1 Fast Review found a RuntimeControl Zod/domain value-union mismatch; Round 2 is required.
+LAST COMPLETED ACTION: T127 Round 2 was dispatched in the preserved worktree to repair the typed RuntimeControl Zod/domain contract.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch the bounded T127 Round 2 fix, then wait for DELIVERY. Never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On DELIVERY, perform the T127 Round 2 Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -49,7 +49,7 @@ NEXT EXACT ACTION: Dispatch the bounded T127 Round 2 fix, then wait for DELIVERY
 
 ## IN PROGRESS
 
-- T127-M1-RUNTIME-CONTROL-CORE-SCHEMA Round 1 is BLOCKED on the typed RuntimeControl Zod/domain contract; Round 2 is bounded to that finding.
+- T127-M1-RUNTIME-CONTROL-CORE-SCHEMA Round 2 is executing in its preserved worktree, bounded to the typed RuntimeControl Zod/domain contract.
 
 ## BLOCKED
 
@@ -57,4 +57,4 @@ NEXT EXACT ACTION: Dispatch the bounded T127 Round 2 fix, then wait for DELIVERY
 
 ## NEXT
 
-Dispatch T127 Round 2 for the typed RuntimeControl Zod/domain contract only. Never merge to `main`.
+WAITING_FOR_EXECUTOR. Review T127 Round 2 DELIVERY when the executor returns. Never merge to `main`.
