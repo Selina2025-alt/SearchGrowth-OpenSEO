@@ -8,10 +8,10 @@ CURRENT TASK: T127-M1-RUNTIME-CONTROL-CORE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 4bbca63
 LAST REVIEW: T126-M1-AUDIT-EVENT-CORE-SCHEMA ROUND 1 CONTINUATION PASS AND MERGED
-CURRENT ROUND: 0 / 3
-LAST COMPLETED ACTION: T126 Round 1 continuation passed; the append-only AuditEvent core was merged to `integration/ai-v1`.
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: T127 RuntimeControl core schema Round 1 was dispatched to the safe Claude executor.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create and dispatch T127-M1-RUNTIME-CONTROL-CORE-SCHEMA to the safe Claude executor, then wait for DELIVERY. Never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On DELIVERY, perform the T127 Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -49,7 +49,7 @@ NEXT EXACT ACTION: Create and dispatch T127-M1-RUNTIME-CONTROL-CORE-SCHEMA to th
 
 ## IN PROGRESS
 
-- T127-M1-RUNTIME-CONTROL-CORE-SCHEMA is the next credential-free M1 domain schema slice.
+- T127-M1-RUNTIME-CONTROL-CORE-SCHEMA Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
@@ -57,4 +57,4 @@ NEXT EXACT ACTION: Create and dispatch T127-M1-RUNTIME-CONTROL-CORE-SCHEMA to th
 
 ## NEXT
 
-Create and dispatch T127. Never merge to `main`.
+WAITING_FOR_EXECUTOR. Review T127 DELIVERY when the executor returns. Never merge to `main`.
