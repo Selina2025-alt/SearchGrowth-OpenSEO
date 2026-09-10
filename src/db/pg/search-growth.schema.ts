@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs and T121 content_package_version_media_assets additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets and T122 content_variants additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -2307,5 +2307,89 @@ export const contentPackageVersionMediaAssets = pgTable(
     index("content_package_version_media_assets_media_asset_idx").on(
       table.mediaAssetId,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `content_variants` table in
+// ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift).
+//
+// ONE immutable, Project-scoped platform-native ContentVariant renders one
+// ContentVersion (05_DOMAIN_DATA_MODEL.md §10 ContentVariant; 09_CONTENT_
+// EVIDENCE_WEBPAGE_SPEC.md §7 Platform Variants; ADR-006). Schema/contract ONLY
+// — no platform-account/connector choice, target routing, asset mapping,
+// tag/category normalization, renderer runtime, HTML conversion, release/
+// approval/publishing behavior, or CRUD/UI. See the SQLite mirror for the full
+// field reconciliation; the direct TASK field list is shipped verbatim — stable
+// `id` PK, explicit NOT NULL `project_id`, required `content_package_version_id`,
+// required opaque `platform`/`format`, required `title`/`body`, required opaque
+// `metadata_json`, required `body_hash`, required `renderer_version`, and the
+// append-only `created_at` timestamp only (no `updated_at`, no execution/
+// approval/account/public-success state, no JSON asset/reference id container,
+// no variant asset mapping).
+//
+// SAME-PROJECT INTEGRITY is database-enforced by the Project-leading composite FK
+// (project_id, content_package_version_id) ->
+// content_package_versions(project_id, id), so the DB rejects a variant whose
+// version belongs to another Project (in either direction) or a dangling parent.
+// The parent target already exists on the accepted content_package_versions table
+// (`content_package_versions_project_id_id_idx`, T118/T119, PG 0042) and is
+// REUSED, so this slice adds NO parent index. Deleting a version or a whole
+// Project cascades its variants away. `id` is the ONLY identity (TASK item 2): no
+// business uniqueness rule and no extra lookup index exists on this table.
+// ============================================================================
+
+export const contentVariants = pgTable(
+  "content_variants",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The immutable ContentVersion this variant renders. Bound to the row's
+    // project by the composite FK below, which cascades variants away when the
+    // version is deleted.
+    contentPackageVersionId: text("content_package_version_id").notNull(),
+    // Opaque target platform identifier — free-form required string, no enum
+    // invented in this slice (TASK item 1).
+    platform: text("platform").notNull(),
+    // Opaque platform-native format identifier — free-form required string, no
+    // format enum invented in this slice (TASK item 1).
+    format: text("format").notNull(),
+    // The platform-native variant title (09 spec §7 title).
+    title: text("title").notNull(),
+    // The platform-native variant body (ADR-006 platform HTML/body), stored
+    // verbatim as an opaque document payload.
+    body: text("body").notNull(),
+    // Opaque platform-native renderer metadata document (09 spec §7), stored
+    // verbatim as a required JSON payload. Renderer metadata, NOT a relational id
+    // container (TASK item 1).
+    metadataJson: text("metadata_json").notNull(),
+    // The required opaque body hash stored verbatim; plain non-unique column (no
+    // body-hash matching/dedup rule is invented in this slice).
+    bodyHash: text("body_hash").notNull(),
+    // The required renderer version that produced this body, stored verbatim for
+    // render provenance.
+    rendererVersion: text("renderer_version").notNull(),
+    // Append-only creation timestamp (system insert time) — the ONLY audit
+    // column (no updated_at, no mutable state).
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the ContentVersion: this row's project_id must
+    // equal the version's project_id. Deleting a content package version removes
+    // its variants (the referenced (project_id, id) pair is unique via the
+    // accepted content_package_versions_project_id_id_idx from 0042 — reused, not
+    // recreated).
+    foreignKey({
+      columns: [table.projectId, table.contentPackageVersionId],
+      foreignColumns: [
+        contentPackageVersions.projectId,
+        contentPackageVersions.id,
+      ],
+    }).onDelete("cascade"),
   ],
 );

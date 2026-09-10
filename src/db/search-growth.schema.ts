@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs and T121 content_package_version_media_assets additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets and T122 content_variants additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -2876,5 +2876,109 @@ export const contentPackageVersionMediaAssets = sqliteTable(
     index("content_package_version_media_assets_media_asset_idx").on(
       table.mediaAssetId,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — immutable, Project-scoped platform-native ContentVariant.
+//
+// ONE ContentVariant is a platform-native rendering of one immutable
+// ContentVersion, NOT a mechanical copy and NOT a publishing instruction
+// (05_DOMAIN_DATA_MODEL.md §10 ContentVariant "平台原生版，不是全文简单复制";
+// 09_CONTENT_EVIDENCE_WEBPAGE_SPEC.md §7 Platform Variants; ADR-006: canonical
+// Markdown + metadata + asset refs are the source, the platform HTML/body is the
+// variant). The row stores the direct renderer inputs only — the opaque
+// `platform`/`format` strings, `title`/`body`, the opaque platform-native
+// `metadata_json` (the §7 presentation contract: format/tags/categories/external
+// link policy/cover-image constraints/CTA expression) and the render-integrity
+// `body_hash` + `renderer_version` — plus the stable `id`, explicit Project
+// ownership and the linked `content_package_version_id`.
+//
+// SAME-PROJECT INTEGRITY is database-enforced by the Project-leading composite FK
+//   (project_id, content_package_version_id) -> content_package_versions(project_id, id)
+// so a variant whose ContentVersion belongs to another Project has no matching
+// parent row and is rejected by the DB in either direction, and a dangling
+// ContentVersion/Project is likewise rejected. The composite target is the
+// accepted `content_package_versions_project_id_id_idx` (added by T119, D1 0064 /
+// PG 0042) and is REUSED, so this slice adds NO index to any parent (TASK item
+// 2). Deleting a ContentVersion or a whole Project cascades its variants away, so
+// an immutable variant can never dangle.
+//
+// IDENTITY / NO BUSINESS UNIQUENESS: `id` is the ONLY identity in this core
+// slice (TASK item 2). There is deliberately no unique index on `id` beyond the
+// PK and no uniqueness rule on `(content_package_version_id, platform)` or any
+// other column combination — a later task owns any routing/dedup rule. No lookup
+// index is added either: the TASK scopes this slice to the stable id, and the
+// Project-leading composite FK is the only referential index it requires.
+//
+// IMMUTABLE CONTRACT (TASK item 3): the row carries the append-only `created_at`
+// timestamp ONLY. There is no `updated_at`, no mutable version-overwrite
+// behavior, no JSON asset/reference id container, no variant asset mapping, no
+// release/approval, and no publishing/execution/account/public-success state —
+// platform-account/connector choice, target routing, asset mapping, tag/category
+// normalization, renderer runtime, HTML conversion and release/publishing are all
+// separate tasks (OUT OF SCOPE). `metadata_json` is opaque renderer metadata, not
+// a relational id container (TASK item 1). This slice is schema/contract only: no
+// variant CRUD/UI.
+// ============================================================================
+
+export const contentVariants = sqliteTable(
+  "content_variants",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The immutable ContentVersion this variant renders. Bound to the row's
+    // project by the composite FK below, which cascades variants away when the
+    // version is deleted.
+    contentPackageVersionId: text("content_package_version_id").notNull(),
+    // Opaque target platform identifier (e.g. a platform slug). Deliberately a
+    // free-form required string: the platform/connector catalogue is a separate
+    // task, so no enum is invented here (TASK item 1).
+    platform: text("platform").notNull(),
+    // Opaque platform-native format identifier. Also a free-form required string
+    // — no format enum is invented in this core slice (TASK item 1).
+    format: text("format").notNull(),
+    // The platform-native variant title (09 spec §7 title).
+    title: text("title").notNull(),
+    // The platform-native variant body (ADR-006 platform HTML/body; 09 spec §7).
+    // Stored verbatim as an opaque document payload — no Markdown/HTML conversion
+    // or normalization happens in this slice.
+    body: text("body").notNull(),
+    // Opaque platform-native renderer metadata document (09 spec §7 presentation
+    // contract), stored verbatim as a required JSON payload. This is renderer
+    // metadata, NOT a relational id container: asset/reference ids are never
+    // encoded here (TASK item 1).
+    metadataJson: text("metadata_json").notNull(),
+    // The required opaque body hash stored verbatim. Plain non-unique column: no
+    // body-hash matching/dedup rule is invented in this slice.
+    bodyHash: text("body_hash").notNull(),
+    // The required renderer version that produced this body, stored verbatim for
+    // render provenance. No renderer runtime exists in this slice.
+    rendererVersion: text("renderer_version").notNull(),
+    // Append-only creation timestamp (system insert time) — the ONLY audit
+    // column: an immutable variant row has no updated_at and carries no mutable
+    // execution/approval/account/public-success state (TASK item 3).
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the ContentVersion: this row's project_id must
+    // equal the version's project_id. Deleting a content package version removes
+    // its variants (the referenced (project_id, id) pair is unique via the
+    // accepted content_package_versions_project_id_id_idx from 0064 — reused, not
+    // recreated). A variant whose version lives on another Project has no
+    // matching parent row and is rejected by the DB.
+    foreignKey({
+      columns: [table.projectId, table.contentPackageVersionId],
+      foreignColumns: [
+        contentPackageVersions.projectId,
+        contentPackageVersions.id,
+      ],
+    }).onDelete("cascade"),
   ],
 );
