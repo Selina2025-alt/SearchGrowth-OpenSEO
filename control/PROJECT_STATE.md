@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 5aa2bb8
 LAST REVIEW: T125-M1-RELEASE-TARGET-CORE-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T126 AuditEvent core schema Round 1 was dispatched to the safe Claude executor.
-CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On DELIVERY, perform the T126 Fast Review; never merge to `main`.
+LAST COMPLETED ACTION: T126 Round 1 was interrupted by provider rate limiting after partial in-worktree implementation; the worktree is preserved for continuation.
+CURRENT BLOCKER: T126 executor/provider infrastructure interruption: Claude run `20260910-145934` ended with API 429 across providers. M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
+NEXT EXACT ACTION: Re-dispatch T126 Round 1 continuation in the preserved worktree; then wait for DELIVERY. Never merge to `main`.
 
 ## COMPLETED
 
@@ -48,7 +48,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On DELIVERY, perform the T126 Fast Revi
 
 ## IN PROGRESS
 
-- T126-M1-AUDIT-EVENT-CORE-SCHEMA Round 1 is executing in its isolated Claude worktree.
+- T126-M1-AUDIT-EVENT-CORE-SCHEMA Round 1 is recovering from an executor/provider 429 interruption in its preserved isolated worktree.
 
 ## BLOCKED
 
@@ -56,4 +56,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On DELIVERY, perform the T126 Fast Revi
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR. Review T126 DELIVERY when the executor returns. Never merge to `main`.
+Re-dispatch the preserved T126 Round 1 continuation. Never merge to `main`.
