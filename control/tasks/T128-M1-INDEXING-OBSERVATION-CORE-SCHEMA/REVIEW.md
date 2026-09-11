@@ -24,4 +24,16 @@ BLOCKED — Round 1 / 3
 
 ## MERGE DECISION
 
-Do not merge. Dispatch bounded Round 2 only to complete the missing full-suite evidence; T128 schema scope remains frozen.
+Do not merge. T128 schema scope remains frozen.
+
+## CONTROLLER ACCEPTANCE VERIFICATION — 2026-09-11
+
+The initially dispatched Round 2 was stopped before it made business changes. It was a verification-only dispatch and does **not** consume an implementation round.
+
+Controller then ran the missing command directly in the preserved T128 worktree:
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `corepack pnpm test` | 1 | 181 passed files, 6 failed files; 1,716 passed tests, 5 timed out, 8 skipped; 197.15 seconds |
+
+The failed tests are timeout-only failures outside T128's schema slice: `workspace-merge`, `RankTrackingRepository.query`, `schema-parity` direct-`db.batch` scan, OAuth provider, OAuth refresh, and saved-keywords. The T128 indexing-observation storage and domain suites passed during the same aggregate run. This is a real integration-baseline full-suite failure, not a sandbox evidence gap and not grounds to waive the gate.

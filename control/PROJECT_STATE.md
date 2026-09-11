@@ -8,10 +8,10 @@ CURRENT TASK: T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 6ef3d8e
 LAST REVIEW: T127-M1-RUNTIME-CONTROL-CORE-SCHEMA ROUND 2 PASS AND MERGED
-CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T128 Round 2 bounded full-test-gate recovery was dispatched in the preserved task worktree.
-CURRENT BLOCKER: T128 requires a final `corepack pnpm test` exit 0; M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On Round 2 DELIVERY, Fast Review the final full-suite evidence; never merge to `main`.
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: Controller acceptance verification ran `corepack pnpm test` in the preserved T128 worktree; it exited 1 with six unrelated timeout-only suites. The aborted verification-only dispatch made no business change and does not consume a T128 round.
+CURRENT BLOCKER: Integration baseline full-suite test stability: `corepack pnpm test` exits 1 on unrelated timeout-only suites; T128 still requires a final exit 0. M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
+NEXT EXACT ACTION: Keep T128 frozen and create a separate bounded baseline full-test-stability maintenance task; never merge to `main`.
 
 ## COMPLETED
 
@@ -50,7 +50,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On Round 2 DELIVERY, Fast Review the fi
 
 ## IN PROGRESS
 
-- T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA Round 2 is executing only to obtain the required final full-suite test evidence in the preserved isolated Claude worktree; schema scope remains frozen.
+- T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA Round 1 implementation is frozen pending the integration baseline full-suite test-stability repair. The stopped verification-only dispatch does not count as Round 2.
 
 ## BLOCKED
 
@@ -58,4 +58,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On Round 2 DELIVERY, Fast Review the fi
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR. Review T128 Round 2 DELIVERY when the executor returns. Never merge to `main`.
+Create the bounded baseline full-test-stability maintenance task, then re-run only T128's missing full-suite acceptance gate. Never merge to `main`.

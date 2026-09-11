@@ -35,9 +35,3 @@ Use the task-scoped allowlist's exact command forms only: `corepack pnpm run db:
 ## DELIVERY
 
 Write `control/tasks/T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA/DELIVERY.md` with field/enum/JSON reconciliation, relation decisions, migration IDs, exact gate exits, security/scope declaration, and final Git status.
-
-## ROUND 2 — FULL-TEST GATE RECOVERY
-
-Round 1 implementation, migrations, snapshots, focused tests, and all aggregate quality gates are preserved and frozen. The only unresolved acceptance item is a final successful `corepack pnpm test`; prior aggregate attempts failed with unrelated parallel-load timeouts despite the affected files passing in isolation.
-
-First run the exact approved command `corepack pnpm test` in the current worktree. If it exits 0, preserve the implementation and update `DELIVERY.md` with the final evidence. If it fails, inspect only the failure tail. Do not modify unrelated server, auth, or MCP tests/code to make this task pass. Change product code only if the failure is demonstrably caused by T128; then keep that change within this indexing-observation slice and rerun focused tests and the complete suite. Do not redo completed migration work, alter schema scope, create a new migration, or use alternative denied command forms. Write a new DELIVERY.md and stop.
