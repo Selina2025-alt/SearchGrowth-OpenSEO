@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T128-BASELINE-FULL-TEST-STABILITY (unblocks frozen T128)
+CURRENT TASK: T129-M1-EXPERIMENT-CORE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 6ef3d8e
-LAST REVIEW: T127-M1-RUNTIME-CONTROL-CORE-SCHEMA ROUND 2 PASS AND MERGED
+LATEST ACCEPTED COMMIT: 39223f9
+LAST REVIEW: T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: Controller acceptance verification recorded the real baseline timeout failures; T128-BASELINE-FULL-TEST-STABILITY Round 1 was dispatched without reopening T128 implementation.
-CURRENT BLOCKER: Integration baseline full-suite test stability: `corepack pnpm test` exits 1 on unrelated timeout-only suites; T128 still requires a final exit 0. M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On maintenance DELIVERY, Fast Review the test-only repair, integrate it if accepted, then re-run T128 full-suite verification; never merge to `main`.
+LAST COMPLETED ACTION: T128-BASELINE-FULL-TEST-STABILITY and T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA passed and merged to integration; T129 Round 1 was dispatched.
+CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T129 DELIVERY, perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -50,7 +50,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On maintenance DELIVERY, Fast Review th
 
 ## IN PROGRESS
 
-- T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA Round 1 implementation is frozen pending the integration baseline full-suite test-stability repair. The stopped verification-only dispatch does not count as Round 2.
+- T129-M1-EXPERIMENT-CORE-SCHEMA Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
@@ -58,4 +58,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On maintenance DELIVERY, Fast Review th
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR. Review the maintenance DELIVERY, then re-run only T128's missing full-suite acceptance gate. Never merge to `main`.
+WAITING_FOR_EXECUTOR. Review T129 DELIVERY when the executor returns. Never merge to `main`.
