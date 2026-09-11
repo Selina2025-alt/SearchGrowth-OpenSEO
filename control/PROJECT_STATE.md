@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 3776ceb
 LAST REVIEW: T134-M1-PLATFORM-DRAFT-CORE-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T134-M1-PLATFORM-DRAFT-CORE-SCHEMA passed and merged; T135 Round 1 is prepared for dispatch.
+LAST COMPLETED ACTION: T134-M1-PLATFORM-DRAFT-CORE-SCHEMA passed and merged; T135 Round 1 dispatched to Claude in its isolated worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T135 Round 1 to Claude, then wait for DELIVERY and perform Fast Review; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T135 DELIVERY, perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -57,7 +57,7 @@ NEXT EXACT ACTION: Dispatch T135 Round 1 to Claude, then wait for DELIVERY and p
 
 ## IN PROGRESS
 
-- T135-M1-PUBLISHING-JOB-CORE-SCHEMA Round 1 is authorized and awaiting executor dispatch.
+- T135-M1-PUBLISHING-JOB-CORE-SCHEMA Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
