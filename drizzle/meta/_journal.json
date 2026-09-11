@@ -540,6 +540,13 @@
       "when": 1789110027515,
       "tag": "0076_search_growth_targets",
       "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "6",
+      "when": 1789112579411,
+      "tag": "0077_search_growth_target_preferred_market_profiles",
+      "breakpoints": true
     }
   ]
 }

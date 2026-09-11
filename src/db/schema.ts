@@ -76,6 +76,7 @@ export const {
   projects,
   searchMarketProfiles,
   searchGrowthTargets,
+  searchGrowthTargetPreferredMarketProfiles,
   searchTopics,
   searchTopicKeywordRefs,
   trackedEntities,
