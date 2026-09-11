@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments and T130 experiment_snapshots additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -3094,5 +3094,47 @@ export const experimentSnapshots = pgTable(
     ),
     // Experiment -> snapshots reads and the experiment cascade delete path.
     index("experiment_snapshots_experiment_idx").on(table.experimentId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `search_growth_targets` table in
+// ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift). See the SQLite table for the full
+// field/identity/JSON/provenance reconciliation. `project_id` is the primary
+// key and the NOT NULL FK to projects(id) ON DELETE CASCADE, preserving the
+// reference table's one-row-per-Project identity; `config_json` is the required
+// configuration document with the openapi SearchGrowthTarget shape matched by
+// the Zod boundary; `updated_by`/`updated_at` are the required provenance and
+// update timestamp. The only dialect differences are the jsonb-cast validity
+// CHECK (Postgres has no json_valid(); same check name) and the isoNow
+// timestamp default. This mutable configuration row has no append-only trigger,
+// no CAS/version column and no created_at. project_id is the SOLE identity rule
+// (one row per Project); there is no business unique index and no separate
+// index beyond the primary key.
+// ============================================================================
+
+export const searchGrowthTargets = pgTable(
+  "search_growth_targets",
+  {
+    // One-row-per-Project identity: PRIMARY KEY + FK to the existing Project.
+    projectId: text("project_id")
+      .primaryKey()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // Required targeting configuration document (openapi SearchGrowthTarget
+    // shape) as JSON text, validated by the named CHECK below.
+    configJson: text("config_json").notNull(),
+    // Required configuration provenance, opaque text (not a foreign key).
+    updatedBy: text("updated_by").notNull(),
+    // Required mutable update timestamp, defaulted to insert time.
+    updatedAt: text("updated_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Required-document validity: casting malformed text to jsonb raises and
+    // rejects the insert. Same check name as the SQLite json_valid() CHECK.
+    check(
+      "search_growth_targets_config_valid",
+      sql`((${table.configJson})::jsonb) IS NOT NULL`,
+    ),
   ],
 );

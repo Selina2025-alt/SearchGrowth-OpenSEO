@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments and T130 experiment_snapshots additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -4217,5 +4217,89 @@ export const experimentSnapshots = sqliteTable(
     ),
     // Experiment -> snapshots reads and the experiment cascade delete path.
     index("experiment_snapshots_experiment_idx").on(table.experimentId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Project-scoped SearchGrowthTarget configuration core.
+//
+// ONE search_growth_targets row is the credential-free, Project-scoped targeting
+// configuration for an existing OpenSEO Project (05_DOMAIN_DATA_MODEL.md §1
+// SearchGrowthTarget; `schemas/openapi.yaml` SearchGrowthTarget; legacy
+// read-only `schemas/migrations-reference.sql` search_growth_targets;
+// templates/project-search-growth.example.json). This is the persistence +
+// domain-contract slice ONLY: it records the configuration document and its
+// provenance and implements no Market relation, activation, runtime, workflow,
+// provider call, GEO/GSC/GA4 query, credential, publishing, spend, UI or
+// production behavior (TASK GOAL / OUT OF SCOPE). It reuses the existing
+// OpenSEO `projects` table and adds NO second Project model, CRUD flow or
+// business uniqueness (TASK item 2).
+//
+// FIELD RECONCILIATION (TASK item 1 direct field list is authoritative; the
+// legacy reference table supplies the column shapes; `schemas/openapi.yaml`
+// SearchGrowthTarget supplies the accepted configuration-document shape):
+//   - `project_id` is BOTH the primary key and a NOT NULL FK to the existing
+//     projects(id) ON DELETE CASCADE — the reference table's identity preserved
+//     verbatim (TASK item 2). The PK makes a Project's target configuration a
+//     single row (a second row for the same Project is rejected), and the FK
+//     makes a row exist only for an existing Project and removes it when that
+//     Project is deleted. No Project data (name/domain/...) is duplicated here.
+//   - `config_json` is the REQUIRED configuration document persisted as JSON
+//     text (reference column `config_json`). Its accepted runtime shape is the
+//     openapi SearchGrowthTarget object — required `brandAliases`,
+//     `productTargets`, `icps`, `personas`, `conversionGoals`, each an array of
+//     strings — matched by the Zod boundary in
+//     src/types/schemas/search-growth-target.ts (TASK items 1–2). The named
+//     CHECK below validates the document at the database boundary: malformed
+//     JSON is rejected on both dialects. `preferred_market_profile_ids[]` is
+//     deliberately NOT encoded here — it remains a separately scoped normalized
+//     Project->Market relation after this core table is accepted (TASK item 3).
+//   - `updated_by` is the REQUIRED configuration provenance (reference column
+//     `updated_by`), stored verbatim as opaque text. Deliberately NOT a foreign
+//     key — no account/user/actor model is invented in this slice.
+//   - `updated_at` is the REQUIRED update timestamp (reference column
+//     `updated_at`), defaulted to insert time. Unlike the append-only Search
+//     Growth fact tables this row is intentionally MUTABLE configuration:
+//     re-configuring updates this single row in place (there is no append-only
+//     trigger, no CAS/version column and no created_at).
+//
+// IDENTITY / UNIQUENESS: project_id is the PRIMARY KEY and the SOLE identity
+// rule (one row per Project, TASK item 2). No additional business uniqueness is
+// added and no separate index is needed — the PK already serves the only
+// project-scoped lookup (the row is addressed by project_id).
+// ============================================================================
+
+export const searchGrowthTargets = sqliteTable(
+  "search_growth_targets",
+  {
+    // One-row-per-Project identity: the PRIMARY KEY rejects a second row for
+    // the same Project, and the FK binds the row to an existing Project.
+    // Deleting the Project cascades this configuration away.
+    projectId: text("project_id")
+      .primaryKey()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The required targeting configuration document (the openapi
+    // SearchGrowthTarget shape), persisted as JSON text and validated by the
+    // named CHECK below. No relational data is encoded in it — the
+    // preferred-market relation is deliberately out of scope (TASK item 3).
+    configJson: text("config_json").notNull(),
+    // Required configuration provenance, opaque text. Not a foreign key: no
+    // user/actor model is invented (TASK item 3).
+    updatedBy: text("updated_by").notNull(),
+    // Required mutable update timestamp, defaulted to insert time. No
+    // append-only trigger and no created_at (TASK item 3).
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Configuration-document validity at the storage boundary: malformed JSON is
+    // rejected. PostgreSQL has no json_valid(); its mirror migration uses an
+    // equivalent jsonb-cast CHECK with the same name (schema-parity compares
+    // check names).
+    check(
+      "search_growth_targets_config_valid",
+      sql`json_valid(${table.configJson})`,
+    ),
   ],
 );
