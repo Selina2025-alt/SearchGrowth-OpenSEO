@@ -47,6 +47,11 @@ NEXT EXACT ACTION: Dispatch T133 Round 1 to Claude, then wait for DELIVERY and p
 - T125-M1-RELEASE-TARGET-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T126-M1-AUDIT-EVENT-CORE-SCHEMA accepted in its preserved round 1 continuation and merged to `integration/ai-v1`.
 - T127-M1-RUNTIME-CONTROL-CORE-SCHEMA accepted in round 2 of 3 and merged to `integration/ai-v1`.
+- T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
+- T129-M1-EXPERIMENT-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
+- T130-M1-EXPERIMENT-SNAPSHOT-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
+- T131-M1-SEARCH-GROWTH-TARGET-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
+- T132-M1-TARGET-PREFERRED-MARKET-RELATION-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 
 ## IN PROGRESS
 
@@ -58,4 +63,4 @@ NEXT EXACT ACTION: Dispatch T133 Round 1 to Claude, then wait for DELIVERY and p
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR. Review T132 DELIVERY when the executor returns. Never merge to `main.
+Dispatch T133 Round 1, then wait for DELIVERY and perform Fast Review. Never merge to `main`.
