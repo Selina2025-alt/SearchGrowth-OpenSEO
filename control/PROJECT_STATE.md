@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 6ef3d8e
 LAST REVIEW: T127-M1-RUNTIME-CONTROL-CORE-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T128 Round 1 Fast Review verified the indexing-observation schema slice and all aggregate gates, but found no successful full-suite test evidence.
+LAST COMPLETED ACTION: T128 Round 2 bounded full-test-gate recovery was dispatched in the preserved task worktree.
 CURRENT BLOCKER: T128 requires a final `corepack pnpm test` exit 0; M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch the bounded T128 Round 2 full-test-gate recovery in the preserved worktree, then Fast Review its DELIVERY; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On Round 2 DELIVERY, Fast Review the final full-suite evidence; never merge to `main`.
 
 ## COMPLETED
 
@@ -50,7 +50,7 @@ NEXT EXACT ACTION: Dispatch the bounded T128 Round 2 full-test-gate recovery in 
 
 ## IN PROGRESS
 
-- T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA Round 1 Fast Review is BLOCKED only on the full-suite test exit. Round 2 is a bounded gate-recovery dispatch in the preserved isolated Claude worktree; no schema scope is reopened.
+- T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA Round 2 is executing only to obtain the required final full-suite test evidence in the preserved isolated Claude worktree; schema scope remains frozen.
 
 ## BLOCKED
 
@@ -58,4 +58,4 @@ NEXT EXACT ACTION: Dispatch the bounded T128 Round 2 full-test-gate recovery in 
 
 ## NEXT
 
-Dispatch T128 Round 2 gate recovery, then review its DELIVERY. Never merge to `main`.
+WAITING_FOR_EXECUTOR. Review T128 Round 2 DELIVERY when the executor returns. Never merge to `main`.
