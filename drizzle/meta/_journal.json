@@ -505,6 +505,13 @@
       "when": 1789024118788,
       "tag": "0071_stiff_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "6",
+      "when": 1789037038387,
+      "tag": "0072_previous_bishop",
+      "breakpoints": true
     }
   ]
 }

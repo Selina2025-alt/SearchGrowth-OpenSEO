@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets and T126 search_growth_audit_events additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events and T127 runtime_controls additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -2772,6 +2772,44 @@ export const searchGrowthAuditEvents = pgTable(
     check(
       "search_growth_audit_events_metadata_valid",
       sql`(${table.metadataJson})::jsonb IS NOT NULL`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — mutable global runtime controls (Postgres mirror of
+// ../search-growth.schema.ts; keep the two structurally identical). Note that
+// schema-parity compares CHECK NAMES, so the value validity check has the same
+// name with a dialect-native JSON expression. See the SQLite table for the full
+// field/mutability/scope reconciliation. There is deliberately NO append-only
+// trigger: RuntimeControl is mutable configuration this task records only.
+// ============================================================================
+
+export const runtimeControls = pgTable(
+  "runtime_controls",
+  {
+    // Stable control identity; the PRIMARY KEY gives key identity and rejects a
+    // duplicate key. Opaque text — no control-key enum/taxonomy is invented.
+    controlKey: text("control_key").primaryKey(),
+    // The control value as JSON text carrying exactly boolean|number|string
+    // (TASK item 2); required.
+    valueJson: text("value_json").notNull(),
+    // Optional operator reason; NULL = no reason recorded. Opaque text.
+    reason: text("reason"),
+    // Required updater identity; opaque, not a foreign key (TASK item 3).
+    updatedBy: text("updated_by").notNull(),
+    // Mutable update timestamp, defaulted on insert; no append-only trigger and
+    // no CAS/version column (TASK item 3).
+    updatedAt: text("updated_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Value validity (same name as the SQLite check): casting malformed text to
+    // jsonb raises and rejects the insert, and jsonb_typeof rejects every
+    // unsupported JSON kind (null/array/object), admitting only the
+    // boolean|number|string union.
+    check(
+      "runtime_controls_value_valid",
+      sql`jsonb_typeof((${table.valueJson})::jsonb) IN ('boolean','number','string')`,
     ),
   ],
 );

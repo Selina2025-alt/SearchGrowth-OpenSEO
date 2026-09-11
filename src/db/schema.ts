@@ -99,6 +99,7 @@ export const {
   releaseBundles,
   releaseTargets,
   searchGrowthAuditEvents,
+  runtimeControls,
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,
