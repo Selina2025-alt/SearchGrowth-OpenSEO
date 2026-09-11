@@ -102,6 +102,7 @@ export const {
   runtimeControls,
   indexingObservations,
   experiments,
+  experimentSnapshots,
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,
