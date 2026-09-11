@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 126f837
 LAST REVIEW: T132-M1-TARGET-PREFERRED-MARKET-RELATION-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T132-M1-TARGET-PREFERRED-MARKET-RELATION-SCHEMA passed and merged to integration; T133 Round 1 is prepared for dispatch.
+LAST COMPLETED ACTION: T132-M1-TARGET-PREFERRED-MARKET-RELATION-SCHEMA passed and merged; T133 Round 1 dispatched to Claude in its isolated worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T133 Round 1 to Claude, then wait for DELIVERY and perform Fast Review; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T133 DELIVERY, perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -55,7 +55,7 @@ NEXT EXACT ACTION: Dispatch T133 Round 1 to Claude, then wait for DELIVERY and p
 
 ## IN PROGRESS
 
-- T133-M1-PUBLICATION-EXECUTION-PLAN-CORE-SCHEMA Round 1 is authorized and awaiting executor dispatch.
+- T133-M1-PUBLICATION-EXECUTION-PLAN-CORE-SCHEMA Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
