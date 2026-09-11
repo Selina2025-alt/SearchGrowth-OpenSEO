@@ -73,3 +73,5 @@
 | `T131-M1-SEARCH-GROWTH-TARGET-CORE-SCHEMA` | PASS (round 1/3) | 2026-09-11 | control/tasks/T131-M1-SEARCH-GROWTH-TARGET-CORE-SCHEMA/REVIEW.md; D1/PG 0076/0054 parity, 360 focused assertions, 1,796 full tests, build and ci PASS | ae098e |
 
 | T132-M1-TARGET-PREFERRED-MARKET-RELATION-SCHEMA | PASS (round 1/3) | 2026-09-11 | control/tasks/T132-M1-TARGET-PREFERRED-MARKET-RELATION-SCHEMA/REVIEW.md; normalized same-Project Target/Market relation, D1/PG 0077/0055 parity, 363 focused and 1,815 full tests, format/types/lint/build/ci:check PASS | 126f837 |
+
+| T133-M1-PUBLICATION-EXECUTION-PLAN-CORE-SCHEMA | PASS (round 1/3) | 2026-09-11 | control/tasks/T133-M1-PUBLICATION-EXECUTION-PLAN-CORE-SCHEMA/REVIEW.md; normalized fixed Project-scoped execution-plan contract, D1/PG 0078/0056 parity, 376 focused and 1,842 full tests, format/types/lint/build/ci:check PASS | d361f1 |
