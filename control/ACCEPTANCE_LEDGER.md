@@ -65,3 +65,5 @@
 
 | `T128-BASELINE-FULL-TEST-STABILITY` | PASS (round 1/3) | 2026-09-11 | control/tasks/T128-BASELINE-FULL-TEST-STABILITY/REVIEW.md; test-only Vitest deadline stabilization; Controller verified 353 focused tests and 1,708 full tests PASS | 2e9d57 |
 | `T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA` | PASS (round 1/3) | 2026-09-11 | control/tasks/T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA/REVIEW.md; D1/PG 0073/0051 parity, 16 focused tests, Controller full suite 1,729 tests PASS | 39223f9 |
+
+| `T129-M1-EXPERIMENT-CORE-SCHEMA` | PASS (round 1/3) | 2026-09-11 | control/tasks/T129-M1-EXPERIMENT-CORE-SCHEMA/REVIEW.md; D1/PG 0074/0052 parity, 17 focused tests, 1,751 full tests, build and ci PASS | d7b9e81 |
