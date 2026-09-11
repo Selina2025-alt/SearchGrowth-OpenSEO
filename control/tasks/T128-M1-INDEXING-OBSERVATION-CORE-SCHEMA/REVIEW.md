@@ -2,38 +2,20 @@
 
 ## VERDICT
 
-BLOCKED — Round 1 / 3
+PASS — Round 1 / 3
 
 ## VERIFIED
 
-- The D1 `0073` and PostgreSQL `0051` forward migrations, journals, and snapshots describe the same ten-column `indexing_observations` relation. Both dialects have explicit non-null Project ownership, the optional Project-leading MarketProfile composite foreign key, the four-value `SearchEngine` check, JSON validation, and only non-unique read indexes.
-- The targeted migration tests cover required fields, engine rejection, JSON validation, same-Project acceptance, cross-Project rejection, and cascade behavior; the focused suites passed 16/16. `db:migrate:local` and dual-dialect `db:generate` exited 0 with no generated drift.
-- The Zod contract reuses the source-defined SearchEngine boundary and retains opaque URL, observation type, status, and JSON text. It adds no URL identity, deduplication, receipt link, runtime, external call, credential, publishing, or production behavior.
-- `format:check`, `types:check`, `lint`, `build`, and `ci:check` each exited 0. `git diff --check` is clean.
+- D1 `0073` and PostgreSQL `0051`, their snapshots, and journals are dual-dialect aligned. The table has explicit non-null Project ownership, an optional Project-leading MarketProfile composite FK, equivalent named SearchEngine and JSON checks, and no business uniqueness rule.
+- Migration-backed and domain tests cover required fields, source-defined engine acceptance/rejection, JSON validity, same-Project relation acceptance, cross-Project rejection, nullable MarketProfile, and cascades. Focused suites passed 16/16; `db:migrate:local` and clean dual-dialect `db:generate` passed.
+- The contract retains opaque URL, observation type, status, and details JSON; it adds no receipt link, URL identity/dedupe, crawler, external call, credentials, publishing, UI, or production behavior. Point-in-time observation semantics use `created_at` without an update lifecycle.
+- Delivery evidence shows `format:check`, `types:check`, `lint`, `build`, and `ci:check` exit 0. `git diff --check` is clean.
+- The initial full-suite timeout gate was independently repaired in accepted maintenance task `T128-BASELINE-FULL-TEST-STABILITY`, then Controller reran `corepack pnpm test` in this preserved T128 worktree after syncing only that repair: exit 0, 187 files and 1,729 tests passed.
 
 ## FINDINGS
 
-### BLOCKER — final full-suite test gate has no passing evidence
-
-- **Location:** `control/tasks/T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA/DELIVERY.md`, command result 7.
-- **Requirement:** TASK item 5 requires focused **and full** tests; the acceptance review requires full-test evidence.
-- **Evidence:** Two `corepack pnpm test` attempts exited 1. The recorded failures are parallel-load timeouts in server/auth/MCP suites, while the four affected files pass in isolation (38/38) and the T128-focused tests pass (16/16).
-- **Expected behavior:** The final unchanged task worktree must have a recorded `corepack pnpm test` exit 0, or a separately accepted repository-level baseline decision must establish an alternative gate. Isolation reruns do not replace the full-suite gate.
-- **Reproduction:** Run `corepack pnpm test` in `.ai-worktrees/T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA`.
-- **Fix acceptance:** Obtain a final full-suite exit 0 without changing unrelated server/auth/MCP behavior. If a T128-caused defect is demonstrated, limit any code change to that causal defect and rerun the focused tests plus the full suite.
+None.
 
 ## MERGE DECISION
 
-Do not merge. T128 schema scope remains frozen.
-
-## CONTROLLER ACCEPTANCE VERIFICATION — 2026-09-11
-
-The initially dispatched Round 2 was stopped before it made business changes. It was a verification-only dispatch and does **not** consume an implementation round.
-
-Controller then ran the missing command directly in the preserved T128 worktree:
-
-| Command | Exit | Result |
-| --- | --- | --- |
-| `corepack pnpm test` | 1 | 181 passed files, 6 failed files; 1,716 passed tests, 5 timed out, 8 skipped; 197.15 seconds |
-
-The failed tests are timeout-only failures outside T128's schema slice: `workspace-merge`, `RankTrackingRepository.query`, `schema-parity` direct-`db.batch` scan, OAuth provider, OAuth refresh, and saved-keywords. The T128 indexing-observation storage and domain suites passed during the same aggregate run. This is a real integration-baseline full-suite failure, not a sandbox evidence gap and not grounds to waive the gate.
+Merge only `ai-task/T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA` into `integration/ai-v1`.
