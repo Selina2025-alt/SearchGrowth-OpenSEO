@@ -133,15 +133,13 @@ type Env = Parameters<Provider["fetch"]>[1];
 let provider: Provider;
 let env: Env;
 
-// Cold-importing the provider graph can exceed the 10s hook default on a slow
-// Windows checkout; assertions are unchanged, only the deadline moves.
 beforeEach(async () => {
   vi.useRealTimers();
   const { createOpenSeoOAuthProvider } = await import("./oauth-provider");
   provider = createOpenSeoOAuthProvider(() => new Response("app"));
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the provider touches only OAUTH_KV
   env = { OAUTH_KV: createKvFake() } as unknown as Env;
-}, 30_000);
+});
 
 const registrationSchema = z.looseObject({
   client_id: z.string(),
