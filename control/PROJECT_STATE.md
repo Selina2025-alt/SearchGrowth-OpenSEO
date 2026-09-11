@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA
+CURRENT TASK: T128-BASELINE-FULL-TEST-STABILITY (unblocks frozen T128)
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 6ef3d8e
 LAST REVIEW: T127-M1-RUNTIME-CONTROL-CORE-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 1 / 3
 LAST COMPLETED ACTION: Controller acceptance verification ran `corepack pnpm test` in the preserved T128 worktree; it exited 1 with six unrelated timeout-only suites. The aborted verification-only dispatch made no business change and does not consume a T128 round.
 CURRENT BLOCKER: Integration baseline full-suite test stability: `corepack pnpm test` exits 1 on unrelated timeout-only suites; T128 still requires a final exit 0. M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Keep T128 frozen and create a separate bounded baseline full-test-stability maintenance task; never merge to `main`.
+NEXT EXACT ACTION: Dispatch T128-BASELINE-FULL-TEST-STABILITY, then integrate its accepted test-only repair and re-run T128 full-suite verification; never merge to `main`.
 
 ## COMPLETED
 
@@ -58,4 +58,4 @@ NEXT EXACT ACTION: Keep T128 frozen and create a separate bounded baseline full-
 
 ## NEXT
 
-Create the bounded baseline full-test-stability maintenance task, then re-run only T128's missing full-suite acceptance gate. Never merge to `main`.
+Dispatch T128-BASELINE-FULL-TEST-STABILITY, then re-run only T128's missing full-suite acceptance gate. Never merge to `main`.
