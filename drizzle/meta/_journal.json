@@ -512,6 +512,13 @@
       "when": 1789037038387,
       "tag": "0072_previous_bishop",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "6",
+      "when": 1789120000000,
+      "tag": "0073_indexing_observations",
+      "breakpoints": true
     }
   ]
 }

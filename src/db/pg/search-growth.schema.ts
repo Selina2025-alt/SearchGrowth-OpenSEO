@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events and T127 runtime_controls additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls and T128 indexing_observations additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -2811,5 +2811,71 @@ export const runtimeControls = pgTable(
       "runtime_controls_value_valid",
       sql`jsonb_typeof((${table.valueJson})::jsonb) IN ('boolean','number','string')`,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Project-scoped index observation facts (Postgres mirror
+// of ../search-growth.schema.ts; keep the two structurally identical). The
+// only dialect differences are the jsonb-cast details validity check and the
+// isoNow timestamp default; both CHECK names match the SQLite side.
+// See the SQLite table for the full field/enum/JSON/scope reconciliation.
+//
+// `url` stays opaque (no normalization/identity/dedup) and the legacy
+// `publication_receipt_id` is deliberately not shipped (TASK items 2–3).
+// ============================================================================
+
+export const indexingObservations = pgTable(
+  "indexing_observations",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The observed URL, OPAQUE in this slice (TASK item 2).
+    url: text("url").notNull(),
+    // The exact SearchEngine union (GOOGLE | BAIDU | BING | OTHER). DB text-enum
+    // column + the named CHECK below.
+    searchEngine: text("search_engine", {
+      enum: ["GOOGLE", "BAIDU", "BING", "OTHER"],
+    }).notNull(),
+    // Optional same-Project SearchMarketProfile; NULL means no profile attached.
+    marketProfileId: text("market_profile_id"),
+    // Required opaque observation-kind label; no authoritative enum exists.
+    observationType: text("observation_type").notNull(),
+    // Required opaque status label; no authoritative enum/lifecycle exists.
+    status: text("status").notNull(),
+    // Required observation-details JSON document; validated at the DB boundary.
+    detailsJson: text("details_json").notNull(),
+    // The application-supplied observation moment, distinct from created_at.
+    observedAt: text("observed_at").notNull(),
+    // Append-only system insert timestamp; no updated_at (point-in-time fact).
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the optional market profile (see the SQLite
+    // table). Deleting the profile cascades scoped observations away.
+    foreignKey({
+      columns: [table.projectId, table.marketProfileId],
+      foreignColumns: [searchMarketProfiles.projectId, searchMarketProfiles.id],
+    }).onDelete("cascade"),
+    // DB-level enum rejection for the one authoritative enum (same check name
+    // as the SQLite side).
+    check(
+      "indexing_observations_search_engine_valid",
+      sql`(${table.searchEngine} IN ('GOOGLE','BAIDU','BING','OTHER'))`,
+    ),
+    // Details-document validity: casting malformed text to jsonb raises and
+    // rejects the insert. Same check name as the SQLite json_valid() CHECK.
+    check(
+      "indexing_observations_details_valid",
+      sql`((${table.detailsJson})::jsonb) IS NOT NULL`,
+    ),
+    // Project-scoped observation reads.
+    index("indexing_observations_project_idx").on(table.projectId),
+    // Market profile -> observations reads and the profile cascade delete path.
+    index("indexing_observations_market_profile_idx").on(table.marketProfileId),
   ],
 );
