@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets and T126 search_growth_audit_events additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events and T127 runtime_controls additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -3581,6 +3581,89 @@ export const searchGrowthAuditEvents = sqliteTable(
     check(
       "search_growth_audit_events_metadata_valid",
       sql`json_valid(${table.metadataJson})`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — mutable global runtime controls (kill-switch storage).
+//
+// ONE runtime control row is one named, globally-scoped configuration value
+// (05_DOMAIN_DATA_MODEL.md §13 RuntimeControl; 10_DISTRIBUTION_ARCHITECTURE.md
+// §10 Global Controls; 17_SECURITY_GOVERNANCE.md §9 Runtime Kill Switch;
+// 20_DATABASE_SCHEMA_GUIDE.md §§1/3/6; 21_TEST_ACCEPTANCE_PLAN.md §14;
+// 24_RISK_REGISTER.md R31 "Kill Switch仅UI → DB/server enforcement";
+// 30_TRACEABILITY_MATRIX.md row "可暂停 | RuntimeControls | kill switch"). This
+// is the credential-free schema/validation core slice ONLY: it records control
+// values but implements no control evaluation, pause/resume behavior, job
+// claiming, side-effect start/stop, publishing, spend, external contact, CRUD,
+// UI or production behavior (TASK items 1 and 3).
+//
+// FIELD RECONCILIATION (TASK item 1 direct field list; legacy read-only
+// reference artifacts `schemas/domain-types.ts` RuntimeControl,
+// `schemas/migrations-reference.sql` `runtime_controls` and
+// `schemas/zod-contracts.reference.ts` `runtimeControlSchema`):
+//   - `control_key` (PK, NOT NULL) is the stable control identity (e.g. a global
+//     or per-platform publishing pause). It is opaque text: the control
+//     catalogue/keys and their evaluation are later tasks, so no key enum or
+//     implicit fallback is invented (TASK item 3). PRIMARY KEY gives key
+//     identity — a duplicate key is rejected.
+//   - `value_json` (NOT NULL) is the control value stored as validated JSON
+//     text. The source contract allows exactly the boolean|number|string union;
+//     one JSON text column is the smallest dialect-neutral way to preserve that
+//     union identically on SQLite/D1 and PostgreSQL (TASK item 2) instead of
+//     three nullable typed columns or a JSON-vs-text dialect divergence. The
+//     named CHECK below rejects malformed JSON and every unsupported JSON kind
+//     (null/array/object), so only a boolean/number/string scalar is persistable.
+//   - `reason` (nullable) is the optional operator reason; NULL = no reason
+//     recorded. Opaque text, not a foreign key or taxonomy. The legacy zod
+//     request contract bounds it at 1000 chars, but that is a request-body
+//     concern; the stored row does not invent a length check (TASK item 3).
+//   - `updated_by` (NOT NULL) is the required updater identity, stored verbatim
+//     as opaque text. Deliberately NOT a foreign key — no account/user/actor
+//     model is invented in this slice (TASK item 3).
+//   - `updated_at` (NOT NULL) is the mutation timestamp, defaulted to insert
+//     time. Unlike AuditEvent this row is intentionally MUTABLE configuration:
+//     there is no append-only trigger, no CAS/version column, no state
+//     transition and no control-evaluation/current-pointer column (TASK item 3).
+//
+// SCOPE: global, not Project-scoped. The control set (global publishing pause,
+// per-platform pause, blast-radius limits, minimum interval; 10 §10) is a
+// service-wide kill switch and the legacy reference table carries no project_id.
+// Adding a Project FK would invent ownership the source does not define.
+// ============================================================================
+
+export const runtimeControls = sqliteTable(
+  "runtime_controls",
+  {
+    // Stable control identity; the PRIMARY KEY gives key identity and rejects a
+    // duplicate key. Opaque text — no control-key enum/taxonomy is invented
+    // (TASK item 3).
+    controlKey: text("control_key").primaryKey(),
+    // The control value as JSON text carrying exactly boolean|number|string.
+    // JSON storage is used ONLY to preserve the source value union identically
+    // on both dialects (TASK item 2). Required.
+    valueJson: text("value_json").notNull(),
+    // Optional operator reason; NULL = no reason recorded. Opaque text.
+    reason: text("reason"),
+    // Required updater identity; opaque, not a foreign key (TASK item 3).
+    updatedBy: text("updated_by").notNull(),
+    // Mutable update timestamp (system time), defaulted on insert. No
+    // append-only trigger and no CAS/version column (TASK item 3).
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Value validity at the storage boundary: malformed JSON and every
+    // non-boolean/number/string JSON kind (null/array/object) are rejected.
+    // `json_type` yields true|false|integer|real|text for the allowed union.
+    // PostgreSQL has no json_valid()/json_type(); its mirror migration uses an
+    // equivalent jsonb cast + jsonb_typeof CHECK with the same name
+    // (schema-parity compares check names).
+    check(
+      "runtime_controls_value_valid",
+      sql`json_valid(${table.valueJson}) AND json_type(${table.valueJson}) IN ('true','false','integer','real','text')`,
     ),
   ],
 );

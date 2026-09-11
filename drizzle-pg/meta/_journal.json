@@ -351,6 +351,13 @@
       "when": 1789024125876,
       "tag": "0049_daffy_cerebro",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1789037043333,
+      "tag": "0050_fantastic_lady_vermin",
+      "breakpoints": true
     }
   ]
 }
