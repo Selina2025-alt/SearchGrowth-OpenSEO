@@ -8,10 +8,10 @@ CURRENT TASK: T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 6ef3d8e
 LAST REVIEW: T127-M1-RUNTIME-CONTROL-CORE-SCHEMA ROUND 2 PASS AND MERGED
-CURRENT ROUND: 0 / 3
-LAST COMPLETED ACTION: T127 Round 2 passed; the RuntimeControl core was merged to `integration/ai-v1`.
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: T128 IndexingObservation core schema Round 1 was dispatched to the safe Claude executor.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create and dispatch T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA to the safe Claude executor, then wait for DELIVERY. Never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On DELIVERY, perform the T128 Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -50,7 +50,7 @@ NEXT EXACT ACTION: Create and dispatch T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA 
 
 ## IN PROGRESS
 
-- T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA is the next credential-free M1 domain schema slice.
+- T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
@@ -58,4 +58,4 @@ NEXT EXACT ACTION: Create and dispatch T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA 
 
 ## NEXT
 
-Create and dispatch T128. Never merge to `main`.
+WAITING_FOR_EXECUTOR. Review T128 DELIVERY when the executor returns. Never merge to `main`.
