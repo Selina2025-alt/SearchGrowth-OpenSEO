@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls and T128 indexing_observations additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations and T129 experiments additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -2877,5 +2877,118 @@ export const indexingObservations = pgTable(
     index("indexing_observations_project_idx").on(table.projectId),
     // Market profile -> observations reads and the profile cascade delete path.
     index("indexing_observations_market_profile_idx").on(table.marketProfileId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `experiments` table in
+// ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift). See the SQLite table for the full
+// field/enum/JSON/ownership/delete reconciliation. The dialect differences are
+// the jsonb-cast validity checks (Postgres has no json_valid()) and the isoNow
+// timestamp default; every CHECK name and every FK/index shape matches.
+//
+// `url`-style opaque documents stay text here (no jsonb column type) so the
+// schema-parity type comparison and the SQLite mirror agree. There is no
+// business unique index; the referenced (project_id, id) pairs the three
+// composite FKs need already exist on the accepted parent tables.
+// ============================================================================
+
+export const experiments = pgTable(
+  "experiments",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The REQUIRED same-Project SearchTopic relation; bound by the composite FK
+    // below (cascades experiments away when the topic is deleted).
+    topicId: text("topic_id").notNull(),
+    // The OPTIONAL same-Project Opportunity relation; NULL = none attached.
+    opportunityId: text("opportunity_id"),
+    // The OPTIONAL same-Project ReleaseBundle relation; NULL = none attached.
+    releaseBundleId: text("release_bundle_id"),
+    // Required human-facing title; carried verbatim.
+    title: text("title").notNull(),
+    // Required written hypothesis; carried verbatim.
+    hypothesis: text("hypothesis").notNull(),
+    // Required opaque lifecycle label; no authoritative union exists (TASK item
+    // 3), so no enum/lifecycle is invented.
+    status: text("status").notNull(),
+    // The one authoritative enum: the source-defined activation policy
+    // (FIRST_REQUIRED_PUBLIC | ALL_REQUIRED_TERMINAL —
+    // 16_ATTRIBUTION_EXPERIMENT_SPEC.md §4), DB-checked below.
+    activationPolicy: text("activation_policy", {
+      enum: ["FIRST_REQUIRED_PUBLIC", "ALL_REQUIRED_TERMINAL"],
+    }).notNull(),
+    // Optional activation timestamp; NULL = not activated. Stored only.
+    activationAt: text("activation_at"),
+    // Required opaque reference/policy documents as JSON text; each validated at
+    // the DB boundary by its named jsonb-cast CHECK below.
+    targetKeywordRefsJson: text("target_keyword_refs_json").notNull(),
+    targetPromptRefsJson: text("target_prompt_refs_json").notNull(),
+    targetSurfaceRefsJson: text("target_surface_refs_json").notNull(),
+    recheckPolicyJson: text("recheck_policy_json").notNull(),
+    // Append-only creation timestamp (system insert time); no updated_at.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the REQUIRED topic (cascade). The referenced
+    // (project_id, id) pair is unique via search_topics_project_id_id_idx.
+    foreignKey({
+      columns: [table.projectId, table.topicId],
+      foreignColumns: [searchTopics.projectId, searchTopics.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the OPTIONAL opportunity (cascade). The
+    // referenced (project_id, id) pair is unique via
+    // search_growth_opportunities_project_id_id_idx. NULL is unconstrained.
+    foreignKey({
+      columns: [table.projectId, table.opportunityId],
+      foreignColumns: [
+        searchGrowthOpportunities.projectId,
+        searchGrowthOpportunities.id,
+      ],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the OPTIONAL release bundle (cascade). The
+    // referenced (project_id, id) pair is unique via
+    // release_bundles_project_id_id_idx. NULL is unconstrained.
+    foreignKey({
+      columns: [table.projectId, table.releaseBundleId],
+      foreignColumns: [releaseBundles.projectId, releaseBundles.id],
+    }).onDelete("cascade"),
+    // DB-level enum rejection for the one authoritative enum (same check name
+    // as the SQLite side).
+    check(
+      "experiments_activation_policy_valid",
+      sql`(${table.activationPolicy} IN ('FIRST_REQUIRED_PUBLIC','ALL_REQUIRED_TERMINAL'))`,
+    ),
+    // Reference/policy document validity: casting malformed text to jsonb raises
+    // and rejects the insert. Same check names as the SQLite json_valid() CHECKs.
+    check(
+      "experiments_target_keyword_refs_valid",
+      sql`((${table.targetKeywordRefsJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "experiments_target_prompt_refs_valid",
+      sql`((${table.targetPromptRefsJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "experiments_target_surface_refs_valid",
+      sql`((${table.targetSurfaceRefsJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "experiments_recheck_policy_valid",
+      sql`((${table.recheckPolicyJson})::jsonb) IS NOT NULL`,
+    ),
+    // Project-scoped experiment reads.
+    index("experiments_project_idx").on(table.projectId),
+    // Topic -> experiments reads and the topic cascade delete path.
+    index("experiments_topic_idx").on(table.topicId),
+    // Opportunity -> experiments reads and the opportunity cascade delete path.
+    index("experiments_opportunity_idx").on(table.opportunityId),
+    // ReleaseBundle -> experiments reads and the bundle cascade delete path.
+    index("experiments_release_bundle_idx").on(table.releaseBundleId),
   ],
 );
