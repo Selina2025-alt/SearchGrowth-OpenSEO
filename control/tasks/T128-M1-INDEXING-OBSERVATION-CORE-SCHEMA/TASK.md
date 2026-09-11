@@ -26,6 +26,12 @@ Read `CLAUDE.md`, `20_DATABASE_SCHEMA_GUIDE.md` §§1/5/6, `21_TEST_ACCEPTANCE_P
 
 Use only the established safe schema-task command matrix. Do not use `--dangerously-skip-permissions`, commit, merge, push, or touch `main`.
 
+## ROUND 1 CONTINUATION
+
+Round 1 has preserved partial implementation in the existing task worktree after an executor max-turns interruption. Inspect the current diff and complete only missing validation, formatting, gates, and DELIVERY; do not restart implementation or discard any worktree change.
+
+Use the task-scoped allowlist's exact command forms only: `corepack pnpm run db:generate`, `corepack pnpm run db:migrate:local`, `corepack pnpm exec vitest run <files>`, `corepack pnpm exec prettier --write <task-files>`, `corepack pnpm format:check`, `corepack pnpm types:check`, `corepack pnpm lint`, `corepack pnpm test`, `corepack pnpm build`, and `corepack pnpm ci:check`. Do not retry denied shorthand or equivalent commands.
+
 ## DELIVERY
 
 Write `control/tasks/T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA/DELIVERY.md` with field/enum/JSON reconciliation, relation decisions, migration IDs, exact gate exits, security/scope declaration, and final Git status.
