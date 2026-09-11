@@ -100,6 +100,7 @@ export const {
   releaseTargets,
   searchGrowthAuditEvents,
   runtimeControls,
+  indexingObservations,
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,

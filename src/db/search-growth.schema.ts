@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events and T127 runtime_controls additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls and T128 indexing_observations additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -3665,5 +3665,149 @@ export const runtimeControls = sqliteTable(
       "runtime_controls_value_valid",
       sql`json_valid(${table.valueJson}) AND json_type(${table.valueJson}) IN ('true','false','integer','real','text')`,
     ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Project-scoped index observation facts.
+//
+// ONE indexing observation is one credential-free fact about a URL's search
+// indexing state (20_DATABASE_SCHEMA_GUIDE.md §1 Search/Experiment
+// `indexing_observations`; legacy read-only reference `schemas/
+// migrations-reference.sql` `indexing_observations`). This is the persistence +
+// domain-contract core slice ONLY: it does not crawl the URL, query a search
+// engine, resolve URL identity, create publication receipts, publish, use
+// credentials, spend or run any production behavior (TASK GOAL / items 1–3).
+//
+// FIELD RECONCILIATION (TASK item 1 direct field list is authoritative; the
+// legacy reference table supplies the column shapes):
+//   - `id` is the stable text primary key (established Search Growth convention;
+//     the reference table declares it the PK).
+//   - `project_id` is the explicit, NOT NULL Project ownership key (TASK item 1)
+//     and the leading column of the same-Project composite FK below. It is a
+//     direct projects(id) FK with ON DELETE CASCADE — the established
+//     Project-scoping FK every Search Growth row carries.
+//   - `url` is the observed URL stored as an OPAQUE value (TASK item 2). No
+//     normalization/identity key, no URL deduplication and no uniqueness rule is
+//     added here: URL normalization and identity are separately scoped later
+//     work (20_DATABASE_SCHEMA_GUIDE.md §5), so the reference/domain URL
+//     identity split is deliberately NOT shipped in this slice.
+//   - `search_engine` is exactly the authoritative V1.0 SearchEngine union
+//     (GOOGLE | BAIDU | BING | OTHER — 05_DOMAIN_DATA_MODEL.md §2
+//     SearchMarketProfile, `schemas/domain-types.ts` SearchEngine). It is the one
+//     direct field with an authoritative enum, so it is a DB text-enum column
+//     plus the named `indexing_observations_search_engine_valid` CHECK below; the
+//     Zod boundary in src/types/schemas/indexing-observation.ts validates the
+//     same list. No other engine value/fallback is admitted.
+//   - `market_profile_id` is the optional same-Project SearchMarketProfile the
+//     observation is scoped to (TASK item 1 "optional MarketProfile"; TASK item
+//     2 same-Project ownership). It is NULL when no profile is attached; when
+//     present the Project-leading composite FK
+//     (project_id, market_profile_id) -> search_market_profiles(project_id, id)
+//     makes the DB itself reject a profile from another Project. Deleting the
+//     profile (or the Project) cascades the scoped observations away, matching
+//     the established optional-profile relation on search_prompts /
+//     geo_observation_runs / search_growth_opportunities.
+//   - `observation_type` and `status` are required opaque text (TASK item 1).
+//     No V1.0 document defines an observation-type or observation-status union
+//     (the reference table stores both as unconstrained TEXT and neither
+//     `schemas/domain-types.ts` nor `schemas/zod-contracts.reference.ts` declares
+//     an IndexObservation enum), so — per TASK item 3 "use only source-defined
+//     enum/status values where an authoritative source defines them" — no enum,
+//     CHECK or taxonomy is invented and no lifecycle transition is implied.
+//   - `details_json` is the required observation-details JSON document (TASK item
+//     1 "details JSON"). It is validated at the DATABASE boundary by the named
+//     `indexing_observations_details_valid` CHECK on both dialects (TASK item 3);
+//     the PostgreSQL mirror uses an equivalent jsonb-cast CHECK because it has no
+//     json_valid(). No shape is decomposed into relational columns — detail data
+//     is never encoded to avoid a join (TASK item 3).
+//   - `observed_at` is the required application-supplied moment the observation
+//     was recorded (TASK item 1 "observed timestamp"). Distinct from the
+//     append-only system `created_at` insert timestamp below.
+//   - `created_at` is the append-only system insert timestamp the established
+//     Search Growth row convention adds. There is deliberately NO `updated_at`:
+//     an observation is a point-in-time fact and TASK item 3 authorizes no
+//     lifecycle transition or update behavior.
+//   - The reference table's `publication_receipt_id` column is NOT shipped
+//     (TASK item 2): the credential-bound publication_receipts domain does not
+//     exist in the accepted schema yet, so no unconstrained receipt reference is
+//     persisted. A later receipt task adds the relation alongside that domain.
+//
+// RELATIONSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// ON DELETE CASCADE; the optional-profile composite FK above also cascades, so
+// deleting a Project or a market profile removes its observations and no
+// observation can dangle. There is NO business-rule unique index (TASK item 3
+// forbids business uniqueness / URL dedup): the two non-unique indexes below
+// serve only project-scoped reads and the market-profile cascade/read path.
+// ============================================================================
+
+export const indexingObservations = sqliteTable(
+  "indexing_observations",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The observed URL, OPAQUE in this slice. No normalization/identity key and
+    // no dedup rule exists here (TASK item 2; URL identity is later work).
+    url: text("url").notNull(),
+    // The exact SearchEngine union (GOOGLE | BAIDU | BING | OTHER). DB text-enum
+    // column + the named CHECK below; the Zod boundary validates the same list.
+    searchEngine: text("search_engine", {
+      enum: ["GOOGLE", "BAIDU", "BING", "OTHER"],
+    }).notNull(),
+    // Optional same-Project SearchMarketProfile; NULL means no profile attached.
+    // The Project-leading composite FK below keeps it same-Project.
+    marketProfileId: text("market_profile_id"),
+    // Required opaque observation-kind label. No authoritative enum exists, so
+    // no enum/taxonomy is invented (TASK item 3).
+    observationType: text("observation_type").notNull(),
+    // Required opaque status label. No authoritative enum exists, so no enum/
+    // lifecycle transition is invented (TASK item 3).
+    status: text("status").notNull(),
+    // Required observation-details JSON document; validated at the DB boundary
+    // by the named CHECK below. Never used as relational identity.
+    detailsJson: text("details_json").notNull(),
+    // The application-supplied moment the observation was recorded (TASK item 1
+    // "observed timestamp"), distinct from the system `created_at` below.
+    observedAt: text("observed_at").notNull(),
+    // Append-only creation timestamp (system insert time). No updated_at exists:
+    // an observation is a point-in-time fact with no update/lifecycle behavior.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the optional market profile: when set, the
+    // observation's project_id must equal the profile's project_id. The
+    // referenced (project_id, id) pair is unique via the supporting
+    // search_market_profiles_project_id_id_idx index (0049). NULL
+    // market_profile_id means no profile is attached and the FK is not
+    // enforced. A profile from another Project has no matching parent row.
+    foreignKey({
+      columns: [table.projectId, table.marketProfileId],
+      foreignColumns: [searchMarketProfiles.projectId, searchMarketProfiles.id],
+    }).onDelete("cascade"),
+    // DB-level enum rejection for the one authoritative enum (SearchEngine).
+    // The Zod boundary enforces the same list at the runtime edge. PostgreSQL
+    // uses the same check name/expression (schema-parity compares check names).
+    check(
+      "indexing_observations_search_engine_valid",
+      sql`(${table.searchEngine} IN ('GOOGLE','BAIDU','BING','OTHER'))`,
+    ),
+    // Details-document validity at the storage boundary: malformed JSON is
+    // rejected. PostgreSQL has no json_valid(); its mirror migration uses an
+    // equivalent jsonb-cast CHECK with the same name (schema-parity compares
+    // check names).
+    check(
+      "indexing_observations_details_valid",
+      sql`json_valid(${table.detailsJson})`,
+    ),
+    // Project-scoped observation reads.
+    index("indexing_observations_project_idx").on(table.projectId),
+    // Market profile -> observations reads and the profile cascade delete path.
+    index("indexing_observations_market_profile_idx").on(table.marketProfileId),
   ],
 );
