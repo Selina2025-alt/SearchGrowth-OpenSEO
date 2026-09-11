@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation and the T133 publication_execution_plans plan core); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -3212,6 +3212,124 @@ export const searchGrowthTargetPreferredMarketProfiles = pgTable(
     // path.
     index("search_growth_target_preferred_market_profiles_market_idx").on(
       table.marketProfileId,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — immutable, Project-scoped PublicationExecutionPlan core
+// (Postgres mirror of ../search-growth.schema.ts; keep the two structurally
+// identical and note that schema-parity compares CHECK NAMES, so the plan
+// document validity checks have the same name with a dialect-native JSON
+// expression). See the SQLite table for the full field/ownership/uniqueness/
+// immutability reconciliation. Dialect differences: the jsonb-cast document
+// validity checks (Postgres has no json_valid()) and the isoNow timestamp
+// default. Every column, enum, FK, index, uniqueness rule and CHECK name matches
+// the SQLite side. The parent (project_id, id) composite-FK target is the
+// accepted `release_targets_project_id_id_idx` (T125, PG 0048), reused.
+// ============================================================================
+
+export const publicationExecutionPlans = pgTable(
+  "publication_execution_plans",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project; explicit so ownership is never inferred and the
+    // Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The ONE ReleaseTarget this fixed plan resolves; bound to this row's project
+    // by the composite FK below (cascades the plan away when the target is
+    // deleted). The UNIQUE index below enforces at most one plan per target.
+    releaseTargetId: text("release_target_id").notNull(),
+    // The source-defined distribution route union (domain-types.ts
+    // DistributionRoute; 10 §§2–3), DB-checked below and narrowed by the Zod
+    // boundary.
+    route: text("route", {
+      enum: [
+        "OWNED_SITE",
+        "WECHATSYNC_STAGED_FINALIZE",
+        "YXER_NATIVE",
+        "SOCIAL_AUTO_UPLOAD_NATIVE",
+        "POSTIZ_NATIVE",
+        "PAID_MEDIA_SERVICE",
+      ],
+    }).notNull(),
+    // Optional opaque draft-stager identifier; NULL = no stager for the route.
+    draftStagerId: text("draft_stager_id"),
+    // Optional opaque finalizer identifier; NULL = no finalizer.
+    finalizerId: text("finalizer_id"),
+    // Optional source-defined finalizer strategy union (DB-checked, NULL
+    // admitted); NULL = no strategy attached.
+    finalizerStrategy: text("finalizer_strategy", {
+      enum: ["OFFICIAL_API", "IN_PAGE_WEB_API", "SERVICE_CLI", "FIXED_DOM"],
+    }),
+    // Required opaque executor version pinned into the plan; stored verbatim.
+    executorVersion: text("executor_version").notNull(),
+    // Required plan documents, each a JSON text document validated at the
+    // storage boundary below and shape-validated at the Zod boundary.
+    requiredFieldsJson: text("required_fields_json").notNull(),
+    constraintsSnapshotJson: text("constraints_snapshot_json").notNull(),
+    verificationPolicyJson: text("verification_policy_json").notNull(),
+    // Optional source-defined fallback route (DB-checked, NULL admitted); NULL =
+    // no fallback.
+    fallbackRoute: text("fallback_route", {
+      enum: [
+        "OWNED_SITE",
+        "WECHATSYNC_STAGED_FINALIZE",
+        "YXER_NATIVE",
+        "SOCIAL_AUTO_UPLOAD_NATIVE",
+        "POSTIZ_NATIVE",
+        "PAID_MEDIA_SERVICE",
+      ],
+    }),
+    // Required opaque plan hash stored verbatim; plain non-unique column.
+    planHash: text("plan_hash").notNull(),
+    // Append-only creation timestamp (the ONLY audit column; no updated_at).
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the ReleaseTarget (cascade); the referenced
+    // (project_id, id) pair is unique via the accepted
+    // `release_targets_project_id_id_idx` from T125 PG 0048.
+    foreignKey({
+      columns: [table.projectId, table.releaseTargetId],
+      foreignColumns: [releaseTargets.projectId, releaseTargets.id],
+    }).onDelete("cascade"),
+    // One plan per ReleaseTarget: a duplicate plan for the same target is
+    // rejected by the DB.
+    uniqueIndex("publication_execution_plans_release_target_id_idx").on(
+      table.releaseTargetId,
+    ),
+    // DB-level route rejection for the source-defined route union (same check
+    // name as the SQLite side).
+    check(
+      "publication_execution_plans_route_valid",
+      sql`(${table.route} IN ('OWNED_SITE','WECHATSYNC_STAGED_FINALIZE','YXER_NATIVE','SOCIAL_AUTO_UPLOAD_NATIVE','POSTIZ_NATIVE','PAID_MEDIA_SERVICE'))`,
+    ),
+    // Optional finalizer strategy: NULL or one of the source-defined values.
+    check(
+      "publication_execution_plans_finalizer_strategy_valid",
+      sql`(${table.finalizerStrategy} IS NULL OR ${table.finalizerStrategy} IN ('OFFICIAL_API','IN_PAGE_WEB_API','SERVICE_CLI','FIXED_DOM'))`,
+    ),
+    // Optional fallback route: NULL or one of the source-defined routes.
+    check(
+      "publication_execution_plans_fallback_route_valid",
+      sql`(${table.fallbackRoute} IS NULL OR ${table.fallbackRoute} IN ('OWNED_SITE','WECHATSYNC_STAGED_FINALIZE','YXER_NATIVE','SOCIAL_AUTO_UPLOAD_NATIVE','POSTIZ_NATIVE','PAID_MEDIA_SERVICE'))`,
+    ),
+    // Plan-document validity (same check names as the SQLite json_valid()
+    // checks): casting malformed text to jsonb raises and rejects the insert.
+    check(
+      "publication_execution_plans_required_fields_valid",
+      sql`((${table.requiredFieldsJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "publication_execution_plans_constraints_snapshot_valid",
+      sql`((${table.constraintsSnapshotJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "publication_execution_plans_verification_policy_valid",
+      sql`((${table.verificationPolicyJson})::jsonb) IS NOT NULL`,
     ),
   ],
 );

@@ -100,6 +100,7 @@ export const {
   contentVariantMediaAssets,
   releaseBundles,
   releaseTargets,
+  publicationExecutionPlans,
   searchGrowthAuditEvents,
   runtimeControls,
   indexingObservations,
