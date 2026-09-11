@@ -1,27 +1,23 @@
-# REVIEW — T127-M1-RUNTIME-CONTROL-CORE-SCHEMA Round 1
+# REVIEW — T127-M1-RUNTIME-CONTROL-CORE-SCHEMA Round 2
 
 ## VERDICT
 
-BLOCKED
-
-## FINDINGS
-
-### BLOCKER — Zod boundary loses the source value union
-
-- **Location:** `src/types/schemas/runtime-control.ts`, `runtimeControlSchema`.
-- **Requirement:** `TASK.md` item 1 requires the source-defined boolean/number/string value in the matching Zod/domain contract. The accepted reference `schemas/zod-contracts.reference.ts` defines `key: z.string().min(1)` and `value: z.union([z.boolean(), z.number(), z.string()])`.
-- **Evidence:** the delivered schema instead exposes `controlKey: z.string()` and `valueJson: z.string()`. It accepts any text, including malformed JSON and serialized unsupported values, and rejects the actual typed values expected at the untrusted domain boundary. The database CHECK protects storage, but does not make this Zod contract equivalent.
-- **Expected behavior:** preserve the database's validated serialized representation if necessary, while exporting a Zod/domain contract that accepts and returns the source `key` and typed `value` union, with the source reason constraint. Add focused tests for each typed value, invalid values, key validation, and the serialization boundary as appropriate.
-- **Scope:** do not alter the five-column storage shape, migration/snapshot IDs, mutable behavior, or add control evaluation, pause/resume, CAS, external behavior, account/credential models, CRUD, UI, or production action.
+PASS
 
 ## VERIFIED
 
-- The D1/SQLite and PostgreSQL storage changes are parity-aligned: five fields, PK identity, scalar JSON CHECK, no FKs/triggers, and forward migrations `0072` / `0050` with matching snapshots/journals.
-- Migration-backed tests cover storage scalar-type rejection, primary-key identity, mutability, and absence of evaluation/append-only behavior. Full tests, types, lint, build, local migration, and clean `db:generate` have passing evidence.
-- Executor `format:check` and `ci:check` stopped only on the pre-existing Controller ledger formatting regression; no acceptance exception applies until this real domain finding is fixed.
+- The Round 1 blocker is fixed: `runtimeControlSchema` now exposes `key: z.string().min(1)`, typed `value: boolean | number | string`, and the source optional bounded `reason`; it no longer exposes the raw `controlKey`/`valueJson` row shape.
+- `runtimeControlValueJsonSchema` uses the existing JSON codec only at the storage boundary. Focused tests prove typed-value acceptance/rejection and scalar encode/decode while database tests continue to enforce serialized JSON shape.
+- The five-column global `runtime_controls` storage contract remains unchanged: PK key identity, scalar JSON CHECK, nullable reason, opaque updater, mutable update timestamp, no Project FK, no other relation, trigger, state, policy catalog, or business uniqueness.
+- D1 `0072` and PostgreSQL `0050`, journals, and snapshots are structurally equivalent. Migration-backed tests cover scalar kinds, malformed/unsupported JSON, key identity, mutability, and absence of relations/triggers.
+- Claude evidence records clean local migration and `db:generate`, 23 focused tests, 1,708 full tests, types, lint, and build. The aggregate formatter/CI stop was the pre-existing Controller ledger format issue.
+- After the Controller-only ledger formatting correction, the unchanged T127 worktree passed `format:check`, `types:check`, `lint`, `build`, and `ci:check` with exit 0.
+- No evaluation, pause/resume behavior, job claim, external request, publishing, spend, credentials, account/connector model, CRUD, UI, or production action was added.
 
-## FIX ACCEPTANCE
+## FINDINGS
 
-1. Implement the typed RuntimeControl Zod/domain contract exactly as above without changing schema/migration scope.
-2. Run focused domain/storage/parity tests, `db:generate`, format, types, lint, full tests, build, and `ci:check`; record any sandbox denial once without bypass.
-3. Write an updated `DELIVERY.md` and stop.
+None.
+
+## MERGE DECISION
+
+Accept feature commit `eb7cd01` and merge only to `integration/ai-v1` as `6ef3d8e`. Do not merge to `main`.
