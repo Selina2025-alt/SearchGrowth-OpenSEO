@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 6ef3d8e
 LAST REVIEW: T127-M1-RUNTIME-CONTROL-CORE-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: Controller acceptance verification ran `corepack pnpm test` in the preserved T128 worktree; it exited 1 with six unrelated timeout-only suites. The aborted verification-only dispatch made no business change and does not consume a T128 round.
+LAST COMPLETED ACTION: Controller acceptance verification recorded the real baseline timeout failures; T128-BASELINE-FULL-TEST-STABILITY Round 1 was dispatched without reopening T128 implementation.
 CURRENT BLOCKER: Integration baseline full-suite test stability: `corepack pnpm test` exits 1 on unrelated timeout-only suites; T128 still requires a final exit 0. M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T128-BASELINE-FULL-TEST-STABILITY, then integrate its accepted test-only repair and re-run T128 full-suite verification; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On maintenance DELIVERY, Fast Review the test-only repair, integrate it if accepted, then re-run T128 full-suite verification; never merge to `main`.
 
 ## COMPLETED
 
@@ -58,4 +58,4 @@ NEXT EXACT ACTION: Dispatch T128-BASELINE-FULL-TEST-STABILITY, then integrate it
 
 ## NEXT
 
-Dispatch T128-BASELINE-FULL-TEST-STABILITY, then re-run only T128's missing full-suite acceptance gate. Never merge to `main`.
+WAITING_FOR_EXECUTOR. Review the maintenance DELIVERY, then re-run only T128's missing full-suite acceptance gate. Never merge to `main`.
