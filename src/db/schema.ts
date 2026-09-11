@@ -101,6 +101,7 @@ export const {
   searchGrowthAuditEvents,
   runtimeControls,
   indexingObservations,
+  experiments,
   claimAllowedLanguages,
   claimAllowedMarketProfiles,
   claimSourceRefs,

@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls and T128 indexing_observations additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations and T129 experiments additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -3809,5 +3809,218 @@ export const indexingObservations = sqliteTable(
     index("indexing_observations_project_idx").on(table.projectId),
     // Market profile -> observations reads and the profile cascade delete path.
     index("indexing_observations_market_profile_idx").on(table.marketProfileId),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Project-scoped Experiment core (credential-free).
+//
+// ONE Experiment is the persisted, Project-scoped container that binds a Topic
+// (and optionally the Opportunity and ReleaseBundle that motivated it) to a
+// written hypothesis plus the opaque reference/policy documents a later
+// measurement slice will read (05_DOMAIN_DATA_MODEL.md §14 Experiment;
+// 16_ATTRIBUTION_EXPERIMENT_SPEC.md §§4–5; 21_TEST_ACCEPTANCE_PLAN.md §27).
+// This is the persistence + domain-contract core slice ONLY: it does not
+// activate an experiment, schedule a workflow, create snapshots, publish, call a
+// provider, use credentials, spend or run any production behavior (TASK GOAL).
+// A stored row is a plan/record, never an activation, execution or success proof.
+//
+// FIELD RECONCILIATION (TASK item 1 direct field list is authoritative; the
+// legacy read-only `schemas/migrations-reference.sql` `experiments` table
+// supplies the column shapes):
+//   - `id` is the stable text primary key (established Search Growth convention).
+//   - `project_id` is the explicit, NOT NULL Project ownership key (TASK item 1
+//     "explicit Project ownership") and the leading column of every same-Project
+//     composite FK below. It is a direct projects(id) FK ON DELETE CASCADE.
+//   - `topic_id` is the REQUIRED Topic relation (TASK item 1 "required Topic").
+//     Bound same-Project by the composite FK below; deleting the Topic (or the
+//     Project) cascades the Experiment away.
+//   - `opportunity_id` is the OPTIONAL Opportunity relation (TASK item 1
+//     "optional Opportunity"); NULL = the experiment was not seeded by a stored
+//     Opportunity. Bound same-Project by the composite FK below; deleting the
+//     referenced Opportunity cascades the Experiment away.
+//   - `release_bundle_id` is the OPTIONAL ReleaseBundle relation (TASK item 1
+//     "optional ReleaseBundle"); NULL = no release is attached. Bound same-Project
+//     by the composite FK below; deleting the referenced ReleaseBundle cascades
+//     the Experiment away.
+//   - `title`/`hypothesis` are the required human-facing record (reference table
+//     both NOT NULL TEXT); carried verbatim, no content handling.
+//   - `status` is required opaque text (TASK item 3). No V1.0 document defines an
+//     Experiment status/lifecycle union (the reference table stores plain TEXT and
+//     neither `schemas/domain-types.ts` nor `schemas/state-machines.json` declares
+//     an Experiment status), so — per TASK item 3 — no enum, CHECK or lifecycle
+//     transition is invented here.
+//   - `activation_policy` IS the one field with an authoritative value set:
+//     16_ATTRIBUTION_EXPERIMENT_SPEC.md §4 defines the Distribution Experiment
+//     activation configuration as FIRST_REQUIRED_PUBLIC | ALL_REQUIRED_TERMINAL
+//     (documented default FIRST_REQUIRED_PUBLIC). It is therefore a DB text-enum
+//     column plus the named `experiments_activation_policy_valid` CHECK; the Zod
+//     boundary validates the same list. No DB default is set — the documented
+//     default is a resolution rule for later work, not an activation performed
+//     here (TASK item 3 "do not invent lifecycle semantics").
+//   - `activation_at` is the optional activation timestamp (TASK item 1); NULL =
+//     not activated. This slice only stores the value; it never sets it (no
+//     activation runtime exists here).
+//   - `target_keyword_refs_json`, `target_prompt_refs_json`,
+//     `target_surface_refs_json` and `recheck_policy_json` are required opaque
+//     reference/policy documents persisted as JSON text (TASK item 1). Each is
+//     validated at the DATABASE boundary by its own named CHECK on both dialects
+//     (TASK item 3); none is decomposed into relational columns or used as
+//     relational identity (TASK item 3).
+//   - `created_at` is the append-only system insert timestamp the established
+//     Search Growth row convention adds. There is deliberately NO `updated_at`:
+//     the field list names the creation timestamp only and no state transition is
+//     authorized in this slice.
+//   - The reference `experiment_snapshots` table is NOT created here (TASK OUT OF
+//     SCOPE "Experiment snapshots").
+//
+// RELATIONSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// ON DELETE CASCADE (the established Project-scoping FK). Same-Project ownership
+// for Topic/Opportunity/ReleaseBundle is database-enforced by three
+// Project-leading composite FKs that carry this row's own project_id as their
+// leading column; a relation to another Project has no matching parent row and
+// is rejected by the DB. All three cascade, consistent with the established
+// parent-reference convention (the optional-profile relations on search_prompts /
+// geo_observation_runs / search_growth_opportunities / indexing_observations all
+// cascade too), so deleting a Topic, Opportunity, ReleaseBundle or whole Project
+// removes its Experiments and none can dangle.
+//
+// IDENTITY / UNIQUENESS: the TASK forbids inventing business uniqueness, and no
+// V1.0 artifact constrains/title/hypothesis/topic uniqueness, so there is NO
+// unique index on this table. The referenced (project_id, id) pairs the composite
+// FKs need already exist on search_topics / search_growth_opportunities /
+// release_bundles. No supporting index is added for the not-yet-existing
+// experiment_snapshots table — that later task adds it alongside its own table
+// (the established parent-index-by-child-migration convention).
+// ============================================================================
+
+export const experiments = sqliteTable(
+  "experiments",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The REQUIRED same-Project SearchTopic this experiment runs against
+    // (search_topics.id, ADR-004). Bound to the row's project by the composite
+    // FK below, which cascades experiments away when the topic is deleted.
+    topicId: text("topic_id").notNull(),
+    // The OPTIONAL same-Project Opportunity that motivated this experiment;
+    // NULL = not seeded by a stored opportunity. Bound to the row's project by
+    // the composite FK below, which cascades experiments away when the
+    // opportunity is deleted.
+    opportunityId: text("opportunity_id"),
+    // The OPTIONAL same-Project ReleaseBundle under measurement; NULL = no
+    // release attached. Bound to the row's project by the composite FK below,
+    // which cascades experiments away when the bundle is deleted.
+    releaseBundleId: text("release_bundle_id"),
+    // Required human-facing experiment title; carried verbatim.
+    title: text("title").notNull(),
+    // Required written hypothesis; carried verbatim. No evaluation/decision
+    // logic exists in this slice.
+    hypothesis: text("hypothesis").notNull(),
+    // Required opaque lifecycle label. No authoritative Experiment status union
+    // exists in V1.0, so no enum/lifecycle transition is invented (TASK item 3).
+    status: text("status").notNull(),
+    // The one authoritative enum: the source-defined Distribution Experiment
+    // activation policy (FIRST_REQUIRED_PUBLIC | ALL_REQUIRED_TERMINAL —
+    // 16_ATTRIBUTION_EXPERIMENT_SPEC.md §4). DB text-enum column + the named
+    // CHECK below; the Zod boundary validates the same list. No DB default: the
+    // documented default FIRST_REQUIRED_PUBLIC is resolved by later work, not
+    // applied by this storage slice.
+    activationPolicy: text("activation_policy", {
+      enum: ["FIRST_REQUIRED_PUBLIC", "ALL_REQUIRED_TERMINAL"],
+    }).notNull(),
+    // Optional activation timestamp (TASK item 1); NULL = not activated. Stored
+    // only — no activation runtime exists here.
+    activationAt: text("activation_at"),
+    // Required opaque target keyword-reference document as JSON text; validated
+    // at the DB boundary by the named CHECK below. Never relational identity.
+    targetKeywordRefsJson: text("target_keyword_refs_json").notNull(),
+    // Required opaque target prompt-reference document as JSON text; validated
+    // at the DB boundary by the named CHECK below.
+    targetPromptRefsJson: text("target_prompt_refs_json").notNull(),
+    // Required opaque target surface-reference document as JSON text; validated
+    // at the DB boundary by the named CHECK below.
+    targetSurfaceRefsJson: text("target_surface_refs_json").notNull(),
+    // Required opaque recheck-policy document as JSON text; validated at the DB
+    // boundary by the named CHECK below.
+    recheckPolicyJson: text("recheck_policy_json").notNull(),
+    // Append-only creation timestamp (system insert time). No updated_at exists:
+    // no state transition is authorized in this slice.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the REQUIRED topic: the experiment's
+    // project_id must equal the topic's project_id. Deleting a topic removes its
+    // experiments (the referenced (project_id, id) pair is unique via the
+    // accepted search_topics_project_id_id_idx).
+    foreignKey({
+      columns: [table.projectId, table.topicId],
+      foreignColumns: [searchTopics.projectId, searchTopics.id],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the OPTIONAL opportunity: when set, the
+    // experiment's project_id must equal the opportunity's project_id. Deleting
+    // the opportunity removes experiments that reference it (the referenced
+    // (project_id, id) pair is unique via the accepted
+    // search_growth_opportunities_project_id_id_idx). NULL opportunity_id means
+    // no opportunity is attached and the FK is not enforced (MATCH SIMPLE).
+    foreignKey({
+      columns: [table.projectId, table.opportunityId],
+      foreignColumns: [
+        searchGrowthOpportunities.projectId,
+        searchGrowthOpportunities.id,
+      ],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the OPTIONAL release bundle: when set, the
+    // experiment's project_id must equal the bundle's project_id. Deleting the
+    // bundle removes experiments that reference it (the referenced
+    // (project_id, id) pair is unique via the accepted
+    // release_bundles_project_id_id_idx). NULL release_bundle_id means no bundle
+    // is attached and the FK is not enforced (MATCH SIMPLE).
+    foreignKey({
+      columns: [table.projectId, table.releaseBundleId],
+      foreignColumns: [releaseBundles.projectId, releaseBundles.id],
+    }).onDelete("cascade"),
+    // DB-level enum rejection for the one authoritative enum (activation
+    // policy). The Zod boundary enforces the same list at the runtime edge.
+    // PostgreSQL uses the same check name/expression (schema-parity compares
+    // check names).
+    check(
+      "experiments_activation_policy_valid",
+      sql`(${table.activationPolicy} IN ('FIRST_REQUIRED_PUBLIC','ALL_REQUIRED_TERMINAL'))`,
+    ),
+    // Reference/policy document validity at the storage boundary: malformed
+    // JSON is rejected. PostgreSQL has no json_valid(); its mirror migration
+    // uses an equivalent jsonb-cast CHECK with the same name (schema-parity
+    // compares check names).
+    check(
+      "experiments_target_keyword_refs_valid",
+      sql`json_valid(${table.targetKeywordRefsJson})`,
+    ),
+    check(
+      "experiments_target_prompt_refs_valid",
+      sql`json_valid(${table.targetPromptRefsJson})`,
+    ),
+    check(
+      "experiments_target_surface_refs_valid",
+      sql`json_valid(${table.targetSurfaceRefsJson})`,
+    ),
+    check(
+      "experiments_recheck_policy_valid",
+      sql`json_valid(${table.recheckPolicyJson})`,
+    ),
+    // Project-scoped experiment reads.
+    index("experiments_project_idx").on(table.projectId),
+    // Topic -> experiments reads and the topic cascade delete path.
+    index("experiments_topic_idx").on(table.topicId),
+    // Opportunity -> experiments reads and the opportunity cascade delete path.
+    index("experiments_opportunity_idx").on(table.opportunityId),
+    // ReleaseBundle -> experiments reads and the bundle cascade delete path.
+    index("experiments_release_bundle_idx").on(table.releaseBundleId),
   ],
 );
