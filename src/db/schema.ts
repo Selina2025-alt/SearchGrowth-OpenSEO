@@ -75,6 +75,7 @@ export const {
   userOnboardingAnswers,
   projects,
   searchMarketProfiles,
+  searchGrowthTargets,
   searchTopics,
   searchTopicKeywordRefs,
   trackedEntities,
