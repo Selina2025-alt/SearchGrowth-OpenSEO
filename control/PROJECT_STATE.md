@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: ad361f1
 LAST REVIEW: T133-M1-PUBLICATION-EXECUTION-PLAN-CORE-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T133-M1-PUBLICATION-EXECUTION-PLAN-CORE-SCHEMA passed and merged; T134 Round 1 is prepared for dispatch.
+LAST COMPLETED ACTION: T133-M1-PUBLICATION-EXECUTION-PLAN-CORE-SCHEMA passed and merged; T134 Round 1 dispatched to Claude in its isolated worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T134 Round 1 to Claude, then wait for DELIVERY and perform Fast Review; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T134 DELIVERY, perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -56,7 +56,7 @@ NEXT EXACT ACTION: Dispatch T134 Round 1 to Claude, then wait for DELIVERY and p
 
 ## IN PROGRESS
 
-- T134-M1-PLATFORM-DRAFT-CORE-SCHEMA Round 1 is authorized and awaiting executor dispatch.
+- T134-M1-PLATFORM-DRAFT-CORE-SCHEMA Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
