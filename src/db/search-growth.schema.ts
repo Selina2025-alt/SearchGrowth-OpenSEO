@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations and T129 experiments additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments and T130 experiment_snapshots additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -3871,8 +3871,11 @@ export const indexingObservations = sqliteTable(
 //     Search Growth row convention adds. There is deliberately NO `updated_at`:
 //     the field list names the creation timestamp only and no state transition is
 //     authorized in this slice.
-//   - The reference `experiment_snapshots` table is NOT created here (TASK OUT OF
-//     SCOPE "Experiment snapshots").
+//   - The reference `experiment_snapshots` table is NOT created by this table;
+//     it is added by the T130 0075 migration, which also adds this table's ONE
+//     referential supporting unique index `experiments_project_id_id_idx`
+//     ((project_id, id), the target its composite FK requires) — see the
+//     experimentSnapshots table below.
 //
 // RELATIONSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
 // ON DELETE CASCADE (the established Project-scoping FK). Same-Project ownership
@@ -3886,12 +3889,14 @@ export const indexingObservations = sqliteTable(
 // removes its Experiments and none can dangle.
 //
 // IDENTITY / UNIQUENESS: the TASK forbids inventing business uniqueness, and no
-// V1.0 artifact constrains/title/hypothesis/topic uniqueness, so there is NO
-// unique index on this table. The referenced (project_id, id) pairs the composite
-// FKs need already exist on search_topics / search_growth_opportunities /
-// release_bundles. No supporting index is added for the not-yet-existing
-// experiment_snapshots table — that later task adds it alongside its own table
-// (the established parent-index-by-child-migration convention).
+// V1.0 artifact constrains title/hypothesis/topic uniqueness, so there is NO
+// business unique index on this table. The referenced (project_id, id) pairs the
+// composite FKs need already exist on search_topics / search_growth_opportunities
+// / release_bundles. The ONLY unique index on this table is the referential
+// supporting target `experiments_project_id_id_idx` ((project_id, id)) required
+// by the experiment_snapshots composite FK added alongside its own table by the
+// T130 0075 migration — id is already the PK, so it accepts exactly the PK's
+// rows and adds no business uniqueness.
 // ============================================================================
 
 export const experiments = sqliteTable(
@@ -4022,5 +4027,195 @@ export const experiments = sqliteTable(
     index("experiments_opportunity_idx").on(table.opportunityId),
     // ReleaseBundle -> experiments reads and the bundle cascade delete path.
     index("experiments_release_bundle_idx").on(table.releaseBundleId),
+    // Supporting unique target for the experiment_snapshots same-Project
+    // composite FK ((project_id, experiment_id) -> experiments(project_id, id),
+    // added by the T130 0075 migration). id is already the PK, so this composite
+    // accepts exactly the rows the PK accepts and adds NO business uniqueness —
+    // it is the ONE referential index that child migration adds to this parent.
+    uniqueIndex("experiments_project_id_id_idx").on(table.projectId, table.id),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Project-scoped, append-only Experiment snapshots.
+//
+// ONE ExperimentSnapshot is the immutable, Project-scoped measurement record of
+// ONE capture for an Experiment (05_DOMAIN_DATA_MODEL.md §14 ExperimentSnapshot;
+// 16_ATTRIBUTION_EXPERIMENT_SPEC.md §6 Windows; 21_TEST_ACCEPTANCE_PLAN.md §27;
+// legacy read-only `schemas/domain-types.ts` ExperimentSnapshot and
+// `schemas/migrations-reference.sql` experiment_snapshots). This is the
+// credential-free persistence + domain-contract slice ONLY: it does not
+// activate an experiment, schedule a recheck, calculate attribution/comparison,
+// query GEO/GSC/GA4/rank/index data, call a provider, publish, use credentials,
+// spend or run any production behavior (TASK GOAL). A stored snapshot is a
+// recorded measurement context and payload, never a causal conclusion.
+//
+// FIELD RECONCILIATION (TASK item 1 field list is authoritative; the legacy
+// reference table and domain type supply the column/field shapes):
+//   - `id` is the stable text primary key (established Search Growth
+//     convention).
+//   - `project_id` is the explicit, NOT NULL Project identity (TASK item 2) and
+//     the leading column of the same-Project composite FK below. It is a direct
+//     projects(id) FK ON DELETE CASCADE — the established Project-scoping FK
+//     every Search Growth row carries.
+//   - `experiment_id` is the REQUIRED Experiment relation (TASK item 1). Bound
+//     same-Project by the composite FK below, so a snapshot is database-proven
+//     to belong to its Experiment's Project (TASK item 2).
+//   - `snapshot_type` is the source-defined snapshot taxonomy
+//     (BASELINE | D7 | D14 | D30 | MANUAL — legacy `schemas/domain-types.ts`
+//     ExperimentSnapshot.type). It is a DB text-enum column plus the named
+//     `experiment_snapshots_snapshot_type_valid` CHECK; the Zod boundary
+//     validates the same list. No window/lifecycle taxonomy beyond this
+//     source-defined union is invented (TASK item 3).
+//   - `captured_at` is the required application-supplied capture moment
+//     (reference column `captured_at`; domain-types `capturedAt`), distinct from
+//     the append-only system `created_at` insert timestamp below.
+//   - `window_start` / `window_end` and `timezone` are the optional measurement
+//     window context (05 §14 "window start/end; timezone"; 16 §6; 21 §27). NULL
+//     means the snapshot records no window (e.g. a point-in-time GEO sample) or
+//     no explicit timezone. No data-lag policy or window calculation is
+//     implemented here (TASK item 3).
+//   - `seo_metrics_json`, `geo_metrics_json`, `ga4_metrics_json`,
+//     `publication_metrics_json` and `indexing_metrics_json` are the five
+//     REQUIRED metric documents (TASK item 1; reference table columns), each
+//     persisted as JSON text. `data_quality_json` is the REQUIRED data-quality
+//     document (05 §14 "data quality warnings"; 16 §6; reference table). Every
+//     one is validated at the DATABASE boundary by its own named CHECK on both
+//     dialects (TASK item 3); none is decomposed into relational columns and no
+//     measurement formula, comparison or attribution value is computed (TASK
+//     item 3 / OUT OF SCOPE).
+//   - `notes` is the optional free-text note (reference column `notes`); NULL =
+//     no note recorded.
+//   - `created_at` is the append-only system insert timestamp the established
+//     Search Growth row convention adds. There is deliberately NO `updated_at`:
+//     the row is immutable once written.
+//
+// APPEND-ONLY ENFORCEMENT AT THE DATABASE BOUNDARY (TASK item 3): immutability
+// is not left to application convention. The forward migration adds the
+// established accepted append-only guards (the AuditEvent pattern) to the table
+// itself:
+//   - a BEFORE UPDATE trigger and a BEFORE DELETE trigger that ABORT every
+//     update/delete attempt on a snapshot row (SQLite `RAISE(ABORT, ...)`,
+//     PostgreSQL `RAISE EXCEPTION`), so a direct UPDATE or DELETE is rejected by
+//     the database. The migration-backed storage test asserts both rejections.
+//   - Because foreign-key cascade actions fire these row triggers on both
+//     dialects, deleting an Experiment (or a whole Project) that still owns
+//     snapshots is blocked as well, so immutable measurement history is never
+//     silently dropped. The ON DELETE CASCADE FK below still guarantees a
+//     dangling snapshot can never exist.
+//
+// RELATIONSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
+// ON DELETE CASCADE; the same-Project composite FK
+// (project_id, experiment_id) -> experiments(project_id, id) carries this row's
+// project_id as its leading column and also cascades, so a snapshot whose
+// Experiment belongs to another Project has no matching parent row and is
+// rejected by the DB. The referenced (project_id, id) pair is unique via the
+// supporting `experiments_project_id_id_idx` unique index the T130 0075
+// migration adds to the `experiments` table (id is already the PK; that index
+// is the ONE referential target this slice adds, not a business rule).
+//
+// IDENTITY / UNIQUENESS: the TASK forbids business uniqueness, and no V1.0
+// artifact defines a snapshot identity rule (several snapshots of the same
+// Experiment/type/window are legal re-captures), so there is NO unique index on
+// this table. The single non-unique index below serves the Experiment ->
+// snapshots read path and its cascade delete path only.
+// ============================================================================
+
+export const experimentSnapshots = sqliteTable(
+  "experiment_snapshots",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The Experiment this snapshot measures. Bound to the row's project by the
+    // composite FK below, which cascades snapshots away when the experiment is
+    // deleted (subject to the append-only DELETE trigger guard).
+    experimentId: text("experiment_id").notNull(),
+    // The source-defined snapshot taxonomy (BASELINE | D7 | D14 | D30 | MANUAL —
+    // legacy domain-types ExperimentSnapshot.type). DB text-enum column + the
+    // named CHECK below; the Zod boundary validates the same list. No additional
+    // taxonomy/lifecycle is invented (TASK item 3).
+    snapshotType: text("snapshot_type", {
+      enum: ["BASELINE", "D7", "D14", "D30", "MANUAL"],
+    }).notNull(),
+    // The application-supplied capture moment; distinct from system created_at.
+    capturedAt: text("captured_at").notNull(),
+    // Optional measurement window context; NULL = none recorded. Stored only —
+    // no window/data-lag calculation is implemented here (TASK item 3).
+    windowStart: text("window_start"),
+    windowEnd: text("window_end"),
+    // Optional IANA/system timezone for the window; NULL = none recorded.
+    timezone: text("timezone"),
+    // The five REQUIRED metric documents, each persisted as JSON text and
+    // validated at the DB boundary by its own named CHECK below. Never
+    // decomposed into relational identity and never a computed attribution.
+    seoMetricsJson: text("seo_metrics_json").notNull(),
+    geoMetricsJson: text("geo_metrics_json").notNull(),
+    ga4MetricsJson: text("ga4_metrics_json").notNull(),
+    publicationMetricsJson: text("publication_metrics_json").notNull(),
+    indexingMetricsJson: text("indexing_metrics_json").notNull(),
+    // The REQUIRED data-quality document (warnings/sample context); validated at
+    // the DB boundary by the named CHECK below. Never relational identity.
+    dataQualityJson: text("data_quality_json").notNull(),
+    // Optional free-text note; NULL = no note recorded.
+    notes: text("notes"),
+    // Append-only creation timestamp (system insert time). No updated_at exists:
+    // the migration's append-only triggers reject every UPDATE/DELETE.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the Experiment: the snapshot's project_id
+    // must equal the experiment's project_id, so a snapshot is DB-proven to
+    // belong to its Experiment's Project (TASK item 2). Deleting the experiment
+    // removes its snapshots (the referenced (project_id, id) pair is unique via
+    // the supporting experiments_project_id_id_idx added by this task's 0075
+    // migration), subject to the append-only DELETE trigger guard. A NULL
+    // project_id/experiment_id is impossible (both NOT NULL).
+    foreignKey({
+      columns: [table.projectId, table.experimentId],
+      foreignColumns: [experiments.projectId, experiments.id],
+    }).onDelete("cascade"),
+    // DB-level rejection for the one source-defined taxonomy. The Zod boundary
+    // enforces the same list at the runtime edge. PostgreSQL uses the same check
+    // name/expression (schema-parity compares check names).
+    check(
+      "experiment_snapshots_snapshot_type_valid",
+      sql`(${table.snapshotType} IN ('BASELINE','D7','D14','D30','MANUAL'))`,
+    ),
+    // Every required JSON document is validated at the storage boundary:
+    // malformed JSON is rejected. PostgreSQL has no json_valid(); its mirror
+    // migration uses an equivalent jsonb-cast CHECK with the same name
+    // (schema-parity compares check names).
+    check(
+      "experiment_snapshots_seo_metrics_valid",
+      sql`json_valid(${table.seoMetricsJson})`,
+    ),
+    check(
+      "experiment_snapshots_geo_metrics_valid",
+      sql`json_valid(${table.geoMetricsJson})`,
+    ),
+    check(
+      "experiment_snapshots_ga4_metrics_valid",
+      sql`json_valid(${table.ga4MetricsJson})`,
+    ),
+    check(
+      "experiment_snapshots_publication_metrics_valid",
+      sql`json_valid(${table.publicationMetricsJson})`,
+    ),
+    check(
+      "experiment_snapshots_indexing_metrics_valid",
+      sql`json_valid(${table.indexingMetricsJson})`,
+    ),
+    check(
+      "experiment_snapshots_data_quality_valid",
+      sql`json_valid(${table.dataQualityJson})`,
+    ),
+    // Experiment -> snapshots reads and the experiment cascade delete path.
+    index("experiment_snapshots_experiment_idx").on(table.experimentId),
   ],
 );

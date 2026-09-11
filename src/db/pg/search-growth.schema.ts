@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations and T129 experiments additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments and T130 experiment_snapshots additions); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -2990,5 +2990,109 @@ export const experiments = pgTable(
     index("experiments_opportunity_idx").on(table.opportunityId),
     // ReleaseBundle -> experiments reads and the bundle cascade delete path.
     index("experiments_release_bundle_idx").on(table.releaseBundleId),
+    // Supporting unique target for the experiment_snapshots same-Project
+    // composite FK ((project_id, experiment_id) -> experiments(project_id, id),
+    // added by the T130 0053 migration). id is already the PK, so this composite
+    // accepts exactly the rows the PK accepts and adds NO business uniqueness.
+    uniqueIndex("experiments_project_id_id_idx").on(table.projectId, table.id),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the `experiment_snapshots` table in
+// ../search-growth.schema.ts (keep the two files structurally identical;
+// schema-parity.test.ts fails on drift). See the SQLite table for the full
+// field/taxonomy/JSON/ownership/append-only reconciliation. The dialect
+// differences are the jsonb-cast validity checks (Postgres has no json_valid())
+// and the isoNow timestamp default; every CHECK name and every FK/index shape
+// matches. The append-only UPDATE/DELETE triggers are not expressible in a
+// Drizzle schema; they are added by this task's forward migration (PostgreSQL
+// 0053) exactly as on D1 (0075), following the accepted AuditEvent pattern.
+//
+// No business unique index exists: the only unique index is the referential
+// supporting target `experiments_project_id_id_idx` this task adds to the parent
+// `experiments` table for the same-Project composite FK.
+// ============================================================================
+
+export const experimentSnapshots = pgTable(
+  "experiment_snapshots",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The Experiment this snapshot measures; bound same-Project by the composite
+    // FK below (cascades snapshots away on delete, subject to the append-only
+    // DELETE trigger guard).
+    experimentId: text("experiment_id").notNull(),
+    // The source-defined snapshot taxonomy (BASELINE | D7 | D14 | D30 | MANUAL),
+    // DB-checked below and narrowed by the Zod boundary.
+    snapshotType: text("snapshot_type", {
+      enum: ["BASELINE", "D7", "D14", "D30", "MANUAL"],
+    }).notNull(),
+    // The application-supplied capture moment; distinct from system created_at.
+    capturedAt: text("captured_at").notNull(),
+    // Optional measurement window context; NULL = none recorded. Stored only.
+    windowStart: text("window_start"),
+    windowEnd: text("window_end"),
+    timezone: text("timezone"),
+    // The five REQUIRED metric documents plus the data-quality document, each
+    // persisted as JSON text and validated by its named jsonb-cast CHECK below.
+    seoMetricsJson: text("seo_metrics_json").notNull(),
+    geoMetricsJson: text("geo_metrics_json").notNull(),
+    ga4MetricsJson: text("ga4_metrics_json").notNull(),
+    publicationMetricsJson: text("publication_metrics_json").notNull(),
+    indexingMetricsJson: text("indexing_metrics_json").notNull(),
+    dataQualityJson: text("data_quality_json").notNull(),
+    // Optional free-text note; NULL = no note recorded.
+    notes: text("notes"),
+    // Append-only creation timestamp (the ONLY audit column; no updated_at).
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the Experiment (cascade), reusing the
+    // supporting experiments_project_id_id_idx unique index this task's 0053
+    // migration adds to the parent. A snapshot whose Experiment belongs to
+    // another Project has no matching parent row.
+    foreignKey({
+      columns: [table.projectId, table.experimentId],
+      foreignColumns: [experiments.projectId, experiments.id],
+    }).onDelete("cascade"),
+    // DB-level rejection for the source-defined taxonomy (same check name as the
+    // SQLite side).
+    check(
+      "experiment_snapshots_snapshot_type_valid",
+      sql`(${table.snapshotType} IN ('BASELINE','D7','D14','D30','MANUAL'))`,
+    ),
+    // Required-document validity: casting malformed text to jsonb raises and
+    // rejects the insert. Same check names as the SQLite json_valid() CHECKs.
+    check(
+      "experiment_snapshots_seo_metrics_valid",
+      sql`((${table.seoMetricsJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "experiment_snapshots_geo_metrics_valid",
+      sql`((${table.geoMetricsJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "experiment_snapshots_ga4_metrics_valid",
+      sql`((${table.ga4MetricsJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "experiment_snapshots_publication_metrics_valid",
+      sql`((${table.publicationMetricsJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "experiment_snapshots_indexing_metrics_valid",
+      sql`((${table.indexingMetricsJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "experiment_snapshots_data_quality_valid",
+      sql`((${table.dataQualityJson})::jsonb) IS NOT NULL`,
+    ),
+    // Experiment -> snapshots reads and the experiment cascade delete path.
+    index("experiment_snapshots_experiment_idx").on(table.experimentId),
   ],
 );
