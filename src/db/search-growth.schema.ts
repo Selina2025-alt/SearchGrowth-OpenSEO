@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation and the T133 publication_execution_plans plan core); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation, the T133 publication_execution_plans plan core and the T134 platform_drafts draft-evidence core); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -4623,6 +4623,144 @@ export const publicationExecutionPlans = sqliteTable(
     check(
       "publication_execution_plans_verification_policy_valid",
       sql`json_valid(${table.verificationPolicyJson})`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Project-scoped PlatformDraft evidence.
+//
+// ONE PlatformDraft is the credential-free record that an approved release
+// target was staged as a DRAFT on a platform and (optionally) that the draft
+// itself was verified. It is the persistence/contract slice of the Wechatsync
+// draft stager (05_DOMAIN_DATA_MODEL.md §12 PlatformDraft;
+// 11_WECHATSYNC_DRAFT_STAGER_SPEC.md §§5–10; 13_PUBLISH_FINALIZER_SPEC.md;
+// 10_DISTRIBUTION_ARCHITECTURE.md §§3–9 route WECHATSYNC_STAGED_FINALIZE;
+// 21_TEST_ACCEPTANCE_PLAN.md §15 "DRAFT_CREATED/DRAFT_VERIFIED 不算 Public 成功";
+// legacy reference artifacts `schemas/domain-types.ts` PlatformDraft and
+// `schemas/migrations-reference.sql` platform_drafts). This slice records
+// evidence only: it does not stage, verify, finalize, publish, spend, contact an
+// external system, select/reconcile a route, or implement any
+// credential/account/connector behavior (TASK items 1, 3–5).
+//
+// FIELD RECONCILIATION (TASK item 1 direct field list; the legacy read-only
+// reference artifacts above):
+//   - `id` (PK) is the stable draft-record id.
+//   - `project_id` (NOT NULL) is the explicit Project ownership column, so
+//     ownership is never inferred and the Project FK + same-Project composite FK
+//     below can be enforced.
+//   - `release_target_id` (NOT NULL) is the ONE ReleaseTarget this staged draft
+//     belongs to; bound to this row's project by the composite FK below.
+//   - `platform` is the required opaque platform identifier stored verbatim. The
+//     platform/connector catalogue is a separate gated task, so no platform enum
+//     is invented here (mirrors the accepted opaque ReleaseTarget `platform`).
+//   - `account_id` / `draft_id` are required OPAQUE external identities (the
+//     platform account and the platform's own draft identity). They are opaque
+//     stored strings ONLY: no publisher connection, credential, certification or
+//     account-management row is referenced or created (TASK item 4).
+//   - `draft_url` is the optional draft URL stored verbatim; NULL = the stager
+//     returned none. It is a DRAFT url, never a public-success URL (10 §8).
+//   - `content_hash` is the required opaque staged-content hash stored verbatim.
+//   - `asset_hashes_json` (NOT NULL) is the staged asset-hash DOCUMENT stored as
+//     validated JSON text (the accepted JSON-column convention,
+//     20_DATABASE_SCHEMA_GUIDE.md §6). The DB CHECK below rejects malformed JSON
+//     and the Zod boundary validates its shape (a JSON array of hash strings;
+//     legacy `assetHashes: string[]`). It is never decomposed into relational
+//     columns and no hash matching/dedup rule is invented.
+//   - `stager_id` / `stager_version` are required OPAQUE stager identity/version
+//     strings (11 §7 `stager_id`/`stager_version`), stored verbatim. No stager
+//     catalogue/connector reference is invented (TASK item 4).
+//   - `verified_at` is the optional DRAFT-verification timestamp (11 §8 draft
+//     verification; the nullable legacy `verified_at`). It records that the
+//     DRAFT was inspected/verified and explicitly does NOT assert
+//     `PUBLIC_VERIFIED`, a final publish, or public success (TASK item 3;
+//     11 §1 "草稿不是 Public Success"; 21 §15). NULL = not yet draft-verified.
+//   - `created_at` is the append-only creation timestamp (the ONLY audit
+//     column; legacy `created_at`). There is no `updated_at` and no mutable
+//     lifecycle/status/job/retry/route field (TASK item 3).
+//
+// The source-defined draft identity rule is preserved: the UNIQUE index
+// `platform_drafts_platform_account_id_draft_id_idx` enforces
+// (platform, account_id, draft_id) uniqueness (legacy
+// `idx_platform_draft ON platform_drafts(platform, account_id, draft_id)`), so
+// the same platform account can never record the same external draft twice
+// (11 §9 idempotency: remote identity is persisted once). No other uniqueness or
+// lookup index is invented.
+//
+// This table carries no `PUBLIC_VERIFIED`/receipt/job column, no route
+// selection, no finalize action and no credential/account mutation. The exported
+// `PlatformDraft` row type is the domain shape later draft-staging/finalizing
+// tasks will consume; `platformDraftSchema` is the runtime guard for the same
+// direct fields.
+
+export const platformDrafts = sqliteTable(
+  "platform_drafts",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The ONE ReleaseTarget this staged draft belongs to. Bound to this row's
+    // project by the composite FK below, which cascades the draft record away
+    // when the target is deleted.
+    releaseTargetId: text("release_target_id").notNull(),
+    // Required opaque platform identifier stored verbatim; no platform enum is
+    // invented in this core slice (TASK item 4).
+    platform: text("platform").notNull(),
+    // Required OPAQUE external account identity (11 §7 account_id). Stored only;
+    // no credential/account-management row is referenced (TASK item 4).
+    accountId: text("account_id").notNull(),
+    // Required OPAQUE platform draft identity (11 §7 external_draft_id; the
+    // reliable id the same-draft finalizer will need). Stored only.
+    draftId: text("draft_id").notNull(),
+    // Optional draft URL stored verbatim; NULL = none returned. Never a
+    // public-success URL (TASK items 1, 3).
+    draftUrl: text("draft_url"),
+    // Required opaque staged-content hash stored verbatim; plain non-unique
+    // column, no hash matching/dedup rule is invented.
+    contentHash: text("content_hash").notNull(),
+    // Required staged asset-hash document as validated JSON text; never
+    // decomposed into a relational model.
+    assetHashesJson: text("asset_hashes_json").notNull(),
+    // Required OPAQUE stager identity/version (11 §7 stager_id/stager_version)
+    // stored verbatim; no stager catalogue/connector reference is invented.
+    stagerId: text("stager_id").notNull(),
+    stagerVersion: text("stager_version").notNull(),
+    // Optional DRAFT-verification timestamp; NULL = not draft-verified. Records
+    // draft inspection only and never asserts PUBLIC_VERIFIED (TASK item 3).
+    verifiedAt: text("verified_at"),
+    // Append-only creation timestamp (system insert time) — the ONLY audit
+    // column: an immutable draft record has no updated_at and carries no mutable
+    // lifecycle/status/job/retry/route state (TASK item 3).
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the ReleaseTarget. Deleting a target removes
+    // its draft records (the referenced (project_id, id) pair is unique via the
+    // accepted `release_targets_project_id_id_idx` from T125 — reused, not
+    // recreated). A draft whose target lives on another Project has no matching
+    // parent row and is rejected by the DB.
+    foreignKey({
+      columns: [table.projectId, table.releaseTargetId],
+      foreignColumns: [releaseTargets.projectId, releaseTargets.id],
+    }).onDelete("cascade"),
+    // The source-defined draft identity rule (legacy idx_platform_draft): one
+    // (platform, account_id, draft_id) triple names exactly one staged draft.
+    uniqueIndex("platform_drafts_platform_account_id_draft_id_idx").on(
+      table.platform,
+      table.accountId,
+      table.draftId,
+    ),
+    // Asset-hash document validity at the storage boundary (TASK item 3):
+    // malformed JSON is rejected. The Postgres mirror uses an equivalent
+    // jsonb-cast CHECK with the same name (schema-parity compares check names).
+    check(
+      "platform_drafts_asset_hashes_valid",
+      sql`json_valid(${table.assetHashesJson})`,
     ),
   ],
 );
