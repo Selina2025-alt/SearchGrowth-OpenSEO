@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation and the T133 publication_execution_plans plan core); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation, the T133 publication_execution_plans plan core and the T134 platform_drafts draft-evidence core); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -3330,6 +3330,73 @@ export const publicationExecutionPlans = pgTable(
     check(
       "publication_execution_plans_verification_policy_valid",
       sql`((${table.verificationPolicyJson})::jsonb) IS NOT NULL`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the Project-scoped PlatformDraft
+// draft-evidence table (see ../search-growth.schema.ts for the full field
+// reconciliation and the draft/public-success boundary). Same columns,
+// nullability, Project FK, same-Project ReleaseTarget composite FK, UNIQUE
+// (platform, account_id, draft_id) identity index and named CHECK as the SQLite
+// side; `schema-parity.test.ts` fails on drift.
+// ============================================================================
+
+export const platformDrafts = pgTable(
+  "platform_drafts",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project; explicit so ownership is never inferred and the
+    // Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The ONE ReleaseTarget this staged draft belongs to; bound to this row's
+    // project by the composite FK below (cascades the record away when the
+    // target is deleted).
+    releaseTargetId: text("release_target_id").notNull(),
+    // Required opaque platform identifier stored verbatim; no platform enum.
+    platform: text("platform").notNull(),
+    // Required OPAQUE external account identity; stored only (no credential/
+    // account-management row is referenced).
+    accountId: text("account_id").notNull(),
+    // Required OPAQUE platform draft identity; stored only.
+    draftId: text("draft_id").notNull(),
+    // Optional draft URL; NULL = none returned. Never a public-success URL.
+    draftUrl: text("draft_url"),
+    // Required opaque staged-content hash stored verbatim.
+    contentHash: text("content_hash").notNull(),
+    // Required asset-hash document as validated JSON text (array of strings).
+    assetHashesJson: text("asset_hashes_json").notNull(),
+    // Required OPAQUE stager identity/version stored verbatim.
+    stagerId: text("stager_id").notNull(),
+    stagerVersion: text("stager_version").notNull(),
+    // Optional DRAFT-verification timestamp; never asserts PUBLIC_VERIFIED.
+    verifiedAt: text("verified_at"),
+    // Append-only creation timestamp (the ONLY audit column; no updated_at).
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the ReleaseTarget (cascade); the referenced
+    // (project_id, id) pair is unique via the accepted
+    // `release_targets_project_id_id_idx` from T125 PG 0048.
+    foreignKey({
+      columns: [table.projectId, table.releaseTargetId],
+      foreignColumns: [releaseTargets.projectId, releaseTargets.id],
+    }).onDelete("cascade"),
+    // Source-defined draft identity rule: one (platform, account_id, draft_id)
+    // triple names exactly one staged draft (same name as the SQLite side).
+    uniqueIndex("platform_drafts_platform_account_id_draft_id_idx").on(
+      table.platform,
+      table.accountId,
+      table.draftId,
+    ),
+    // Asset-hash document validity (same check name as SQLite): casting
+    // malformed text to jsonb raises and rejects the insert.
+    check(
+      "platform_drafts_asset_hashes_valid",
+      sql`((${table.assetHashesJson})::jsonb) IS NOT NULL`,
     ),
   ],
 );

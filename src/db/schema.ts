@@ -101,6 +101,7 @@ export const {
   releaseBundles,
   releaseTargets,
   publicationExecutionPlans,
+  platformDrafts,
   searchGrowthAuditEvents,
   runtimeControls,
   indexingObservations,
