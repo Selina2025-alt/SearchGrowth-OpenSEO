@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 6ef3d8e
 LAST REVIEW: T127-M1-RUNTIME-CONTROL-CORE-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T128 Round 1 was interrupted at the executor turn cap after partial in-worktree implementation; the worktree is preserved for continuation.
-CURRENT BLOCKER: T128 executor infrastructure interruption: run `20260911-091255` reached the 120-turn cap without DELIVERY. M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Re-dispatch T128 Round 1 continuation in the preserved worktree; then wait for DELIVERY. Never merge to `main`.
+LAST COMPLETED ACTION: T128 Round 1 continuation was dispatched in the preserved worktree after the recorded max-turns interruption.
+CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On DELIVERY, perform the T128 Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -50,7 +50,7 @@ NEXT EXACT ACTION: Re-dispatch T128 Round 1 continuation in the preserved worktr
 
 ## IN PROGRESS
 
-- T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA Round 1 is recovering from an executor max-turns interruption in its preserved isolated worktree.
+- T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA Round 1 continuation is executing in its preserved isolated Claude worktree; the earlier max-turns interruption is recorded in the task control record.
 
 ## BLOCKED
 
@@ -58,4 +58,4 @@ NEXT EXACT ACTION: Re-dispatch T128 Round 1 continuation in the preserved worktr
 
 ## NEXT
 
-Re-dispatch the preserved T128 Round 1 continuation. Never merge to `main`.
+WAITING_FOR_EXECUTOR. Review T128 DELIVERY when the executor returns. Never merge to `main`.
