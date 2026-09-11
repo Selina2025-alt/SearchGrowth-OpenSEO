@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T130-M1-EXPERIMENT-SNAPSHOT-SCHEMA
+CURRENT TASK: T131-M1-SEARCH-GROWTH-TARGET-CORE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: d7b9e81
-LAST REVIEW: T129-M1-EXPERIMENT-CORE-SCHEMA ROUND 1 PASS AND MERGED
+LATEST ACCEPTED COMMIT: c9f8791
+LAST REVIEW: T130-M1-EXPERIMENT-SNAPSHOT-SCHEMA ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T129-M1-EXPERIMENT-CORE-SCHEMA passed and merged to integration; T130 Round 1 was dispatched.
+LAST COMPLETED ACTION: T130-M1-EXPERIMENT-SNAPSHOT-SCHEMA passed and merged to integration; T131 Round 1 was dispatched.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T129 DELIVERY, perform Fast Review; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T131 DELIVERY, perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -50,7 +50,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T129 DELIVERY, perform Fast Review; 
 
 ## IN PROGRESS
 
-- T130-M1-EXPERIMENT-SNAPSHOT-SCHEMA Round 1 is executing in its isolated Claude worktree.
+- T131-M1-SEARCH-GROWTH-TARGET-CORE-SCHEMA Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
@@ -58,4 +58,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T129 DELIVERY, perform Fast Review; 
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR. Review T129 DELIVERY when the executor returns. Never merge to `main`.
+WAITING_FOR_EXECUTOR. Review T131 DELIVERY when the executor returns. Never merge to `main`.

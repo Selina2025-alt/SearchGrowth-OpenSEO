@@ -67,3 +67,5 @@
 | `T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA` | PASS (round 1/3) | 2026-09-11 | control/tasks/T128-M1-INDEXING-OBSERVATION-CORE-SCHEMA/REVIEW.md; D1/PG 0073/0051 parity, 16 focused tests, Controller full suite 1,729 tests PASS | 39223f9 |
 
 | `T129-M1-EXPERIMENT-CORE-SCHEMA` | PASS (round 1/3) | 2026-09-11 | control/tasks/T129-M1-EXPERIMENT-CORE-SCHEMA/REVIEW.md; D1/PG 0074/0052 parity, 17 focused tests, 1,751 full tests, build and ci PASS | d7b9e81 |
+
+| `T130-M1-EXPERIMENT-SNAPSHOT-SCHEMA` | PASS (round 1/3) | 2026-09-11 | control/tasks/T130-M1-EXPERIMENT-SNAPSHOT-SCHEMA/REVIEW.md; D1/PG 0075/0053 parity, append-only snapshot storage, 368 focused tests, 1,775 full tests, build and ci PASS | c9f8791 |
