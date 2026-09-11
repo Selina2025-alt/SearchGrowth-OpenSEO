@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -4300,6 +4300,112 @@ export const searchGrowthTargets = sqliteTable(
     check(
       "search_growth_targets_config_valid",
       sql`json_valid(${table.configJson})`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — normalized, Project-scoped SearchGrowthTarget preferred
+// SearchMarketProfile relation.
+//
+// One row is ONE preferred-market reference of a Project's search growth target
+// (05_DOMAIN_DATA_MODEL.md §1 SearchGrowthTarget `preferred_market_profile_ids[]`).
+// This realizes the relation T131 deferred: the accepted target configuration
+// document (`config_json`) deliberately does NOT encode the ids, so the relation
+// is stored as a table with an explicit typed FK column — never a JSON/text
+// array on `search_growth_targets` (TASK GOAL). Storage/contract only: no
+// ordering, priority, primary-market semantics, market CRUD, activation,
+// runtime, workflow, provider call, credential, publishing or spend behavior is
+// added here (TASK OUT OF SCOPE).
+//
+// FIELD RECONCILIATION: §1 lists `preferred_market_profile_ids[]`; this slice
+// ships the established normalized-relation shape — the stable `id` primary key,
+// the row's own explicit `project_id`, the referenced `market_profile_id` and
+// the append-only `created_at` system timestamp. The referenced market profile
+// already carries the concrete engine/location/language/device identity, so no
+// market payload (name/engine/location/...) is duplicated on the relation and
+// no ordering/priority/primary flag is invented.
+//
+// PROJECT SCOPING / TARGET OWNERSHIP (database-enforced, not convention): the
+// relation carries its own explicit `project_id` (a NOT NULL FK to projects(id)
+// ON DELETE CASCADE, the established Project-scoping FK every Search Growth row
+// carries) plus two more FK constraints:
+//   - project_id -> search_growth_targets(project_id): the target table's
+//     PRIMARY KEY *is* project_id (one configuration row per Project), so this
+//     one-column FK binds the relation to that Project's existing target row and
+//     a relation can never exist without its target. "A target row and its
+//     market relation must belong to the same Project" is therefore structural:
+//     the relation's project_id must equal the target row's project_id.
+//   - (project_id, market_profile_id) -> search_market_profiles(project_id, id):
+//     the composite FK's leading column is this row's project_id, so a market
+//     profile on another Project has no matching parent row and the DB rejects
+//     the relation. The referenced (project_id, id) pair is unique via the
+//     supporting `search_market_profiles_project_id_id_idx` target index (0049).
+// Deleting the Project cascades the target (and this relation directly), a
+// target row cascades its preferred-market references, and a market profile
+// cascades the relations scoped to it — so a relation can never dangle.
+//
+// IDENTITY / DUPLICATE EDGES: the natural pair identity of a preferred-market
+// reference is (project_id, market_profile_id) — the relation's target is
+// identified by project_id (the target's PK) and the referenced market by
+// market_profile_id. The unique index below rejects a duplicate target/market
+// reference. market_profile_id is a globally unique primary key, so once the
+// same-Project composite FK holds the pair is project-isolated and no second
+// business uniqueness rule is added. The reverse index serves the
+// market_profile -> targets read path and the market-profile delete cascade
+// path; the unique index's leading project_id already serves target -> markets
+// reads.
+// ============================================================================
+
+export const searchGrowthTargetPreferredMarketProfiles = sqliteTable(
+  "search_growth_target_preferred_market_profiles",
+  {
+    id: text("id").primaryKey(),
+    // This relation's own Project — explicit identity so the same-Project FKs
+    // below can carry it as their leading column. Deleting the Project cascades
+    // the relation away.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The preferred SearchMarketProfile (search_market_profiles.id). Bound to
+    // this row's project by the composite FK below; deleting the market profile
+    // cascades the relation away. No market payload is duplicated here.
+    marketProfileId: text("market_profile_id").notNull(),
+    // Append-only creation timestamp (system insert time). A relation row
+    // carries no mutable payload and no updated_at — it is a preference edge,
+    // not a mutable lifecycle row.
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // The relation belongs to the Project's existing search_growth_targets row.
+    // The target table's PRIMARY KEY is project_id, so this FK's single column
+    // is both the target reference and the Project identity. Deleting the
+    // target row cascades its preferred-market references away.
+    foreignKey({
+      columns: [table.projectId],
+      foreignColumns: [searchGrowthTargets.projectId],
+    }).onDelete("cascade"),
+    // Same-Project composite FK to the market profile: this relation's
+    // project_id must equal the profile's project_id. Deleting a profile removes
+    // the relations that prefer it (the referenced (project_id, id) pair is
+    // unique via search_market_profiles_project_id_id_idx from 0049).
+    foreignKey({
+      columns: [table.projectId, table.marketProfileId],
+      foreignColumns: [searchMarketProfiles.projectId, searchMarketProfiles.id],
+    }).onDelete("cascade"),
+    // Duplicate-edge guard: one row per (project_id, market_profile_id)
+    // target/market reference. The leading project_id also serves target ->
+    // markets reads.
+    uniqueIndex("search_growth_target_preferred_market_profiles_unique_idx").on(
+      table.projectId,
+      table.marketProfileId,
+    ),
+    // market_profile -> targets reads and the market-profile delete cascade
+    // path.
+    index("search_growth_target_preferred_market_profiles_market_idx").on(
+      table.marketProfileId,
     ),
   ],
 );
