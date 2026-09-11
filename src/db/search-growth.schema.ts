@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation and the T133 publication_execution_plans plan core); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -4406,6 +4406,223 @@ export const searchGrowthTargetPreferredMarketProfiles = sqliteTable(
     // path.
     index("search_growth_target_preferred_market_profiles_market_idx").on(
       table.marketProfileId,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — immutable, Project-scoped PublicationExecutionPlan core.
+//
+// ONE plan is the fixed route/strategy/policy snapshot that resolves ONE
+// accepted ReleaseTarget before execution (05_DOMAIN_DATA_MODEL.md §12
+// PublicationExecutionPlan; 10_DISTRIBUTION_ARCHITECTURE.md §2 "each
+// ReleaseTarget resolves into a fixed plan before execution" and "the runtime
+// agent never decides at execution time how to publish", §4 route exclusivity;
+// schemas/domain-types.ts PublicationExecutionPlan; skills/08-distribution-plan.md
+// outputs "route, stager/finalizer/executor, required fields, verification
+// policy"; the legacy `schemas/migrations-reference.sql`
+// publication_execution_plans). This is the schema/domain core slice ONLY: it
+// does not approve, execute, publish, spend, contact an external system, or
+// implement any credential/account/connector behavior (TASK items 1, 3, 4). A
+// row is never a publish instruction, execution result, approval action or
+// public-success proof, and no plan is resolved at runtime in this slice.
+//
+// FIELD RECONCILIATION (TASK item 1; legacy reference is read-only):
+//   - `id` (PK) is the stable plan id. `project_id` (NOT NULL) carries explicit
+//     Project ownership so the Project FK + same-Project composite FK below can
+//     be enforced — ownership is never inferred. The legacy reference table has
+//     no project_id; it is added here because the TASK names "explicit Project
+//     identity" and requires Project-leading constraints (TASK item 2).
+//   - `release_target_id` (NOT NULL UNIQUE) is the ONE ReleaseTarget this plan
+//     resolves (TASK item 1; 10 §2). UNIQUE enforces at most one plan per target
+//     and the Project-leading composite FK below enforces same-Project ownership
+//     and non-dangling referential integrity.
+//   - `route` (NOT NULL) is the source-defined distribution route union
+//     (OWNED_SITE | WECHATSYNC_STAGED_FINALIZE | YXER_NATIVE |
+//     SOCIAL_AUTO_UPLOAD_NATIVE | POSTIZ_NATIVE | PAID_MEDIA_SERVICE —
+//     domain-types.ts DistributionRoute; 10 §§2–3; 27_AI_CODING_MASTER_PROMPT
+//     routes), DB-checked below and narrowed by the Zod boundary. 10 §4 route
+//     exclusivity is enforced by the one-plan-per-target UNIQUE index: a target
+//     cannot carry two competing routes.
+//   - `draft_stager_id` / `finalizer_id` (nullable) are the optional opaque
+//     stager/finalizer identifiers (10 §2 draftStager/finalizer). The
+//     stager/finalizer catalogue is a later gated task, so no enum or connector
+//     reference is invented here — they mirror the accepted ReleaseTarget
+//     opaque `platform` column. NULL = the chosen route needs no stager/finalizer
+//     (e.g. OWNED_SITE).
+//   - `finalizer_strategy` (nullable) is the optional source-defined finalizer
+//     strategy union (OFFICIAL_API | IN_PAGE_WEB_API | SERVICE_CLI | FIXED_DOM —
+//     domain-types.ts FinalizerStrategy; 10 §2 finalizerStrategy), DB-checked
+//     below (NULL admitted) and narrowed by the Zod boundary. NULL = no
+//     finalizer strategy is attached.
+//   - `executor_version` (NOT NULL) is the required executor version pinned into
+//     the plan (10 §2 / skills/08 "stager/finalizer/executor"); opaque, stored
+//     verbatim, no executor catalogue or resolution runs here.
+//   - `required_fields_json` / `constraints_snapshot_json` /
+//     `verification_policy_json` (NOT NULL) are the required plan documents
+//     (TASK item 1 "required fields document, constraints snapshot document,
+//     verification policy document"; 10 §2 verificationProfile; skills/08
+//     outputs). Each is stored as a JSON text document and validated at the
+//     storage boundary by a named CHECK (json_valid on SQLite; the Postgres
+//     mirror uses an equivalent jsonb cast); the Zod boundary validates the
+//     document shape. No document is decomposed into relational columns — plan
+//     data is never encoded to avoid a join.
+//   - `fallback_route` (nullable) is the optional source-defined fallback route
+//     (domain-types.ts DistributionRoute; 10 "fallback policy"), DB-checked
+//     below (NULL admitted) and narrowed by the Zod boundary. NULL = no fallback.
+//     This slice only records the value: "fallback前必须reconcile" is execution
+//     behavior that is out of scope.
+//   - `plan_hash` (NOT NULL) is the required opaque plan hash stored verbatim
+//     (TASK item 1). Plain non-unique column: no hash matching/dedup/immutability
+//     enforcement rule is invented here (the executed-hash-equals-approved-hash
+//     CAS is execution behavior, TASK item 4).
+//   - `created_at` (NOT NULL) is the append-only creation timestamp and the ONLY
+//     audit column: the resolved plan is immutable, so there is no `updated_at`
+//     (TASK item 3). A changed route/strategy/policy requires a new plan, not a
+//     mutated row; no mutable plan-editing behavior exists.
+//
+// OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id) with
+// ON DELETE CASCADE (the established Project-scoping FK every Search Growth row
+// carries). Same-Project ReleaseTarget ownership is database-enforced by the
+// Project-leading composite FK
+//   (project_id, release_target_id) -> release_targets(project_id, id)
+// carrying this row's own project_id as its leading column, so the DB (not
+// application convention) rejects a plan whose target belongs to another Project
+// (in either direction) and rejects a dangling target. It is ON DELETE CASCADE:
+// deleting a ReleaseTarget removes its plan, so a plan can never dangle. The
+// separate single-column release_target_id UNIQUE index enforces the one-plan-
+// per-target rule. The parent (project_id, id) target is the accepted
+// `release_targets_project_id_id_idx` (T125, D1 0070 / PG 0048) and is REUSED, so
+// this slice adds NO index to any parent (TASK item 2).
+//
+// IDENTITY / UNIQUENESS: the ONE business uniqueness rule is one plan per
+// ReleaseTarget (TASK item 2; 10 §2/§4), enforced by
+// `publication_execution_plans_release_target_id_idx`. release_target_id is a
+// globally unique primary key on release_targets, so the single-column unique
+// index is project-isolated once the same-Project FK holds. No other uniqueness
+// rule and no extra lookup index is invented.
+// ============================================================================
+
+export const publicationExecutionPlans = sqliteTable(
+  "publication_execution_plans",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FK below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The ONE ReleaseTarget this fixed plan resolves. The UNIQUE index below
+    // enforces at most one plan per target; the composite FK binds it to this
+    // row's project and cascades the plan away when the target is deleted.
+    releaseTargetId: text("release_target_id").notNull(),
+    // The source-defined distribution route union (domain-types.ts
+    // DistributionRoute; 10 §§2–3). DB text-enum column + the named CHECK below;
+    // the Zod boundary validates the same list. This slice records the route
+    // only — no route resolution/execution is implemented (TASK item 3).
+    route: text("route", {
+      enum: [
+        "OWNED_SITE",
+        "WECHATSYNC_STAGED_FINALIZE",
+        "YXER_NATIVE",
+        "SOCIAL_AUTO_UPLOAD_NATIVE",
+        "POSTIZ_NATIVE",
+        "PAID_MEDIA_SERVICE",
+      ],
+    }).notNull(),
+    // Optional opaque draft-stager identifier (10 §2 draftStager); NULL = no
+    // stager for the chosen route. The stager/connector catalogue is a later
+    // gated task, so no enum is invented here.
+    draftStagerId: text("draft_stager_id"),
+    // Optional opaque finalizer identifier (10 §2 finalizer); NULL = no finalizer.
+    finalizerId: text("finalizer_id"),
+    // Optional source-defined finalizer strategy union (domain-types.ts
+    // FinalizerStrategy; 10 §2), DB-checked below (NULL admitted) and narrowed by
+    // the Zod boundary.
+    finalizerStrategy: text("finalizer_strategy", {
+      enum: ["OFFICIAL_API", "IN_PAGE_WEB_API", "SERVICE_CLI", "FIXED_DOM"],
+    }),
+    // Required opaque executor version pinned into the plan (10 §2; skills/08);
+    // stored verbatim, no executor resolution/hashing runs in this slice.
+    executorVersion: text("executor_version").notNull(),
+    // Required plan documents (TASK item 1), each a JSON text document validated
+    // at the storage boundary by the named CHECK below and shape-validated at the
+    // Zod boundary. Never decomposed into a relational model.
+    requiredFieldsJson: text("required_fields_json").notNull(),
+    constraintsSnapshotJson: text("constraints_snapshot_json").notNull(),
+    verificationPolicyJson: text("verification_policy_json").notNull(),
+    // Optional source-defined fallback route (domain-types.ts DistributionRoute;
+    // 10 "fallback policy"), DB-checked below (NULL admitted) and narrowed by the
+    // Zod boundary. NULL = no fallback. Fallback reconciliation is execution
+    // behavior and is out of scope.
+    fallbackRoute: text("fallback_route", {
+      enum: [
+        "OWNED_SITE",
+        "WECHATSYNC_STAGED_FINALIZE",
+        "YXER_NATIVE",
+        "SOCIAL_AUTO_UPLOAD_NATIVE",
+        "POSTIZ_NATIVE",
+        "PAID_MEDIA_SERVICE",
+      ],
+    }),
+    // Required opaque plan hash stored verbatim. Plain non-unique column: no hash
+    // matching/dedup/enforcement rule is invented in this slice.
+    planHash: text("plan_hash").notNull(),
+    // Append-only creation timestamp (system insert time) — the ONLY audit
+    // column: an immutable plan row has no updated_at and carries no mutable
+    // execution/approval/account/public-success state (TASK item 3).
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the ReleaseTarget. Deleting a target removes
+    // its plan (the referenced (project_id, id) pair is unique via the accepted
+    // `release_targets_project_id_id_idx` from T125 — reused, not recreated). A
+    // plan whose target lives on another Project has no matching parent row and
+    // is rejected by the DB.
+    foreignKey({
+      columns: [table.projectId, table.releaseTargetId],
+      foreignColumns: [releaseTargets.projectId, releaseTargets.id],
+    }).onDelete("cascade"),
+    // One plan per ReleaseTarget (TASK item 2; 10 §2/§4): a duplicate plan for
+    // the same target is rejected by the DB. release_target_id is globally unique
+    // on release_targets, so the single-column unique index is project-isolated
+    // once the same-Project FK holds.
+    uniqueIndex("publication_execution_plans_release_target_id_idx").on(
+      table.releaseTargetId,
+    ),
+    // DB-level route rejection for the source-defined route union (the TASK
+    // requires migration-backed route validation; the Zod boundary enforces the
+    // same list at the runtime edge).
+    check(
+      "publication_execution_plans_route_valid",
+      sql`(${table.route} IN ('OWNED_SITE','WECHATSYNC_STAGED_FINALIZE','YXER_NATIVE','SOCIAL_AUTO_UPLOAD_NATIVE','POSTIZ_NATIVE','PAID_MEDIA_SERVICE'))`,
+    ),
+    // Optional finalizer strategy: NULL or one of the source-defined values.
+    check(
+      "publication_execution_plans_finalizer_strategy_valid",
+      sql`(${table.finalizerStrategy} IS NULL OR ${table.finalizerStrategy} IN ('OFFICIAL_API','IN_PAGE_WEB_API','SERVICE_CLI','FIXED_DOM'))`,
+    ),
+    // Optional fallback route: NULL or one of the source-defined routes.
+    check(
+      "publication_execution_plans_fallback_route_valid",
+      sql`(${table.fallbackRoute} IS NULL OR ${table.fallbackRoute} IN ('OWNED_SITE','WECHATSYNC_STAGED_FINALIZE','YXER_NATIVE','SOCIAL_AUTO_UPLOAD_NATIVE','POSTIZ_NATIVE','PAID_MEDIA_SERVICE'))`,
+    ),
+    // Plan-document validity at the storage boundary (TASK item 3): malformed
+    // JSON is rejected. The Postgres mirror uses an equivalent jsonb-cast CHECK
+    // with the same name (schema-parity compares check names).
+    check(
+      "publication_execution_plans_required_fields_valid",
+      sql`json_valid(${table.requiredFieldsJson})`,
+    ),
+    check(
+      "publication_execution_plans_constraints_snapshot_valid",
+      sql`json_valid(${table.constraintsSnapshotJson})`,
+    ),
+    check(
+      "publication_execution_plans_verification_policy_valid",
+      sql`json_valid(${table.verificationPolicyJson})`,
     ),
   ],
 );
