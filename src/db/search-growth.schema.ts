@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation, the T133 publication_execution_plans plan core and the T134 platform_drafts draft-evidence core); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the SQLite Search Growth schema barrel holds every V1.0 table (market profiles through the accepted T108 geo_citations, T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation, the T133 publication_execution_plans plan core, the T134 platform_drafts draft-evidence core and the T135 publishing_jobs persistence core); the accepted additions put the counted non-comment lines just past the cap, and splitting the barrel would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -4592,6 +4592,20 @@ export const publicationExecutionPlans = sqliteTable(
     uniqueIndex("publication_execution_plans_release_target_id_idx").on(
       table.releaseTargetId,
     ),
+    // Supporting referential parent target added by the T135 forward migration
+    // (0080 D1 / 0058 PG): `publishing_jobs` binds its plan reference with the
+    // Project-leading, ReleaseTarget-matched composite FK
+    //   (project_id, release_target_id, execution_plan_id)
+    //     -> publication_execution_plans(project_id, release_target_id, id)
+    // so the DB itself proves a job's chosen plan belongs to the SAME Project AND
+    // the SAME ReleaseTarget, not merely the same Project. That FK needs this
+    // triple to be unique; `id` is already the PRIMARY KEY and release_target_id
+    // is already unique, so this index accepts exactly the existing rows and adds
+    // NO business uniqueness (TASK item 2). It is the ONLY index this migration
+    // adds to an accepted parent table.
+    uniqueIndex(
+      "publication_execution_plans_project_id_release_target_id_id_idx",
+    ).on(table.projectId, table.releaseTargetId, table.id),
     // DB-level route rejection for the source-defined route union (the TASK
     // requires migration-backed route validation; the Zod boundary enforces the
     // same list at the runtime edge).
@@ -4761,6 +4775,231 @@ export const platformDrafts = sqliteTable(
     check(
       "platform_drafts_asset_hashes_valid",
       sql`json_valid(${table.assetHashesJson})`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Project-scoped PublishingJob persistence core
+// (credential-free).
+//
+// ONE PublishingJob is the persisted, Project-scoped record that binds ONE
+// accepted ReleaseTarget and its fixed PublicationExecutionPlan to an opaque
+// executor identity and the source-defined publishing lifecycle status, plus the
+// retry/idempotency and optional lease/external/error bookkeeping the later
+// orchestration workflow will read (05_DOMAIN_DATA_MODEL.md §12 PublishingJob;
+// 18_WORKFLOW_STATE_MACHINES.md §2 "PUBLIC ReleaseTarget" and §5 "Local Job
+// Lease"; 10_DISTRIBUTION_ARCHITECTURE.md §§2–7; 20_DATABASE_SCHEMA_GUIDE.md §4
+// "job idempotency key"; legacy read-only reference artifacts
+// `schemas/domain-types.ts` PublishingJobStatus and
+// `schemas/migrations-reference.sql` `publishing_jobs`).
+//
+// This is the persistence + domain-contract storage slice ONLY. A stored row is
+// a record — never a claim, lease grant, state transition, retry schedule,
+// cancellation, execution, publish, receipt or success proof. It implements NO
+// claim/lease renewal, CAS/state transition, retry/backoff scheduling,
+// concurrency control, cancellation, kill-switch enforcement or job execution
+// behavior, and NO external system, connector, credential/account, bridge,
+// provider, browser, paid action, production action or UI (TASK items 3–5). The
+// lease columns are recorded storage only.
+//
+// FIELD RECONCILIATION (TASK item 1 direct field list is authoritative; the
+// legacy read-only reference table supplies the column shapes):
+//   - `id` (PK) is the stable job id.
+//   - `project_id` (NOT NULL) is the explicit Project ownership column and the
+//     leading column of every composite FK below, so ownership is never inferred
+//     and Project/target/plan integrity is database-enforced.
+//   - `release_target_id` (NOT NULL) is the ONE ReleaseTarget this job executes.
+//   - `execution_plan_id` (NOT NULL) is the fixed PublicationExecutionPlan chosen
+//     for that target. The composite FK below proves the plan belongs to the SAME
+//     Project AND the SAME ReleaseTarget as the job (not merely the same
+//     Project), so a plan for another target of the same Project is rejected by
+//     the DB (TASK item 2).
+//   - `executor_id` / `executor_version` are the required OPAQUE executor
+//     identity/version strings (18 §5; legacy `executor_id`/`executor_version`),
+//     stored verbatim. No executor registry/catalogue or resolution runs here,
+//     so they are deliberately NOT foreign keys (TASK item 3).
+//   - `status` is exactly the source-defined publishing-job status union
+//     PublishingJobStatus (PLANNED … CANCELLED — schemas/domain-types.ts and
+//     `schemas/state-machines.json` publicPublishingJob; 18 §2). DB text-enum
+//     column + the named CHECK below; the Zod boundary validates the same 23
+//     values. This slice records the CURRENT value only — no transition, CAS or
+//     lifecycle logic exists (TASK item 3). The §5 Local Bridge QUEUED/LEASED/
+//     RUNNING lease machine is a separate runtime concept that is out of scope,
+//     so it is NOT merged into this authoritative row-status enum.
+//   - `attempts` (NOT NULL, default 0) / `max_attempts` (NOT NULL) are the
+//     source-defined retry counters (legacy shapes). Safe numeric boundaries are
+//     enforced at BOTH trust boundaries (TASK item 3): the named DB CHECK and the
+//     Zod refinement require `attempts >= 0`, `max_attempts >= 1` and
+//     `attempts <= max_attempts`. No retry scheduling or incrementing runs here.
+//   - `idempotency_key` (NOT NULL) preserves the source-defined job idempotency
+//     identity (20 §4 "job idempotency key"; legacy `UNIQUE`). The unique index
+//     below rejects a duplicate key at the storage boundary. This slice defines
+//     no retry/replay behavior around the key.
+//   - `leased_by` / `lease_expires_at` (nullable) are the optional lease holder
+//     and expiry (18 §5). NULL = no lease recorded. Storage only: no claim, lease
+//     grant/renewal or expiry enforcement is implemented (TASK item 3).
+//   - `external_draft_id` / `external_task_id` / `external_content_id` (nullable)
+//     are OPAQUE recorded external identifiers, stored verbatim. They are NOT
+//     foreign keys and are NOT a receipt or a remote-action proof (TASK item 4).
+//   - `public_url` (nullable) is an OPAQUE recorded URL, stored verbatim. Its
+//     presence does NOT assert `PUBLIC_VERIFIED`, a publication receipt, a real
+//     remote action or a production result — public verification is a separate
+//     later task (TASK item 4). There is deliberately no receipt/verification
+//     column and no `PUBLIC_VERIFIED`-implying constraint.
+//   - `last_error_code` / `last_error_message_safe` (nullable) are the optional
+//     SAFE error code/message (legacy shapes); NULL = no error recorded. Opaque
+//     text, stored verbatim; this slice defines no error taxonomy and no retry
+//     decision from them.
+//   - `created_at` / `updated_at` (NOT NULL) are the creation and update
+//     timestamps, defaulted to insert time. Unlike the immutable evidence tables,
+//     a job is intentionally mutable bookkeeping, so it carries a real
+//     `updated_at` (TASK item 1); no CAS/version column is added (TASK item 3).
+//
+// OWNERSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id) with
+// ON DELETE CASCADE (the established Project-scoping FK every Search Growth row
+// carries). Same-Project ReleaseTarget ownership is database-enforced by the
+// Project-leading composite FK
+//   (project_id, release_target_id) -> release_targets(project_id, id),
+// reusing the accepted `release_targets_project_id_id_idx` (T125) as its parent
+// target. The plan reference is database-enforced by the Project-leading,
+// ReleaseTarget-matched composite FK
+//   (project_id, release_target_id, execution_plan_id)
+//     -> publication_execution_plans(project_id, release_target_id, id),
+// whose parent target
+// `publication_execution_plans_project_id_release_target_id_id_idx` is added by
+// this forward migration (TASK item 2). Both cascades: deleting the target, the
+// plan or the whole Project removes its jobs, so a job can never dangle. The
+// delete behavior is CASCADE throughout (no `no action`/SET NULL is invented).
+//
+// IDENTITY / UNIQUENESS: the only business uniqueness rule is the source-defined
+// idempotency key (TASK item 3), enforced by
+// `publishing_jobs_idempotency_key_idx`; no other uniqueness is invented.
+// ============================================================================
+
+export const publishingJobs = sqliteTable(
+  "publishing_jobs",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project. Explicit typed column so ownership is never inferred
+    // and the Project FK + same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The ONE ReleaseTarget this job executes. Bound to this row's project by the
+    // composite FK below (cascades the job away when the target is deleted).
+    releaseTargetId: text("release_target_id").notNull(),
+    // The fixed PublicationExecutionPlan chosen for that target. Bound to this
+    // row's project AND to the same ReleaseTarget by the composite FK below; a
+    // plan for another target of the same project has no matching parent row.
+    executionPlanId: text("execution_plan_id").notNull(),
+    // Required OPAQUE executor identity/version stored verbatim; no executor
+    // registry/catalogue reference is invented (TASK item 3).
+    executorId: text("executor_id").notNull(),
+    executorVersion: text("executor_version").notNull(),
+    // The exact source-defined PublishingJobStatus union (schemas/domain-types.ts;
+    // state-machines.json publicPublishingJob; 18 §2). DB text-enum column + the
+    // named CHECK below; the Zod boundary validates the same 23 values. Records
+    // the current value only — no transition/CAS is implemented (TASK item 3).
+    status: text("status", {
+      enum: [
+        "PLANNED",
+        "PREFLIGHT",
+        "EXECUTION_READY",
+        "STAGING_DRAFT",
+        "DRAFT_CREATED",
+        "DRAFT_VERIFIED",
+        "FINALIZE_READY",
+        "FINALIZING",
+        "VALIDATING",
+        "DRY_RUN_PASSED",
+        "SUBMITTING",
+        "ACCEPTED_REMOTE_TASK",
+        "PUBLISH_SUBMITTED",
+        "PUBLIC_VERIFYING",
+        "PUBLIC_VERIFIED",
+        "AUTH_REQUIRED",
+        "PUBLISH_FIELDS_REQUIRED",
+        "RATE_LIMITED",
+        "REMOTE_STATE_UNKNOWN",
+        "REJECTED",
+        "EXECUTION_FAILED",
+        "VERIFY_FAILED",
+        "CANCELLED",
+      ],
+    }).notNull(),
+    // Retry counters. Safe numeric bounds are DB-checked below and refined at the
+    // Zod boundary; no retry scheduling/incrementing runs in this slice.
+    attempts: integer("attempts").notNull().default(0),
+    maxAttempts: integer("max_attempts").notNull(),
+    // Source-defined job idempotency identity (20 §4); the unique index below
+    // rejects a duplicate. No replay/retry behavior is defined here.
+    idempotencyKey: text("idempotency_key").notNull(),
+    // Optional lease holder / expiry (18 §5); NULL = no lease recorded. Storage
+    // only — no claim, lease renewal or expiry enforcement exists (TASK item 3).
+    leasedBy: text("leased_by"),
+    leaseExpiresAt: text("lease_expires_at"),
+    // Optional OPAQUE recorded external identifiers; not FKs, not receipts, not
+    // remote-action proofs (TASK item 4).
+    externalDraftId: text("external_draft_id"),
+    externalTaskId: text("external_task_id"),
+    externalContentId: text("external_content_id"),
+    // Optional OPAQUE recorded public URL. Its presence never asserts
+    // PUBLIC_VERIFIED or a publication result (TASK item 4).
+    publicUrl: text("public_url"),
+    // Optional SAFE error code/message; NULL = no error recorded. Opaque, no
+    // error taxonomy and no retry decision (TASK item 3).
+    lastErrorCode: text("last_error_code"),
+    lastErrorMessageSafe: text("last_error_message_safe"),
+    // Creation and update timestamps (system time), defaulted on insert. A job is
+    // intentionally mutable bookkeeping, so it carries a real updated_at; no
+    // CAS/version column is added (TASK item 3).
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => [
+    // Same-Project composite FK to the ReleaseTarget. Deleting a target removes
+    // its jobs (the referenced (project_id, id) pair is unique via the accepted
+    // `release_targets_project_id_id_idx` from T125 — reused, not recreated). A
+    // job whose target lives on another Project has no matching parent row.
+    foreignKey({
+      columns: [table.projectId, table.releaseTargetId],
+      foreignColumns: [releaseTargets.projectId, releaseTargets.id],
+    }).onDelete("cascade"),
+    // Same-Project AND same-ReleaseTarget composite FK to the chosen execution
+    // plan. The referenced (project_id, release_target_id, id) triple is unique
+    // via `publication_execution_plans_project_id_release_target_id_id_idx`,
+    // added by this forward migration. A plan whose Project OR ReleaseTarget
+    // differs from the job's has no matching parent row and is rejected by the
+    // DB (TASK item 2). Deleting the plan removes its jobs.
+    foreignKey({
+      columns: [table.projectId, table.releaseTargetId, table.executionPlanId],
+      foreignColumns: [
+        publicationExecutionPlans.projectId,
+        publicationExecutionPlans.releaseTargetId,
+        publicationExecutionPlans.id,
+      ],
+    }).onDelete("cascade"),
+    // Source-defined job idempotency identity: one idempotency key names exactly
+    // one job (TASK item 3; 20 §4). A duplicate key is rejected by the DB.
+    uniqueIndex("publishing_jobs_idempotency_key_idx").on(table.idempotencyKey),
+    // DB-level enum rejection for the source-defined PublishingJobStatus union
+    // (TASK item 3). PostgreSQL uses the same check name/expression
+    // (schema-parity compares check names).
+    check(
+      "publishing_jobs_status_valid",
+      sql`(${table.status} IN ('PLANNED','PREFLIGHT','EXECUTION_READY','STAGING_DRAFT','DRAFT_CREATED','DRAFT_VERIFIED','FINALIZE_READY','FINALIZING','VALIDATING','DRY_RUN_PASSED','SUBMITTING','ACCEPTED_REMOTE_TASK','PUBLISH_SUBMITTED','PUBLIC_VERIFYING','PUBLIC_VERIFIED','AUTH_REQUIRED','PUBLISH_FIELDS_REQUIRED','RATE_LIMITED','REMOTE_STATE_UNKNOWN','REJECTED','EXECUTION_FAILED','VERIFY_FAILED','CANCELLED'))`,
+    ),
+    // Safe numeric attempt boundaries at the storage boundary (TASK item 3):
+    // non-negative attempts, at least one allowed attempt, and attempts never
+    // exceed the maximum. The Zod boundary refines the same invariant.
+    check(
+      "publishing_jobs_attempts_valid",
+      sql`(${table.attempts} >= 0 AND ${table.maxAttempts} >= 1 AND ${table.attempts} <= ${table.maxAttempts})`,
     ),
   ],
 );

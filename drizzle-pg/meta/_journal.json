@@ -407,6 +407,13 @@
       "when": 1789121623880,
       "tag": "0057_complete_riptide",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1789123708620,
+      "tag": "0058_slippery_dagger",
+      "breakpoints": true
     }
   ]
 }
