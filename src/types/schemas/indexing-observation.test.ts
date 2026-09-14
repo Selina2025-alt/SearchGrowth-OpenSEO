@@ -3,15 +3,17 @@ import type { IndexingObservation } from "./indexing-observation";
 import { indexingObservationSchema } from "./indexing-observation";
 
 // The IndexingObservation domain boundary carries the direct fields of the
-// Project-scoped index observation: the opaque URL, the one authoritative
-// SearchEngine enum, the optional same-Project market profile, the opaque
-// observation type/status labels and the validated JSON details text. The row
-// exposes the application `observedAt` plus the append-only `createdAt` only —
-// no `updatedAt` and, above all, no `publicationReceiptId` before the
-// credential-bound receipt domain exists (TASK items 1–3).
+// Project-scoped index observation: the optional same-Project publication
+// receipt evidence relation, the opaque URL, the one authoritative SearchEngine
+// enum, the optional same-Project market profile, the opaque observation
+// type/status labels and the validated JSON details text. The row exposes the
+// application `observedAt` plus the append-only `createdAt` only — no
+// `updatedAt` and no verification/matching/normalization field (TASK items 1–3,
+// 5).
 const VALID_OBSERVATION = {
   id: "obs_alpha_1",
   projectId: "proj_alpha",
+  publicationReceiptId: "receipt_alpha",
   url: "https://example.com/blog/post",
   searchEngine: "GOOGLE",
   marketProfileId: "profile_google_us_desktop",
@@ -49,16 +51,28 @@ describe("IndexingObservation domain boundary", () => {
     }
   });
 
-  it("accepts NULL for the optional market profile and rejects a missing one", () => {
+  it("accepts NULL for the optional market profile and receipt relation and rejects a missing one", () => {
     const parsed = indexingObservationSchema.parse({
       ...VALID_OBSERVATION,
       marketProfileId: null,
+      publicationReceiptId: null,
     });
     expect(parsed.marketProfileId).toBeNull();
+    // NULL means no controlled publication receipt is associated; the boundary
+    // carries the id verbatim when present (no resolution/verification).
+    expect(parsed.publicationReceiptId).toBeNull();
 
-    const without: Record<string, unknown> = { ...VALID_OBSERVATION };
-    delete without.marketProfileId;
-    expect(indexingObservationSchema.safeParse(without).success).toBe(false);
+    const withoutProfile: Record<string, unknown> = { ...VALID_OBSERVATION };
+    delete withoutProfile.marketProfileId;
+    expect(indexingObservationSchema.safeParse(withoutProfile).success).toBe(
+      false,
+    );
+
+    const withoutReceipt: Record<string, unknown> = { ...VALID_OBSERVATION };
+    delete withoutReceipt.publicationReceiptId;
+    expect(indexingObservationSchema.safeParse(withoutReceipt).success).toBe(
+      false,
+    );
   });
 
   it("rejects a row missing any direct field", () => {
@@ -91,14 +105,16 @@ describe("IndexingObservation domain boundary", () => {
 
   it("exports a row type matching the direct storage shape only", () => {
     // Compile-time guard: the domain type later Search/Index tasks import
-    // carries the direct fields plus the append-only createdAt, and no
-    // updatedAt / publication-receipt / crawl-execution / credential field.
+    // carries the direct fields (including the optional publication-receipt
+    // evidence relation) plus the append-only createdAt, and no updatedAt /
+    // verification / crawl-execution / credential field.
     const observation: IndexingObservation = { ...VALID_OBSERVATION };
     expect(observation.url).toBe("https://example.com/blog/post");
     expect(observation.searchEngine).toBe("GOOGLE");
+    expect(observation.publicationReceiptId).toBe("receipt_alpha");
     expect("updatedAt" in observation).toBe(false);
-    expect("publicationReceiptId" in observation).toBe(false);
     expect("normalizedUrl" in observation).toBe(false);
     expect("credentialId" in observation).toBe(false);
+    expect("verifiedAt" in observation).toBe(false);
   });
 });

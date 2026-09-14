@@ -30,6 +30,13 @@ import { searchEngineSchema } from "./search-market-profile";
 //   - `marketProfileId` is nullable (NULL = no profile attached); the storage
 //     composite FK keeps a non-null value same-Project (TASK item 2). Optional,
 //     so it is `.nullable()` rather than `.optional()` at this row boundary.
+//   - `publicationReceiptId` is nullable (NULL = the observation is not
+//     associated with a controlled publication receipt); the storage
+//     Project-leading composite FK keeps a non-null value same-Project and
+//     rejects a dangling receipt id (TASK items 1–2). It is an optional
+//     EVIDENCE RELATION only: this boundary performs no receipt verification,
+//     receipt-to-citation matching or URL identity/normalization, and no
+//     indexing-collection/provider runtime reads it (TASK item 5).
 //   - `observationType` and `status` are opaque required strings: no V1.0
 //     document defines an authoritative enum/status union (TASK item 3), so no
 //     enum, taxonomy or lifecycle transition is invented.
@@ -42,18 +49,17 @@ import { searchEngineSchema } from "./search-market-profile";
 //     decomposes it into relational ids.
 //   - `observedAt` is the required application-supplied observation moment;
 //     `createdAt` is the append-only system insert timestamp. There is no
-//     `updatedAt` and no lifecycle/publication-receipt field (TASK item 2/3).
+//     `updatedAt` and no lifecycle field (TASK items 1/3).
 //
 // The exported `IndexingObservation` row type is the domain shape later
-// Search/Index tasks will consume. The legacy reference table also declares
-// `publication_receipt_id`; it is deliberately NOT shipped before the
-// credential-bound receipt domain exists (TASK item 2).
+// Search/Index tasks will consume.
 
 export type IndexingObservation = InferSelectModel<typeof indexingObservations>;
 
 export const indexingObservationSchema = z.object({
   id: z.string(),
   projectId: z.string(),
+  publicationReceiptId: z.string().nullable(),
   url: z.string(),
   searchEngine: searchEngineSchema,
   marketProfileId: z.string().nullable(),
