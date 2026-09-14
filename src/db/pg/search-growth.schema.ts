@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation, the T133 publication_execution_plans plan core, the T134 platform_drafts draft-evidence core and the T135 publishing_jobs persistence core); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation, the T133 publication_execution_plans plan core, the T134 platform_drafts draft-evidence core and the T135 publishing_jobs persistence core plus the T136 publication_receipts evidence core and its same-Project geo_citations matched-receipt relation); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -993,11 +993,10 @@ export const geoEntityMentions = pgTable(
 //     here.
 //   - `matched_publication_receipt_id` is the optional publication-receipt
 //     relation (§7 `matched_publication_receipt_id?`; migrations-reference.sql
-//     declares the same unconstrained nullable column). The publication_receipts
-//     table does not exist in the accepted schema yet, so this slice stores the
-//     scalar reference exactly as the reference SQL does; the same-Project
-//     composite FK is added by that later task's migration alongside the table
-//     itself.
+//     declares the same nullable column). This slice stores the scalar reference
+//     and the publication_receipts composite FK below, added by the same T136
+//     forward migration that introduces the table, keeps the reference
+//     same-Project at the DB boundary (see PROJECT SCOPING / DELETE BEHAVIOR).
 //   - The reference-only context fields `source_type` and `safe_url_status` are
 //     NOT shipped: the TASK field list names no source-type/safe-URL column.
 //
@@ -1006,10 +1005,22 @@ export const geoEntityMentions = pgTable(
 // CASCADE, and the SAME-PROJECT composite FK
 // (project_id, parse_id) -> geo_observation_parses(project_id, id) rejects a
 // citation whose concrete Parse belongs to another Project or whose own
-// project_id does not match its Parse. Parse-version isolation is structural:
-// citations stay attached to the exact source Parse row (v1 or v2), never to a
-// mutable "current" parse pointer. Deleting a Project or a parse cascades the
-// citation away, so a citation can never dangle.
+// project_id does not match its Parse, while the optional SAME-PROJECT composite
+// FK (project_id, matched_publication_receipt_id) ->
+// publication_receipts(project_id, id) rejects a receipt on another Project or a
+// dangling receipt id (NULL means no receipt matched; the FK is not enforced).
+// Parse-version isolation is structural: citations stay attached to the exact
+// source Parse row (v1 or v2), never to a mutable "current" parse pointer.
+// Deleting a Project or a parse cascades the citation away, so a citation can
+// never dangle.
+//
+// RECEIPT-RECORD DELETE BEHAVIOR: the receipt relation is NO ACTION (restrictive
+// on both dialects) — SET NULL cannot work (it would null the composite FK's
+// NOT NULL project_id lead column) and CASCADE would delete citation evidence
+// when a receipt is removed — so deleting a still-matched receipt is blocked and
+// the citation's matched evidence is preserved until the citation or its Project
+// is removed. The relation is an opaque, same-Project recorded identity only,
+// never a receipt-to-citation attribution decision or a public-success signal.
 //
 // NO BUSINESS UNIQUENESS: the migration reference's `(run_id, normalized_url)`
 // unique index is intentionally NOT shipped — the TASK forbids business
@@ -1058,9 +1069,9 @@ export const geoCitations = pgTable(
       ],
     }).notNull(),
     // Optional publication-receipt relation (§7 `matched_publication_receipt_id?`).
-    // Stored as an unconstrained scalar reference because the publication_receipts
-    // table does not exist in the accepted schema yet; the later task that creates
-    // it adds the same-Project composite FK. NULL = no receipt matched.
+    // Bound same-Project by the composite FK below (publication_receipts arrives
+    // with the T136 forward migration that also adds this FK). NULL = no receipt
+    // matched and the FK is not enforced.
     matchedPublicationReceiptId: text("matched_publication_receipt_id"),
     // Append-only creation timestamp (system insert time). No updated_at column.
     createdAt: text("created_at").notNull().default(isoNow),
@@ -1076,6 +1087,20 @@ export const geoCitations = pgTable(
       columns: [table.projectId, table.parseId],
       foreignColumns: [geoObservationParses.projectId, geoObservationParses.id],
     }).onDelete("cascade"),
+    // Same-Project composite FK to the optional matched publication receipt:
+    // when set, the citation's project_id must equal the receipt's project_id.
+    // The referenced (project_id, id) pair is unique via the supporting
+    // `publication_receipts_project_id_id_idx` unique index added by the T136
+    // forward migration (id is already the PK, so it adds no business
+    // uniqueness). A receipt on another Project or a dangling receipt id has no
+    // matching parent row and is rejected by the DB. NULL
+    // matched_publication_receipt_id means no receipt matched and the FK is not
+    // enforced. Delete behavior is NO ACTION (see the header); same name/actions
+    // as the SQLite side (schema-parity compares FKs incl. onDelete).
+    foreignKey({
+      columns: [table.projectId, table.matchedPublicationReceiptId],
+      foreignColumns: [publicationReceipts.projectId, publicationReceipts.id],
+    }).onDelete("no action"),
     // Parse -> citations reads and the parse-delete cascade path.
     index("geo_citations_parse_idx").on(table.parseId),
   ],
@@ -3508,6 +3533,15 @@ export const publishingJobs = pgTable(
     }).onDelete("cascade"),
     // Source-defined job idempotency identity; same name as the SQLite side.
     uniqueIndex("publishing_jobs_idempotency_key_idx").on(table.idempotencyKey),
+    // Supporting referential parent target added by the T136 forward migration
+    // (0059 PG / 0081 D1) for the publication_receipts same-Project AND
+    // same-ReleaseTarget job composite FK; same name as the SQLite side. `id` is
+    // already the PRIMARY KEY, so it adds NO business uniqueness.
+    uniqueIndex("publishing_jobs_project_id_release_target_id_id_idx").on(
+      table.projectId,
+      table.releaseTargetId,
+      table.id,
+    ),
     // DB-level status enum rejection; same check name as the SQLite side.
     check(
       "publishing_jobs_status_valid",
@@ -3517,6 +3551,134 @@ export const publishingJobs = pgTable(
     check(
       "publishing_jobs_attempts_valid",
       sql`(${table.attempts} >= 0 AND ${table.maxAttempts} >= 1 AND ${table.attempts} <= ${table.maxAttempts})`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the Project-scoped PublicationReceipt
+// evidence core (see ../search-growth.schema.ts for the full field
+// reconciliation, the same-Project/same-ReleaseTarget job integrity and the
+// public-success evidence boundary). Same columns, nullability, Project FK,
+// same-Project ReleaseTarget composite FK, same-Project AND same-ReleaseTarget
+// job composite FK, one-receipt-per-job unique index and named CHECKs as the
+// SQLite side; `schema-parity.test.ts` fails on drift.
+// ============================================================================
+
+export const publicationReceipts = pgTable(
+  "publication_receipts",
+  {
+    id: text("id").primaryKey(),
+    // Explicit Project identity; the legacy reference table has no project_id
+    // but the TASK requires it.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The ONE job this receipt records evidence for; bound same-Project AND
+    // same-ReleaseTarget by the composite FK below.
+    publishingJobId: text("publishing_job_id").notNull(),
+    // The ReleaseTarget the receipt's job belongs to.
+    releaseTargetId: text("release_target_id").notNull(),
+    // Required OPAQUE platform identifier stored verbatim.
+    platform: text("platform").notNull(),
+    // Required OPAQUE executor identity/version stored verbatim.
+    executorId: text("executor_id").notNull(),
+    executorVersion: text("executor_version").notNull(),
+    // Optional OPAQUE recorded external identifiers; not FKs, not proofs.
+    externalDraftId: text("external_draft_id"),
+    externalTaskId: text("external_task_id"),
+    externalContentId: text("external_content_id"),
+    // Optional OPAQUE recorded public URL; never asserts PUBLIC_VERIFIED.
+    publicUrl: text("public_url"),
+    // Required opaque content hash stored verbatim.
+    contentHash: text("content_hash").notNull(),
+    // Required media-hash document as validated JSON text (array of strings).
+    mediaHashesJson: text("media_hashes_json").notNull(),
+    // The source-defined status union the legacy PublicationReceipt declares,
+    // DB-checked below.
+    status: text("status", {
+      enum: [
+        "PLANNED",
+        "PREFLIGHT",
+        "EXECUTION_READY",
+        "STAGING_DRAFT",
+        "DRAFT_CREATED",
+        "DRAFT_VERIFIED",
+        "FINALIZE_READY",
+        "FINALIZING",
+        "VALIDATING",
+        "DRY_RUN_PASSED",
+        "SUBMITTING",
+        "ACCEPTED_REMOTE_TASK",
+        "PUBLISH_SUBMITTED",
+        "PUBLIC_VERIFYING",
+        "PUBLIC_VERIFIED",
+        "AUTH_REQUIRED",
+        "PUBLISH_FIELDS_REQUIRED",
+        "RATE_LIMITED",
+        "REMOTE_STATE_UNKNOWN",
+        "REJECTED",
+        "EXECUTION_FAILED",
+        "VERIFY_FAILED",
+        "CANCELLED",
+      ],
+    }).notNull(),
+    // Optional evidence timestamps; NULL = not recorded.
+    submittedAt: text("submitted_at"),
+    publishedAt: text("published_at"),
+    verifiedAt: text("verified_at"),
+    // Required verification document as validated JSON text (object).
+    verificationJson: text("verification_json").notNull(),
+    // Immutable evidence snapshot: only a creation timestamp, no updated_at.
+    createdAt: text("created_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the ReleaseTarget (cascade); the referenced
+    // (project_id, id) pair is unique via the accepted
+    // `release_targets_project_id_id_idx` from T125 PG 0048.
+    foreignKey({
+      columns: [table.projectId, table.releaseTargetId],
+      foreignColumns: [releaseTargets.projectId, releaseTargets.id],
+    }).onDelete("cascade"),
+    // Same-Project AND same-ReleaseTarget composite FK to the receipt's job
+    // (cascade); the referenced triple is unique via
+    // `publishing_jobs_project_id_release_target_id_id_idx` added by this
+    // forward migration. Same name as the SQLite side.
+    foreignKey({
+      columns: [table.projectId, table.releaseTargetId, table.publishingJobId],
+      foreignColumns: [
+        publishingJobs.projectId,
+        publishingJobs.releaseTargetId,
+        publishingJobs.id,
+      ],
+    }).onDelete("cascade"),
+    // Supporting referential parent target for the geo_citations same-Project
+    // matched-receipt composite FK
+    // ((project_id, matched_publication_receipt_id) ->
+    // publication_receipts(project_id, id)); id is already the PK, so this adds
+    // no business uniqueness. Same name as the SQLite side.
+    uniqueIndex("publication_receipts_project_id_id_idx").on(
+      table.projectId,
+      table.id,
+    ),
+    // Source-defined one-receipt-per-job identity; same name as the SQLite side.
+    uniqueIndex("publication_receipts_publishing_job_id_idx").on(
+      table.publishingJobId,
+    ),
+    // DB-level status enum rejection; same check name as the SQLite side.
+    check(
+      "publication_receipts_status_valid",
+      sql`(${table.status} IN ('PLANNED','PREFLIGHT','EXECUTION_READY','STAGING_DRAFT','DRAFT_CREATED','DRAFT_VERIFIED','FINALIZE_READY','FINALIZING','VALIDATING','DRY_RUN_PASSED','SUBMITTING','ACCEPTED_REMOTE_TASK','PUBLISH_SUBMITTED','PUBLIC_VERIFYING','PUBLIC_VERIFIED','AUTH_REQUIRED','PUBLISH_FIELDS_REQUIRED','RATE_LIMITED','REMOTE_STATE_UNKNOWN','REJECTED','EXECUTION_FAILED','VERIFY_FAILED','CANCELLED'))`,
+    ),
+    // Structured-document validity (same check names as the SQLite json_valid()
+    // checks): casting malformed text to jsonb raises and rejects the insert.
+    check(
+      "publication_receipts_media_hashes_valid",
+      sql`((${table.mediaHashesJson})::jsonb) IS NOT NULL`,
+    ),
+    check(
+      "publication_receipts_verification_valid",
+      sql`((${table.verificationJson})::jsonb) IS NOT NULL`,
     ),
   ],
 );

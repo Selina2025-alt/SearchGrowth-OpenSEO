@@ -568,6 +568,20 @@
       "when": 1789123703465,
       "tag": "0080_milky_ghost_rider",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "6",
+      "when": 1789348629175,
+      "tag": "0081_bouncy_red_skull",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "6",
+      "when": 1789351024967,
+      "tag": "0082_mighty_steve_rogers",
+      "breakpoints": true
     }
   ]
 }

@@ -414,6 +414,20 @@
       "when": 1789123708620,
       "tag": "0058_slippery_dagger",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1789348635175,
+      "tag": "0059_sticky_microbe",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1789351031031,
+      "tag": "0060_dear_red_wolf",
+      "breakpoints": true
     }
   ]
 }
