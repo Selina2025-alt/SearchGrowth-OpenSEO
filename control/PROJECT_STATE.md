@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 4cd2e37
 LAST REVIEW: T138-M2-GEO-FRESH-SAMPLING-CORE ROUND 3 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T138-M2-GEO-FRESH-SAMPLING-CORE passed in Round 3 and merged at 4cd2e37.
+LAST COMPLETED ACTION: T138-M2-GEO-FRESH-SAMPLING-CORE passed and merged at 4cd2e37; T139 Round 1 was dispatched to its isolated Claude worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T139 Round 1, then wait for DELIVERY and perform Fast Review; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T139 DELIVERY, perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -61,7 +61,7 @@ NEXT EXACT ACTION: Dispatch T139 Round 1, then wait for DELIVERY and perform Fas
 
 ## IN PROGRESS
 
-- T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY is authorized for Round 1 dispatch.
+- T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
@@ -69,4 +69,4 @@ NEXT EXACT ACTION: Dispatch T139 Round 1, then wait for DELIVERY and perform Fas
 
 ## NEXT
 
-Dispatch T139 Round 1, then wait for DELIVERY and perform Fast Review. Never merge to `main`.
+WAITING_FOR_EXECUTOR: on T139 DELIVERY, perform Fast Review. Never merge to `main`.
