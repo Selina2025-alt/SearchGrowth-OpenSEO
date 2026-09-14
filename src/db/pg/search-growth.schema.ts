@@ -2846,8 +2846,11 @@ export const runtimeControls = pgTable(
 // isoNow timestamp default; both CHECK names match the SQLite side.
 // See the SQLite table for the full field/enum/JSON/scope reconciliation.
 //
-// `url` stays opaque (no normalization/identity/dedup) and the legacy
-// `publication_receipt_id` is deliberately not shipped (TASK items 2–3).
+// `url` stays opaque (no normalization/identity/dedup) and
+// `publication_receipt_id` is the optional same-Project receipt evidence
+// relation (TASK items 1–2), bound by the Project-leading composite FK below
+// with NO ACTION delete behavior that preserves append-only observation
+// evidence; see the SQLite table for the full reconciliation.
 // ============================================================================
 
 export const indexingObservations = pgTable(
@@ -2859,6 +2862,10 @@ export const indexingObservations = pgTable(
     projectId: text("project_id")
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
+    // Optional same-Project PublicationReceipt evidence relation; NULL means no
+    // controlled publication receipt is associated (TASK items 1–2). Storage
+    // linkage only — no verification/matching/collection runtime (TASK item 5).
+    publicationReceiptId: text("publication_receipt_id"),
     // The observed URL, OPAQUE in this slice (TASK item 2).
     url: text("url").notNull(),
     // The exact SearchEngine union (GOOGLE | BAIDU | BING | OTHER). DB text-enum
@@ -2886,6 +2893,15 @@ export const indexingObservations = pgTable(
       columns: [table.projectId, table.marketProfileId],
       foreignColumns: [searchMarketProfiles.projectId, searchMarketProfiles.id],
     }).onDelete("cascade"),
+    // Same-Project composite FK to the optional PublicationReceipt, reusing the
+    // accepted T136 `publication_receipts_project_id_id_idx` unique target (see
+    // the SQLite table). NO ACTION preserves the append-only observation
+    // evidence when a still-referenced receipt would be deleted; NULL means no
+    // receipt is associated.
+    foreignKey({
+      columns: [table.projectId, table.publicationReceiptId],
+      foreignColumns: [publicationReceipts.projectId, publicationReceipts.id],
+    }).onDelete("no action"),
     // DB-level enum rejection for the one authoritative enum (same check name
     // as the SQLite side).
     check(

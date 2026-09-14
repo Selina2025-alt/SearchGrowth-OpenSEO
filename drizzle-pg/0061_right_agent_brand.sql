@@ -1,0 +1,2 @@
+ALTER TABLE "indexing_observations" ADD COLUMN "publication_receipt_id" text;--> statement-breakpoint
+ALTER TABLE "indexing_observations" ADD CONSTRAINT "indexing_observations_project_id_publication_receipt_id_publication_receipts_project_id_id_fk" FOREIGN KEY ("project_id","publication_receipt_id") REFERENCES "public"."publication_receipts"("project_id","id") ON DELETE no action ON UPDATE no action;

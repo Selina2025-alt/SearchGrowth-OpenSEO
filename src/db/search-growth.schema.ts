@@ -3757,17 +3757,33 @@ export const runtimeControls = sqliteTable(
 //     Search Growth row convention adds. There is deliberately NO `updated_at`:
 //     an observation is a point-in-time fact and TASK item 3 authorizes no
 //     lifecycle transition or update behavior.
-//   - The reference table's `publication_receipt_id` column is NOT shipped
-//     (TASK item 2): the credential-bound publication_receipts domain does not
-//     exist in the accepted schema yet, so no unconstrained receipt reference is
-//     persisted. A later receipt task adds the relation alongside that domain.
+//   - `publication_receipt_id` is the OPTIONAL same-Project PublicationReceipt
+//     this observation is evidence for (legacy reference table column of the
+//     same name, third column position). NULL means the observation is not
+//     associated with a controlled publication receipt. When present, the
+//     Project-leading composite FK below
+//     (project_id, publication_receipt_id) -> publication_receipts(project_id, id)
+//     makes the DB itself reject a receipt from another Project or a dangling
+//     receipt id; the referenced (project_id, id) pair is unique via the
+//     accepted T136 `publication_receipts_project_id_id_idx` (reused, not
+//     recreated). The relation is EVIDENCE LINKAGE ONLY: no receipt
+//     verification, receipt-to-citation matching, URL identity/normalization,
+//     indexing collection, provider/GSC call, polling, retry or scoring runtime
+//     reads it in this slice (TASK GOAL / items 1–2, 5).
 //
 // RELATIONSHIP / DELETE BEHAVIOR: `project_id` is a NOT NULL FK to projects(id)
 // ON DELETE CASCADE; the optional-profile composite FK above also cascades, so
 // deleting a Project or a market profile removes its observations and no
-// observation can dangle. There is NO business-rule unique index (TASK item 3
-// forbids business uniqueness / URL dedup): the two non-unique indexes below
-// serve only project-scoped reads and the market-profile cascade/read path.
+// observation can dangle. The optional receipt relation is NO ACTION (see the
+// FK below): deleting a receipt an observation still references is BLOCKED
+// rather than nulling the pointer (SET NULL cannot work because the composite
+// FK's `project_id` lead column is NOT NULL) or deleting the observation
+// (CASCADE would destroy append-only evidence) — the same choice the accepted
+// T136 `geo_citations` matched-receipt relation makes. A whole-Project teardown
+// still removes both rows because the NO ACTION check runs end-of-statement.
+// There is NO business-rule unique index (TASK item 2 forbids business
+// uniqueness / URL dedup): the two non-unique indexes below serve only
+// project-scoped reads and the market-profile cascade/read path.
 // ============================================================================
 
 export const indexingObservations = sqliteTable(
@@ -3779,6 +3795,12 @@ export const indexingObservations = sqliteTable(
     projectId: text("project_id")
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
+    // Optional same-Project PublicationReceipt this observation is evidence for;
+    // NULL means no controlled publication receipt is associated. The
+    // Project-leading composite FK below keeps a non-null value same-Project
+    // (TASK items 1–2). Evidence linkage only — nothing here verifies a receipt,
+    // matches a citation, resolves a URL or collects indexing data (TASK item 5).
+    publicationReceiptId: text("publication_receipt_id"),
     // The observed URL, OPAQUE in this slice. No normalization/identity key and
     // no dedup rule exists here (TASK item 2; URL identity is later work).
     url: text("url").notNull(),
@@ -3819,6 +3841,24 @@ export const indexingObservations = sqliteTable(
       columns: [table.projectId, table.marketProfileId],
       foreignColumns: [searchMarketProfiles.projectId, searchMarketProfiles.id],
     }).onDelete("cascade"),
+    // Same-Project composite FK to the optional PublicationReceipt: when set,
+    // the observation's project_id must equal the receipt's project_id. The
+    // referenced (project_id, id) pair is unique via the accepted T136
+    // `publication_receipts_project_id_id_idx` unique index (reused, not
+    // recreated; `id` is already the PK, so it adds no business uniqueness).
+    // NULL publication_receipt_id means no receipt is associated and the FK is
+    // not enforced. A receipt on another Project or a dangling receipt id has no
+    // matching parent row and is rejected by the DB.
+    //
+    // Delete behavior is NO ACTION (see the header): deleting a receipt that an
+    // observation still references is blocked rather than nulling the pointer
+    // (SET NULL cannot work because project_id is NOT NULL) or deleting the
+    // append-only observation evidence (CASCADE would). A whole-Project teardown
+    // still removes both rows (the check runs end-of-statement).
+    foreignKey({
+      columns: [table.projectId, table.publicationReceiptId],
+      foreignColumns: [publicationReceipts.projectId, publicationReceipts.id],
+    }).onDelete("no action"),
     // DB-level enum rejection for the one authoritative enum (SearchEngine).
     // The Zod boundary enforces the same list at the runtime edge. PostgreSQL
     // uses the same check name/expression (schema-parity compares check names).
