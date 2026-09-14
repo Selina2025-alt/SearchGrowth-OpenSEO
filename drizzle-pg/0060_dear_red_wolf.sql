@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX "publication_receipts_project_id_id_idx" ON "publication_receipts" USING btree ("project_id","id");--> statement-breakpoint
+ALTER TABLE "geo_citations" ADD CONSTRAINT "geo_citations_project_id_matched_publication_receipt_id_publication_receipts_project_id_id_fk" FOREIGN KEY ("project_id","matched_publication_receipt_id") REFERENCES "public"."publication_receipts"("project_id","id") ON DELETE no action ON UPDATE no action;

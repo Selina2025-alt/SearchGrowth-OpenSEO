@@ -103,6 +103,7 @@ export const {
   publicationExecutionPlans,
   platformDrafts,
   publishingJobs,
+  publicationReceipts,
   searchGrowthAuditEvents,
   runtimeControls,
   indexingObservations,
