@@ -83,3 +83,5 @@
 | T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA | PASS (round 2/3) | 2026-09-14 | control/tasks/T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA/REVIEW.md; receipt evidence core plus same-Project GeoCitation relation, D1/PG 0081–0082 / 0059–0060 parity, 395 focused and 1,931 full tests, format/types/lint/build/ci:check PASS | b1a043 |
 
 | T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION | PASS (round 1/3) | 2026-09-14 | control/tasks/T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION/REVIEW.md; nullable same-Project IndexingObservation/PublicationReceipt composite FK, D1/PG 0083/0061 parity, 387 focused and 1,924 full tests, all required gates PASS | 312479b |
+
+| T138-M2-GEO-FRESH-SAMPLING-CORE | PASS (round 3/3) | 2026-09-14 | control/tasks/T138-M2-GEO-FRESH-SAMPLING-CORE/REVIEW.md; cache-isolated fresh sampling, exact 3/5 provider-call invariant, usable immutable raw evidence, 19 focused and 1,943 full tests, all required gates PASS | 4cd2e37 |

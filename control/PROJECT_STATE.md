@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T138-M2-GEO-FRESH-SAMPLING-CORE
+CURRENT TASK: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 312479b
-LAST REVIEW: T138-M2-GEO-FRESH-SAMPLING-CORE ROUND 2 BLOCKED — empty raw payloads still pass as SUCCEEDED
-CURRENT ROUND: 3 / 3
-LAST COMPLETED ACTION: T138 Round 2 fixed absent/undefined raw payloads but was blocked because null/blank payloads still pass; final bounded Round 3 was dispatched.
+LATEST ACCEPTED COMMIT: 4cd2e37
+LAST REVIEW: T138-M2-GEO-FRESH-SAMPLING-CORE ROUND 3 PASS AND MERGED
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: T138-M2-GEO-FRESH-SAMPLING-CORE passed in Round 3 and merged at 4cd2e37.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T138 Round 3 DELIVERY, verify empty raw-payload rejection and failure propagation; never merge to `main`.
+NEXT EXACT ACTION: Dispatch T139 Round 1, then wait for DELIVERY and perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -57,10 +57,11 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T138 Round 3 DELIVERY, verify empty 
 - T135-M1-PUBLISHING-JOB-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA accepted in round 2 of 3 and merged to `integration/ai-v1`.
 - T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION accepted in round 1 of 3 and merged to `integration/ai-v1`.
+- T138-M2-GEO-FRESH-SAMPLING-CORE accepted in round 3 of 3 and merged to `integration/ai-v1`.
 
 ## IN PROGRESS
 
-- T138-M2-GEO-FRESH-SAMPLING-CORE Round 3 is executing in its isolated Claude worktree to reject empty successful raw payloads.
+- T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY is authorized for Round 1 dispatch.
 
 ## BLOCKED
 
@@ -68,4 +69,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T138 Round 3 DELIVERY, verify empty 
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR: on T138 Round 3 DELIVERY, perform Fast Review. Never merge to `main`.
+Dispatch T139 Round 1, then wait for DELIVERY and perform Fast Review. Never merge to `main`.
