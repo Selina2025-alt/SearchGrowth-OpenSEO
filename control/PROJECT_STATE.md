@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 312479b
 LAST REVIEW: T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION ROUND 1 PASS AND MERGED
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION passed in Round 1 and merged at 312479b.
+LAST COMPLETED ACTION: T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION passed and merged at 312479b; T138 Round 1 was dispatched to its isolated Claude worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T138 Round 1, then wait for DELIVERY and perform Fast Review; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T138 DELIVERY, perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -60,7 +60,7 @@ NEXT EXACT ACTION: Dispatch T138 Round 1, then wait for DELIVERY and perform Fas
 
 ## IN PROGRESS
 
-- T138-M2-GEO-FRESH-SAMPLING-CORE is authorized for Round 1 dispatch.
+- T138-M2-GEO-FRESH-SAMPLING-CORE Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
@@ -68,4 +68,4 @@ NEXT EXACT ACTION: Dispatch T138 Round 1, then wait for DELIVERY and perform Fas
 
 ## NEXT
 
-Dispatch T138 Round 1, then wait for DELIVERY and perform Fast Review. Never merge to `main`.
+WAITING_FOR_EXECUTOR: on T138 DELIVERY, perform Fast Review. Never merge to `main`.
