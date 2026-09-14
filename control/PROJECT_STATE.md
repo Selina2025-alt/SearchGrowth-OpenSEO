@@ -3,15 +3,15 @@
 PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
-CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION
+CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
+CURRENT TASK: T138-M2-GEO-FRESH-SAMPLING-CORE
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: ab1a043
-LAST REVIEW: T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA ROUND 2 PASS AND MERGED
-CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA passed and merged; T137 Round 1 dispatched to Claude in its isolated worktree.
+LATEST ACCEPTED COMMIT: 312479b
+LAST REVIEW: T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION ROUND 1 PASS AND MERGED
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION passed in Round 1 and merged at 312479b.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T137 DELIVERY, perform Fast Review; never merge to `main`.
+NEXT EXACT ACTION: Dispatch T138 Round 1, then wait for DELIVERY and perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -56,10 +56,11 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T137 DELIVERY, perform Fast Review; 
 - T134-M1-PLATFORM-DRAFT-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T135-M1-PUBLISHING-JOB-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA accepted in round 2 of 3 and merged to `integration/ai-v1`.
+- T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION accepted in round 1 of 3 and merged to `integration/ai-v1`.
 
 ## IN PROGRESS
 
-- T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION Round 1 is executing in its isolated Claude worktree.
+- T138-M2-GEO-FRESH-SAMPLING-CORE is authorized for Round 1 dispatch.
 
 ## BLOCKED
 
@@ -67,4 +68,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T137 DELIVERY, perform Fast Review; 
 
 ## NEXT
 
-Dispatch T135 Round 1, then wait for DELIVERY and perform Fast Review. Never merge to `main`.
+Dispatch T138 Round 1, then wait for DELIVERY and perform Fast Review. Never merge to `main`.
