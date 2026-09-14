@@ -8,10 +8,10 @@ CURRENT TASK: T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 29007c6
 LAST REVIEW: T135-M1-PUBLISHING-JOB-CORE-SCHEMA ROUND 1 PASS AND MERGED
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T135-M1-PUBLISHING-JOB-CORE-SCHEMA passed and merged; T136 Round 1 dispatched to Claude in its isolated worktree.
+CURRENT ROUND: 2 / 3
+LAST COMPLETED ACTION: T136 Round 1 Fast Review found the deferred GeoCitation → PublicationReceipt same-Project relation incomplete.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T136 DELIVERY, perform Fast Review; never merge to `main`.
+NEXT EXACT ACTION: Dispatch the bounded T136 Round 2 citation-receipt integrity fix; then wait for DELIVERY and Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -58,7 +58,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T136 DELIVERY, perform Fast Review; 
 
 ## IN PROGRESS
 
-- T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA Round 1 is executing in its isolated Claude worktree.
+- T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA Round 1 is BLOCKED pending a bounded Round 2 same-Project GeoCitation → PublicationReceipt referential-integrity fix.
 
 ## BLOCKED
 
