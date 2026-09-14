@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: ab1a043
 LAST REVIEW: T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA passed and merged; T137 Round 1 is prepared for dispatch.
+LAST COMPLETED ACTION: T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA passed and merged; T137 Round 1 dispatched to Claude in its isolated worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T137 Round 1 to Claude, then wait for DELIVERY and perform Fast Review; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T137 DELIVERY, perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -59,7 +59,7 @@ NEXT EXACT ACTION: Dispatch T137 Round 1 to Claude, then wait for DELIVERY and p
 
 ## IN PROGRESS
 
-- T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION Round 1 is authorized and awaiting executor dispatch.
+- T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION Round 1 is executing in its isolated Claude worktree.
 
 ## BLOCKED
 
