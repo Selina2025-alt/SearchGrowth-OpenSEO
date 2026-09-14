@@ -2,21 +2,26 @@
 
 ## VERDICT
 
-**PASS — Round 1 of 3.**
+**BLOCKED — Round 1 of 3.**
 
 ## VERIFIED
 
-- The fresh-sampling core uses injected provider and recorder ports only. It has no Prompt Explorer, R2, or application-cache dependency; every provider request has the literal `applicationCacheBypassed: true` field.
-- Default sampling performs exactly three sequential provider calls and creates three separate, buffered immutable run facts; explicit high-value sampling is limited to five. Each fact has a unique run ID, provider request ID, repeat index, timestamps, and opaque raw response.
-- The core preserves surface/provenance fields without aggregation or interpretation. It performs no parser, citation, score, numerator/denominator, confidence, or metric work, keeping raw-run and versioned-parse boundaries intact.
-- Malformed and duplicate provider request identities reject before recorder writes. Provider or recorder errors are not caught or retried, so failure/timeout errors propagate instead of being silently treated as successful samples; batch-failure and retry policy remain outside this bounded task.
-- Focused tests passed (11/11); full tests passed (204 files, 1,935 tests); `format:check`, `types:check`, `lint`, `build`, and `ci:check` all exited 0. `git diff --check` is clean.
-- The diff is limited to the fresh GEO core, focused tests, task delivery, and the required worktree-bootstrap papercut entry. No schema/migration, provider credential, external call, cache mutation, publishing, paid, or production behavior was added.
+- The provider and recorder are injected ports. There is no real provider, Prompt Explorer, R2/application-cache, credential, publishing, or production integration.
+- Default and explicit-high-value sampling use independent provider calls and distinct run/request IDs. Cache bypass is a `true` literal on every request and run fact. No metrics, parsing, confidence, or surface aggregation behavior is present.
+- Provider and recorder errors are not caught or retried, so failures and timeouts propagate instead of being silently converted to success. Buffered facts prevent recorder writes after a provider-result validation failure.
+- Delivery evidence records focused tests (11/11), full tests (204 files/1,935 tests), and all required quality gates at exit 0. Targeted source inspection and `git diff --check` are clean.
 
 ## FINDINGS
 
-None.
+### BLOCKER — successful run facts can omit the raw provider response
+
+- **Location:** `src/server/features/search-growth/geo/services/freshGeoSampling.ts`, `providerResultSchema` and `sampleFreshGeoObservation`.
+- **Requirement:** TASK item 3 and the T138 fresh-observation acceptance require every successful repeat to preserve an independent opaque raw provider response. A `SUCCEEDED` raw observation cannot be accepted without a raw payload.
+- **Evidence:** `rawResponse: z.unknown()` accepts `undefined`, including a missing `rawResponse` property. The validated result is then buffered as a `SUCCEEDED` `GeoObservationRunFact` and passed to the recorder. The focused malformed-result cases cover missing/blank `providerRequestId` and non-object results, but not an absent or `undefined` `rawResponse`.
+- **Expected behavior:** a provider result with absent or `undefined` raw response must reject before any recorder write. `null`, strings, objects, arrays, and other defined opaque values may remain valid without interpretation.
+- **Reproduction:** provider returns `{ providerRequestId: "req_0" }` (or `{ providerRequestId: "req_0", rawResponse: undefined }`) for a repeat; the current schema accepts it and records a `SUCCEEDED` fact with no raw response.
+- **Fix acceptance:** require raw-response presence/non-`undefined` at the boundary, add focused rejection tests for both absent and `undefined` raw response with zero recorder writes, and add a provider rejection/timeout propagation test proving zero recorder writes. Do not alter repeat, cache, persistence, parser, metrics, provider, or runtime scope.
 
 ## MERGE DECISION
 
-Merge `ai-task/T138-M2-GEO-FRESH-SAMPLING-CORE` into `integration/ai-v1` only.
+Do not merge. Dispatch one bounded Round 2 implementation fix.
