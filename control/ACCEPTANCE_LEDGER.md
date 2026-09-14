@@ -77,3 +77,5 @@
 | T133-M1-PUBLICATION-EXECUTION-PLAN-CORE-SCHEMA | PASS (round 1/3) | 2026-09-11 | control/tasks/T133-M1-PUBLICATION-EXECUTION-PLAN-CORE-SCHEMA/REVIEW.md; normalized fixed Project-scoped execution-plan contract, D1/PG 0078/0056 parity, 376 focused and 1,842 full tests, format/types/lint/build/ci:check PASS | d361f1 |
 
 | T134-M1-PLATFORM-DRAFT-CORE-SCHEMA | PASS (round 1/3) | 2026-09-11 | control/tasks/T134-M1-PLATFORM-DRAFT-CORE-SCHEMA/REVIEW.md; Project-scoped draft-evidence contract, D1/PG 0079/0057 parity, 376 focused and 1,864 full tests, format/types/lint/build/ci:check PASS | 3776ceb |
+
+| T135-M1-PUBLISHING-JOB-CORE-SCHEMA | PASS (round 1/3) | 2026-09-14 | control/tasks/T135-M1-PUBLISHING-JOB-CORE-SCHEMA/REVIEW.md; same-Project and same-target plan job contract, D1/PG 0080/0058 parity, 386 focused and 1,891 full tests, format/types/lint/build/ci:check PASS | 29007c6 |
