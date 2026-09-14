@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation, the T133 publication_execution_plans plan core and the T134 platform_drafts draft-evidence core); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
+/* eslint-disable max-lines -- the Postgres Search Growth schema mirror carries every V1.0 table (market profiles through the accepted T108 geo_citations plus the T109 search_growth_opportunities, T110 source_refs, T111 claims/claim_source_refs, T112 claim_allowed_market_profiles, T113 claim_allowed_languages, T114 media_assets, T115 published_media_refs, T117 content_packages, T118 content_package_versions, T119 content_package_version_claims, T120 content_package_version_source_refs, T121 content_package_version_media_assets, T122 content_variants, T123 content_variant_media_assets, T124 release_bundles, T125 release_targets, T126 search_growth_audit_events, T127 runtime_controls, T128 indexing_observations, T129 experiments, T130 experiment_snapshots and T131 search_growth_targets additions, plus the T132 search_growth_target_preferred_market_profiles relation, the T133 publication_execution_plans plan core, the T134 platform_drafts draft-evidence core and the T135 publishing_jobs persistence core); the counted non-comment lines sit just past the cap, and splitting the mirror would ripple across the schema-parity/import seam */
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -3301,6 +3301,14 @@ export const publicationExecutionPlans = pgTable(
     uniqueIndex("publication_execution_plans_release_target_id_idx").on(
       table.releaseTargetId,
     ),
+    // Supporting referential parent target added by the T135 forward migration
+    // (0058 PG / 0080 D1) for the publishing_jobs same-Project AND
+    // same-ReleaseTarget composite FK; same name as the SQLite side. `id` is
+    // already the PRIMARY KEY and release_target_id is already unique, so it
+    // adds NO business uniqueness.
+    uniqueIndex(
+      "publication_execution_plans_project_id_release_target_id_id_idx",
+    ).on(table.projectId, table.releaseTargetId, table.id),
     // DB-level route rejection for the source-defined route union (same check
     // name as the SQLite side).
     check(
@@ -3397,6 +3405,118 @@ export const platformDrafts = pgTable(
     check(
       "platform_drafts_asset_hashes_valid",
       sql`((${table.assetHashesJson})::jsonb) IS NOT NULL`,
+    ),
+  ],
+);
+
+// ============================================================================
+// Search Growth V1.0 — Postgres mirror of the Project-scoped PublishingJob
+// persistence core (see ../search-growth.schema.ts for the full field
+// reconciliation and the storage-only / credential-free boundaries). Same
+// columns, nullability, Project FK, same-Project ReleaseTarget composite FK,
+// same-Project AND same-ReleaseTarget plan composite FK, idempotency-key unique
+// index and named CHECKs as the SQLite side; `schema-parity.test.ts` fails on
+// drift.
+// ============================================================================
+
+export const publishingJobs = pgTable(
+  "publishing_jobs",
+  {
+    id: text("id").primaryKey(),
+    // The owning Project; explicit so ownership is never inferred and the
+    // Project FK + same-Project composite FKs below can be enforced.
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    // The ONE ReleaseTarget this job executes; bound to this row's project by
+    // the composite FK below (cascades the job away when the target is deleted).
+    releaseTargetId: text("release_target_id").notNull(),
+    // The fixed PublicationExecutionPlan, bound same-Project AND same-target by
+    // the composite FK below.
+    executionPlanId: text("execution_plan_id").notNull(),
+    // Required OPAQUE executor identity/version stored verbatim.
+    executorId: text("executor_id").notNull(),
+    executorVersion: text("executor_version").notNull(),
+    // The exact source-defined PublishingJobStatus union, DB-checked below.
+    status: text("status", {
+      enum: [
+        "PLANNED",
+        "PREFLIGHT",
+        "EXECUTION_READY",
+        "STAGING_DRAFT",
+        "DRAFT_CREATED",
+        "DRAFT_VERIFIED",
+        "FINALIZE_READY",
+        "FINALIZING",
+        "VALIDATING",
+        "DRY_RUN_PASSED",
+        "SUBMITTING",
+        "ACCEPTED_REMOTE_TASK",
+        "PUBLISH_SUBMITTED",
+        "PUBLIC_VERIFYING",
+        "PUBLIC_VERIFIED",
+        "AUTH_REQUIRED",
+        "PUBLISH_FIELDS_REQUIRED",
+        "RATE_LIMITED",
+        "REMOTE_STATE_UNKNOWN",
+        "REJECTED",
+        "EXECUTION_FAILED",
+        "VERIFY_FAILED",
+        "CANCELLED",
+      ],
+    }).notNull(),
+    // Retry counters; safe numeric bounds are DB-checked below.
+    attempts: integer("attempts").notNull().default(0),
+    maxAttempts: integer("max_attempts").notNull(),
+    // Source-defined job idempotency identity; unique index below.
+    idempotencyKey: text("idempotency_key").notNull(),
+    // Optional lease holder / expiry; NULL = no lease recorded. Storage only.
+    leasedBy: text("leased_by"),
+    leaseExpiresAt: text("lease_expires_at"),
+    // Optional OPAQUE recorded external identifiers; not FKs, not receipts.
+    externalDraftId: text("external_draft_id"),
+    externalTaskId: text("external_task_id"),
+    externalContentId: text("external_content_id"),
+    // Optional OPAQUE recorded public URL; never asserts PUBLIC_VERIFIED.
+    publicUrl: text("public_url"),
+    // Optional SAFE error code/message; NULL = no error recorded.
+    lastErrorCode: text("last_error_code"),
+    lastErrorMessageSafe: text("last_error_message_safe"),
+    // Creation/update timestamps; a job is intentionally mutable bookkeeping.
+    createdAt: text("created_at").notNull().default(isoNow),
+    updatedAt: text("updated_at").notNull().default(isoNow),
+  },
+  (table) => [
+    // Same-Project composite FK to the ReleaseTarget (cascade); the referenced
+    // (project_id, id) pair is unique via the accepted
+    // `release_targets_project_id_id_idx` from T125 PG 0048.
+    foreignKey({
+      columns: [table.projectId, table.releaseTargetId],
+      foreignColumns: [releaseTargets.projectId, releaseTargets.id],
+    }).onDelete("cascade"),
+    // Same-Project AND same-ReleaseTarget composite FK to the chosen plan
+    // (cascade); the referenced triple is unique via
+    // `publication_execution_plans_project_id_release_target_id_id_idx` added by
+    // this forward migration. Same name as the SQLite side.
+    foreignKey({
+      columns: [table.projectId, table.releaseTargetId, table.executionPlanId],
+      foreignColumns: [
+        publicationExecutionPlans.projectId,
+        publicationExecutionPlans.releaseTargetId,
+        publicationExecutionPlans.id,
+      ],
+    }).onDelete("cascade"),
+    // Source-defined job idempotency identity; same name as the SQLite side.
+    uniqueIndex("publishing_jobs_idempotency_key_idx").on(table.idempotencyKey),
+    // DB-level status enum rejection; same check name as the SQLite side.
+    check(
+      "publishing_jobs_status_valid",
+      sql`(${table.status} IN ('PLANNED','PREFLIGHT','EXECUTION_READY','STAGING_DRAFT','DRAFT_CREATED','DRAFT_VERIFIED','FINALIZE_READY','FINALIZING','VALIDATING','DRY_RUN_PASSED','SUBMITTING','ACCEPTED_REMOTE_TASK','PUBLISH_SUBMITTED','PUBLIC_VERIFYING','PUBLIC_VERIFIED','AUTH_REQUIRED','PUBLISH_FIELDS_REQUIRED','RATE_LIMITED','REMOTE_STATE_UNKNOWN','REJECTED','EXECUTION_FAILED','VERIFY_FAILED','CANCELLED'))`,
+    ),
+    // Safe numeric attempt boundaries; same check name as the SQLite side.
+    check(
+      "publishing_jobs_attempts_valid",
+      sql`(${table.attempts} >= 0 AND ${table.maxAttempts} >= 1 AND ${table.attempts} <= ${table.maxAttempts})`,
     ),
   ],
 );
