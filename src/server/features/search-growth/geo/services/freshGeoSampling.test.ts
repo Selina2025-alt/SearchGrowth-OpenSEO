@@ -141,6 +141,23 @@ describe("sampleFreshGeoObservation", () => {
     expect(facts[2]?.rawResponse).toBe(payloads[2]);
   });
 
+  it("accepts a non-empty string raw response as opaque evidence", async () => {
+    const { provider } = makeProvider(async (request) => ({
+      providerRequestId: `req_${request.repeatIndex}`,
+      rawResponse: `raw answer ${request.repeatIndex}`,
+    }));
+    const { recorder, facts } = makeRecorder();
+
+    await sampleFreshGeoObservation(REQUEST, makePorts(provider, recorder));
+
+    expect(facts).toHaveLength(3);
+    expect(facts.map((fact) => fact.rawResponse)).toEqual([
+      "raw answer 0",
+      "raw answer 1",
+      "raw answer 2",
+    ]);
+  });
+
   it("makes exactly five calls and recordings for the explicit high-value request", async () => {
     const { provider, observeMock } = completingProvider();
     const { recorder, record, facts } = makeRecorder();
@@ -179,6 +196,20 @@ describe("sampleFreshGeoObservation", () => {
       { providerRequestId: "   ", rawResponse: {} },
     ],
     ["a non-object provider result", "not-a-result"],
+    ["an absent raw response", { providerRequestId: "req_1" }],
+    [
+      "an undefined raw response",
+      { providerRequestId: "req_1", rawResponse: undefined },
+    ],
+    ["a null raw response", { providerRequestId: "req_1", rawResponse: null }],
+    [
+      "an empty-string raw response",
+      { providerRequestId: "req_1", rawResponse: "" },
+    ],
+    [
+      "a whitespace-only raw response",
+      { providerRequestId: "req_1", rawResponse: "   " },
+    ],
   ])("rejects %s without recording any run fact", async (_label, malformed) => {
     const observeMock = vi.fn(async (request: GeoFreshSampleProviderRequest) =>
       request.repeatIndex === 1
@@ -209,6 +240,29 @@ describe("sampleFreshGeoObservation", () => {
     ).rejects.toThrow(/duplicate providerRequestId/);
     expect(record).not.toHaveBeenCalled();
   });
+
+  it.each([
+    ["rejects", new Error("provider unavailable")],
+    ["times out", new Error("provider request timed out")],
+  ])(
+    "propagates a provider that %s without recording any run fact",
+    async (_label, providerError) => {
+      const { provider, observeMock } = makeProvider(async (request) => {
+        if (request.repeatIndex === 1) throw providerError;
+        return {
+          providerRequestId: `req_${request.repeatIndex}`,
+          rawResponse: {},
+        };
+      });
+      const { recorder, record } = makeRecorder();
+
+      await expect(
+        sampleFreshGeoObservation(REQUEST, makePorts(provider, recorder)),
+      ).rejects.toBe(providerError);
+      expect(observeMock).toHaveBeenCalledTimes(2);
+      expect(record).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe("fresh GEO sampling cache boundary", () => {

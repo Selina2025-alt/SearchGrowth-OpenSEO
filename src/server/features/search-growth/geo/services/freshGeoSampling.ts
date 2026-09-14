@@ -76,13 +76,31 @@ export type GeoFreshSampleProviderRequest = GeoFreshSampleContext & {
   applicationCacheBypassed: true;
 };
 
+/**
+ * Raw evidence is usable only when it is actually present and non-blank. `null`
+ * and empty/whitespace-only strings are treated as absent evidence just like a
+ * missing property; every other defined value (non-empty string, number,
+ * boolean, object, array) is accepted as opaque data and never interpreted.
+ */
+function isUsableRawResponse(value: unknown): boolean {
+  if (value === undefined || value === null) return false;
+  if (typeof value === "string") return value.trim().length > 0;
+  return true;
+}
+
 const providerResultSchema = z.object({
   // A blank/missing/whitespace request identity is rejected outright — there is
   // no generated fallback id, because inventing one would fabricate the
   // provider-request provenance the run fact is supposed to record.
   providerRequestId: z.string().trim().min(1),
-  // Captured verbatim and never interpreted here.
-  rawResponse: z.unknown(),
+  // Captured verbatim and never interpreted here, but it must be usable: a
+  // SUCCEEDED run fact without raw provider evidence would silently drop what
+  // the repeat produced. `z.unknown()` alone accepts every value, hence the
+  // explicit non-blank check.
+  rawResponse: z.unknown().refine(isUsableRawResponse, {
+    message:
+      "raw provider response must be present and non-empty (not undefined, null, or a blank string)",
+  }),
 });
 
 export type GeoFreshSampleProviderResult = z.infer<typeof providerResultSchema>;
@@ -163,7 +181,7 @@ export async function sampleFreshGeoObservation(
     const parsed = providerResultSchema.safeParse(rawResult);
     if (!parsed.success) {
       throw new Error(
-        `GEO fresh sampling: repeat ${repeatIndex} returned a malformed provider result without a usable providerRequestId.`,
+        `GEO fresh sampling: repeat ${repeatIndex} returned a malformed provider result without a usable providerRequestId or raw response.`,
       );
     }
     const { providerRequestId } = parsed.data;
