@@ -7,11 +7,11 @@ CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
 CURRENT TASK: T138-M2-GEO-FRESH-SAMPLING-CORE
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 312479b
-LAST REVIEW: T138-M2-GEO-FRESH-SAMPLING-CORE ROUND 1 BLOCKED — missing raw-response presence validation
-CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T138 Round 1 was independently reviewed and blocked only on successful facts accepting missing raw response; bounded Round 2 was dispatched.
+LAST REVIEW: T138-M2-GEO-FRESH-SAMPLING-CORE ROUND 2 BLOCKED — empty raw payloads still pass as SUCCEEDED
+CURRENT ROUND: 3 / 3
+LAST COMPLETED ACTION: T138 Round 2 fixed absent/undefined raw payloads but was blocked because null/blank payloads still pass; final bounded Round 3 was dispatched.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T138 Round 2 DELIVERY, verify raw-response presence validation and failure propagation; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T138 Round 3 DELIVERY, verify empty raw-payload rejection and failure propagation; never merge to `main`.
 
 ## COMPLETED
 
@@ -60,7 +60,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T138 Round 2 DELIVERY, verify raw-re
 
 ## IN PROGRESS
 
-- T138-M2-GEO-FRESH-SAMPLING-CORE Round 2 is executing in its isolated Claude worktree to require successful raw-response presence.
+- T138-M2-GEO-FRESH-SAMPLING-CORE Round 3 is executing in its isolated Claude worktree to reject empty successful raw payloads.
 
 ## BLOCKED
 
@@ -68,4 +68,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T138 Round 2 DELIVERY, verify raw-re
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR: on T138 Round 2 DELIVERY, perform Fast Review. Never merge to `main`.
+WAITING_FOR_EXECUTOR: on T138 Round 3 DELIVERY, perform Fast Review. Never merge to `main`.
