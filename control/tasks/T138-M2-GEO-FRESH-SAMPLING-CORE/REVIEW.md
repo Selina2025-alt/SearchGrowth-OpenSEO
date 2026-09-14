@@ -2,26 +2,25 @@
 
 ## VERDICT
 
-**BLOCKED — Round 1 of 3.**
+**BLOCKED — Round 2 of 3.**
 
 ## VERIFIED
 
-- The provider and recorder are injected ports. There is no real provider, Prompt Explorer, R2/application-cache, credential, publishing, or production integration.
-- Default and explicit-high-value sampling use independent provider calls and distinct run/request IDs. Cache bypass is a `true` literal on every request and run fact. No metrics, parsing, confidence, or surface aggregation behavior is present.
-- Provider and recorder errors are not caught or retried, so failures and timeouts propagate instead of being silently converted to success. Buffered facts prevent recorder writes after a provider-result validation failure.
-- Delivery evidence records focused tests (11/11), full tests (204 files/1,935 tests), and all required quality gates at exit 0. Targeted source inspection and `git diff --check` are clean.
+- Round 1's missing/`undefined` raw-response defect is fixed: the result boundary now rejects both forms before recorder writes. Focused tests cover both cases and provider rejection/timeout propagation with no recorder writes.
+- Fresh-path invariants remain unchanged: injected provider only, no Prompt Explorer/R2/cache dependency, literal cache bypass, one provider call per repeat, distinct IDs, opaque unparsed payloads, and no metric/parser/provider/persistence/runtime expansion.
+- Delivery records focused tests (15/15), full tests (204 files/1,939 tests), and `format:check`, `types:check`, `lint`, `build`, and `ci:check` at exit 0. Targeted diff and `git diff --check` are clean.
 
 ## FINDINGS
 
-### BLOCKER — successful run facts can omit the raw provider response
+### BLOCKER — empty raw payloads still become successful observations
 
-- **Location:** `src/server/features/search-growth/geo/services/freshGeoSampling.ts`, `providerResultSchema` and `sampleFreshGeoObservation`.
-- **Requirement:** TASK item 3 and the T138 fresh-observation acceptance require every successful repeat to preserve an independent opaque raw provider response. A `SUCCEEDED` raw observation cannot be accepted without a raw payload.
-- **Evidence:** `rawResponse: z.unknown()` accepts `undefined`, including a missing `rawResponse` property. The validated result is then buffered as a `SUCCEEDED` `GeoObservationRunFact` and passed to the recorder. The focused malformed-result cases cover missing/blank `providerRequestId` and non-object results, but not an absent or `undefined` `rawResponse`.
-- **Expected behavior:** a provider result with absent or `undefined` raw response must reject before any recorder write. `null`, strings, objects, arrays, and other defined opaque values may remain valid without interpretation.
-- **Reproduction:** provider returns `{ providerRequestId: "req_0" }` (or `{ providerRequestId: "req_0", rawResponse: undefined }`) for a repeat; the current schema accepts it and records a `SUCCEEDED` fact with no raw response.
-- **Fix acceptance:** require raw-response presence/non-`undefined` at the boundary, add focused rejection tests for both absent and `undefined` raw response with zero recorder writes, and add a provider rejection/timeout propagation test proving zero recorder writes. Do not alter repeat, cache, persistence, parser, metrics, provider, or runtime scope.
+- **Location:** `src/server/features/search-growth/geo/services/freshGeoSampling.ts`, `providerResultSchema.rawResponse`.
+- **Requirement:** A successful immutable raw observation requires preserved raw evidence. T138 acceptance explicitly includes missing, empty, and invalid raw-response failure propagation.
+- **Evidence:** Round 2 rejects only `undefined`; it explicitly allows `null` and blank strings. Thus `{ providerRequestId: "req_1", rawResponse: "" }`, whitespace-only text, or `null` passes validation and is recorded as `SUCCEEDED`, while no actual raw response is available.
+- **Expected behavior:** reject absent, `undefined`, `null`, empty-string, and whitespace-only raw responses before any recorder write. Keep nonempty strings and any defined structured payload opaque; do not parse entities, citations, metrics, or provider-specific response shapes.
+- **Reproduction:** return `{ providerRequestId: "req_1", rawResponse: "" }` on repeat 1. The current implementation records it as a successful run fact.
+- **Fix acceptance:** make this minimal boundary refinement; add parameterized empty/null raw-response cases asserting rejection and zero recorder writes; retain the existing provider rejection/timeout propagation tests. Do not modify repeats, cache behavior, run shape beyond validation, persistence, parser, provider adapters, retry policy, or other scope.
 
 ## MERGE DECISION
 
-Do not merge. Dispatch one bounded Round 2 implementation fix.
+Do not merge. Dispatch the final bounded Round 3 fix.
