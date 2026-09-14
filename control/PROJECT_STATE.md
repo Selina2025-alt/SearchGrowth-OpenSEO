@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M1 Core Domain (M0.5 external feasibility remains gated)
-CURRENT TASK: T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA
+CURRENT TASK: T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 29007c6
-LAST REVIEW: T135-M1-PUBLISHING-JOB-CORE-SCHEMA ROUND 1 PASS AND MERGED
+LATEST ACCEPTED COMMIT: ab1a043
+LAST REVIEW: T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA ROUND 2 PASS AND MERGED
 CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T136 Round 2 bounded citation-receipt integrity fix dispatched to Claude in the existing isolated worktree.
+LAST COMPLETED ACTION: T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA passed and merged; T137 Round 1 is prepared for dispatch.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T136 Round 2 DELIVERY, perform Fast Review; never merge to `main`.
+NEXT EXACT ACTION: Dispatch T137 Round 1 to Claude, then wait for DELIVERY and perform Fast Review; never merge to `main`.
 
 ## COMPLETED
 
@@ -55,10 +55,11 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T136 Round 2 DELIVERY, perform Fast 
 - T133-M1-PUBLICATION-EXECUTION-PLAN-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T134-M1-PLATFORM-DRAFT-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
 - T135-M1-PUBLISHING-JOB-CORE-SCHEMA accepted in round 1 of 3 and merged to `integration/ai-v1`.
+- T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA accepted in round 2 of 3 and merged to `integration/ai-v1`.
 
 ## IN PROGRESS
 
-- T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA Round 2 is executing its bounded GeoCitation → PublicationReceipt same-Project referential-integrity fix.
+- T137-M1-INDEXING-OBSERVATION-PUBLICATION-RECEIPT-RELATION Round 1 is authorized and awaiting executor dispatch.
 
 ## BLOCKED
 

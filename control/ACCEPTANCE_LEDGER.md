@@ -79,3 +79,5 @@
 | T134-M1-PLATFORM-DRAFT-CORE-SCHEMA | PASS (round 1/3) | 2026-09-11 | control/tasks/T134-M1-PLATFORM-DRAFT-CORE-SCHEMA/REVIEW.md; Project-scoped draft-evidence contract, D1/PG 0079/0057 parity, 376 focused and 1,864 full tests, format/types/lint/build/ci:check PASS | 3776ceb |
 
 | T135-M1-PUBLISHING-JOB-CORE-SCHEMA | PASS (round 1/3) | 2026-09-14 | control/tasks/T135-M1-PUBLISHING-JOB-CORE-SCHEMA/REVIEW.md; same-Project and same-target plan job contract, D1/PG 0080/0058 parity, 386 focused and 1,891 full tests, format/types/lint/build/ci:check PASS | 29007c6 |
+
+| T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA | PASS (round 2/3) | 2026-09-14 | control/tasks/T136-M1-PUBLICATION-RECEIPT-CORE-SCHEMA/REVIEW.md; receipt evidence core plus same-Project GeoCitation relation, D1/PG 0081–0082 / 0059–0060 parity, 395 focused and 1,931 full tests, format/types/lint/build/ci:check PASS | b1a043 |
