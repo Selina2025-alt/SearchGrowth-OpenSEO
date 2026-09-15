@@ -54,3 +54,5 @@ control/tasks/*/runs/
 .ai-orchestrator/controller-watcher.state.json
 .ai-orchestrator/logs/*
 !.ai-orchestrator/logs/.gitkeep
+.ai-orchestrator/runtime/*
+!.ai-orchestrator/runtime/.gitkeep

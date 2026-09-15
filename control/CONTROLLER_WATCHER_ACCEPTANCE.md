@@ -12,6 +12,8 @@ Implementation review complete. Installation is performed only from `integration
 - Defaults only to `gpt-5.6-terra`; automatic model fallback is disabled. An unavailable economy model becomes a Human Gate.
 - Does not merge to `main`, publish, spend, use credentials, or remove a stale Git lock.
 - Reuses the existing Controller and Claude dispatcher flow; it does not implement a second Claude executor.
+- Writes ignored, atomic runtime snapshots to `.ai-orchestrator/runtime/STATUS.json` and `STATUS.txt`; the one-command `watcher-status.ps1` reader never invokes an AI model.
+- Records unexpected watcher failures as an explicit Human Gate instead of silently retrying or mutating task worktrees.
 
 ## Validation
 
@@ -30,3 +32,5 @@ The suite parser-checks all watcher scripts and dry-runs these state-machine fix
 - stale Git index lock
 
 The result confirms four planned transition-only Controller invocations, six zero-model paths, and zero Codex invocations for unchanged, running, or Human Gate states.
+
+The test suite also writes and reads an isolated runtime status fixture, confirming the required status fields without using Codex or Claude.
