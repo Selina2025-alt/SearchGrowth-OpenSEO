@@ -15,7 +15,8 @@ $orchestrator = Split-Path -Parent $PSScriptRoot
 $watcher = Join-Path $orchestrator "controller-watcher.ps1"
 $runner = Join-Path $orchestrator "run-controller.ps1"
 $installer = Join-Path $orchestrator "install-controller-watcher.ps1"
-$config = Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
+$configForTests = $ConfigPath
+$config = Get-Content -LiteralPath $configForTests -Raw | ConvertFrom-Json
 
 foreach ($path in @($watcher, $runner, $installer, $PSCommandPath)) {
   $tokens = $null
@@ -34,7 +35,14 @@ foreach ($safety in @("allowMainMerge", "allowProductionPublish", "allowPaidSpen
   Assert-That ($config.safety.$safety -eq $false) "Safety flag '$safety' must remain false."
 }
 
-$fixtures = @(
+# A real checkpoint context must expose the same replay-suppression field as
+# dry-run fixtures; strict mode otherwise fails before it can decide safely.
+. $watcher -ConfigPath $configForTests
+$liveContext = Get-WatcherContext $config
+Assert-That ($null -ne $liveContext.PSObject.Properties["PriorHandled"]) "Live watcher context must define PriorHandled."
+Assert-That ($liveContext.PriorHandled -eq $false) "Live watcher context must default PriorHandled to false."
+
+$fixtureCases = @(
   @{ Name = "ClaudeRunning"; State = "CLAUDE_RUNNING"; Action = "EXIT"; Codex = $false },
   @{ Name = "DeliveryNewer"; State = "NEEDS_FAST_REVIEW"; Action = "INVOKE_CONTROLLER"; Codex = $true },
   @{ Name = "DeliveryAlreadyHandled"; State = "NEEDS_FAST_REVIEW"; Action = "SUPPRESS_ALREADY_HANDLED"; Codex = $false },
@@ -48,17 +56,17 @@ $fixtures = @(
 )
 
 $results = @()
-foreach ($fixture in $fixtures) {
-  $json = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $watcher -ConfigPath $ConfigPath -DryRun -Fixture $fixture.Name -AsJson
-  Assert-That ($LASTEXITCODE -eq 0) "Fixture '$($fixture.Name)' exited $LASTEXITCODE."
+foreach ($case in $fixtureCases) {
+  $json = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $watcher -ConfigPath $configForTests -DryRun -Fixture $case.Name -AsJson
+  Assert-That ($LASTEXITCODE -eq 0) "Fixture '$($case.Name)' exited $LASTEXITCODE."
   $actual = $json | ConvertFrom-Json
-  Assert-That ($actual.detectedState -eq $fixture.State) "Fixture '$($fixture.Name)' state '$($actual.detectedState)' expected '$($fixture.State)'."
-  Assert-That ($actual.action -eq $fixture.Action) "Fixture '$($fixture.Name)' action '$($actual.action)' expected '$($fixture.Action)'."
-  Assert-That ([bool]$actual.codexInvoked -eq $fixture.Codex) "Fixture '$($fixture.Name)' Codex invocation plan mismatched."
+  Assert-That ($actual.detectedState -eq $case.State) "Fixture '$($case.Name)' state '$($actual.detectedState)' expected '$($case.State)'."
+  Assert-That ($actual.action -eq $case.Action) "Fixture '$($case.Name)' action '$($actual.action)' expected '$($case.Action)'."
+  Assert-That ([bool]$actual.codexInvoked -eq $case.Codex) "Fixture '$($case.Name)' Codex invocation plan mismatched."
   $results += $actual
 }
 
-$runnerJson = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $runner -ConfigPath $ConfigPath -TaskId "T-FIXTURE" -DetectedState "NEEDS_FAST_REVIEW" -DryRun
+$runnerJson = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $runner -ConfigPath $configForTests -TaskId "T-FIXTURE" -DetectedState "NEEDS_FAST_REVIEW" -DryRun
 Assert-That ($LASTEXITCODE -eq 0) "Runner dry run exited $LASTEXITCODE."
 $runnerResult = $runnerJson | ConvertFrom-Json
 Assert-That ($runnerResult.model -eq $config.codex.controllerModel) "Runner changed the configured controller model."
@@ -67,7 +75,7 @@ Assert-That ($runnerResult.sandbox -eq "workspace-write") "Runner sandbox change
 
 [pscustomobject]@{
   status = "PASS"
-  fixtureCount = $fixtures.Count
+  fixtureCount = $fixtureCases.Count
   codexInvocationPlans = @($results | Where-Object { $_.codexInvoked }).Count
   zeroModelFixtures = @($results | Where-Object { -not $_.codexInvoked }).Count
   noStateChangeCodexInvocations = @($results | Where-Object { $_.detectedState -in @("CLAUDE_RUNNING", "NO_ACTION", "HUMAN_GATE") -and $_.codexInvoked }).Count

@@ -115,6 +115,7 @@ function Get-WatcherContext {
     HumanGate = Test-ActiveHumanGate $Config.repositoryRoot
     GitLock = Get-GitLockState $Config.repositoryRoot
     Interruption = Get-ExecutorInterruption $taskDirectory
+    PriorHandled = $false
   }
 }
 
