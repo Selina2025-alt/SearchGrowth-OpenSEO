@@ -2,26 +2,28 @@
 
 ## VERDICT
 
-**BLOCKED — Round 1 of 3.**
+**BLOCKED — Round 2 of 3.**
 
 ## VERIFIED
 
-- The repository implements the accepted recorder port using one plain INSERT per run fact. It has no update, upsert, dedupe, retry, provider, cache, workflow, credential, or production behavior.
-- Provenance mapping covers the accepted successful-fact fields, records every repeat as a separate row, preserves immutable existing rows, and lets duplicate-ID and same-Project FK failures propagate. Focused tests exercise real local migration DDL and the production adapter path.
-- Strings are preserved verbatim; valid structured JSON is serialized; rejected root values write no row. Delivery records 414 focused assertions, 1,957 full tests, and all aggregate quality gates at exit 0. `git diff --check` is clean.
-- Failure/run-status workflow policy remains outside this task: the T138 core propagates provider errors without a successful fact, and this repository persists only supplied `SUCCEEDED` facts. It does not silently convert failed samples to success.
+- Round 1's top-level and nested `NaN`/infinity/`undefined`/function/symbol/BigInt/cycle loss cases are now covered by a pre-serialization traversal and focused real-SQL tests. The repository remains one INSERT per accepted fact with no update, upsert, dedupe, provider, cache, workflow, or schema change.
+- Same-Project FK and duplicate-ID errors still surface; independent repeats persist separately; existing rows are not modified. Delivery records focused tests (431), full tests (205 files/1,974 tests), and all required quality gates at exit 0.
 
 ## FINDINGS
 
-### BLOCKER — JSON serialization can silently alter nested or non-finite raw evidence
+### BLOCKER — JSON-safe traversal rejects valid evidence and still permits several lossy shapes
 
-- **Location:** `src/server/features/search-growth/geo/repositories/GeoObservationRunRecorderRepository.ts`, `serializeGeoRawResponse`.
-- **Requirement:** TASK item 3 requires opaque raw evidence to be persisted faithfully or rejected before INSERT. It forbids a lossy placeholder.
-- **Evidence:** `JSON.stringify(NaN)` and `JSON.stringify(Infinity)` return `"null"`, so valid-looking root values are persisted as a different raw value. `JSON.stringify({ nested: undefined })` drops the property; nested functions, symbols, BigInts, non-finite numbers, and circular structures likewise can be dropped, rewritten, or throw. The DELIVERY records the non-finite conversion as a known limitation.
-- **Expected behavior:** accept a JSON-safe raw tree only: nonempty strings, booleans, finite numbers, arrays, and plain-object properties recursively composed of JSON-safe values (with nested `null` allowed). Reject non-finite numbers, `undefined`, functions, symbols, BigInts, cycles, and non-plain/custom objects anywhere in the tree before INSERT. Keep accepted payloads opaque and do not normalize or parse business content.
-- **Reproduction:** recording a fact with `rawResponse: NaN` stores `raw_response = "null"`; recording `{ nested: undefined }` stores `{}`. Both lose original provider evidence.
-- **Fix acceptance:** implement the smallest pre-serialization JSON-safety validation; add focused tests for root and nested lossy values with zero rows written, plus a nested valid JSON payload that round-trips unchanged. Do not change database schema/migrations, provider/sampling/cache behavior, workflow/retry policy, or any other runtime scope.
+- **Location:** `src/server/features/search-growth/geo/repositories/GeoObservationRunRecorderRepository.ts`, `assertJsonSafeRawResponse`, `assertJsonSafeArray`, and `assertJsonSafeObject`.
+- **Requirement:** Valid JSON payloads must retain their raw-evidence semantics, while values JSON cannot faithfully carry must be rejected before INSERT.
+- **Evidence:**
+  1. The traversal rejects a blank string at every nested path. `{ optionalAnswer: "" }` is valid JSON and faithfully serializes/restores; only the *root* raw capture needs to be nonempty. Rejecting nested blank strings invents a content policy and prevents valid provider evidence from being stored.
+  2. Arrays do not check `Object.getOwnPropertySymbols`, so an array with a symbol-keyed property passes validation while JSON silently drops that property.
+  3. Enumerable accessor properties pass the object/array checks and are read with `Reflect.get`; getters can produce a different value or side effect between validation and `JSON.stringify`, so the persisted text is not proven to be the validated raw evidence.
+  4. `-0` is finite but JSON serializes it as `0`, losing its value.
+- **Expected behavior:** root string evidence must remain nonblank. Nested JSON strings, including `""`, are valid JSON values and must be preserved. Before serialization, reject symbol-keyed properties on arrays, accessor properties, and `-0`, in addition to the already covered invalid values. Read only data-descriptor values during validation; keep all accepted payloads opaque.
+- **Reproduction:** `{ optionalAnswer: "" }` currently rejects despite round-tripping through JSON. Conversely, `Object.assign([1], { [Symbol("s")]: 1 })`, an enumerable getter property, and `-0` can pass the current validator while JSON drops or rewrites data.
+- **Fix acceptance:** add only these boundary corrections and focused tests: nested empty string round-trips; root blank string still rejects; array symbol, object/array accessor, and root/nested `-0` reject with zero rows. Do not change INSERT mapping, schema/migrations, sampling/cache/provider behavior, workflow/retry policy, or other scope.
 
 ## MERGE DECISION
 
-Do not merge. Dispatch a bounded Round 2 implementation fix.
+Do not merge. Dispatch the final bounded Round 3 fix.
