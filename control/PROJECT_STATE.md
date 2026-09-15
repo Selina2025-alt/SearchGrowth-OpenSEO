@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 4cd2e37
 LAST REVIEW: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY ROUND 2 BLOCKED — JSON-safe boundary over/under-validation
 CURRENT ROUND: 3 / 3
-LAST COMPLETED ACTION: T139 Round 2 fixed most lossy serialization cases but was blocked on valid nested empty strings and remaining array/accessor/-0 gaps; final Round 3 was dispatched.
+LAST COMPLETED ACTION: Deterministic Controller Watcher maintenance merged to integration/ai-v1 at 0197c6c; T139 executor/worktree remains untouched.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: MODEL ESCALATION REQUIRED before implementing the production-safe Controller Watcher maintenance worktree. Preserve T139 executor/worktree unchanged; after switch, inspect the current checkpoint and implement, dry-run, then install the watcher.
+NEXT EXACT ACTION: Install the validated local watcher, then let it monitor the existing T139 checkpoint and invoke the economy-tier Controller only on a state change.
 
 ## COMPLETED
 
@@ -69,4 +69,4 @@ NEXT EXACT ACTION: MODEL ESCALATION REQUIRED before implementing the production-
 
 ## NEXT
 
-MODEL ESCALATION PENDING: production-safe Controller Watcher architecture requires Sol; T139 executor/worktree remains unchanged. Never merge to `main`.
+Controller Watcher implementation is merged. Daily automation uses the economy-tier Terra configuration with no automatic Sol fallback; T139 executor/worktree remains unchanged. Never merge to `main`.
