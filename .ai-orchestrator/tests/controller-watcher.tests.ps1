@@ -15,10 +15,11 @@ $orchestrator = Split-Path -Parent $PSScriptRoot
 $watcher = Join-Path $orchestrator "controller-watcher.ps1"
 $runner = Join-Path $orchestrator "run-controller.ps1"
 $installer = Join-Path $orchestrator "install-controller-watcher.ps1"
+$statusScript = Join-Path $orchestrator "watcher-status.ps1"
 $configForTests = $ConfigPath
 $config = Get-Content -LiteralPath $configForTests -Raw | ConvertFrom-Json
 
-foreach ($path in @($watcher, $runner, $installer, $PSCommandPath)) {
+foreach ($path in @($watcher, $runner, $installer, $statusScript, $PSCommandPath)) {
   $tokens = $null
   $errors = $null
   [void][System.Management.Automation.Language.Parser]::ParseFile($path, [ref]$tokens, [ref]$errors)
@@ -73,6 +74,32 @@ Assert-That ($runnerResult.model -eq $config.codex.controllerModel) "Runner chan
 Assert-That ($runnerResult.stdin -eq "explicit EOF") "Runner does not declare explicit stdin EOF."
 Assert-That ($runnerResult.sandbox -eq "workspace-write") "Runner sandbox changed."
 
+$statusJson = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $statusScript -ConfigPath $configForTests -AsJson
+Assert-That ($LASTEXITCODE -eq 0) "Status command exited $LASTEXITCODE."
+$statusResult = $statusJson | ConvertFrom-Json
+Assert-That ($null -ne $statusResult.watcherStatus) "Status command did not return WATCHER_STATUS."
+Assert-That ($statusResult.schedule -eq "every $($config.scheduler.intervalMinutes) minutes") "Status command schedule is incorrect."
+
+$temporaryRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("search-growth-watcher-status-" + [guid]::NewGuid().ToString("N"))
+try {
+  New-Item -ItemType Directory -Force -Path $temporaryRoot | Out-Null
+  $temporaryConfig = ($config | ConvertTo-Json -Depth 8 | ConvertFrom-Json)
+  $temporaryConfig.repositoryRoot = $temporaryRoot
+  $temporaryConfigPath = Join-Path $temporaryRoot "watcher.config.json"
+  $temporaryConfig | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $temporaryConfigPath -Encoding UTF8
+  $fixtureContext = Get-FixtureContext "DeliveryNewer"
+  $fixtureDecision = Get-WatcherDecision $fixtureContext
+  Write-WatcherStatus $temporaryConfig $fixtureContext $fixtureDecision "TEST_STATUS_WRITE" 0
+  $writtenStatus = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $statusScript -ConfigPath $temporaryConfigPath -AsJson
+  Assert-That ($LASTEXITCODE -eq 0) "Status command on a written runtime state exited $LASTEXITCODE."
+  $written = $writtenStatus | ConvertFrom-Json
+  Assert-That ($written.currentTask -eq "T-FIXTURE") "Written status current task is incorrect."
+  Assert-That ($written.lastControllerAction -eq "TEST_STATUS_WRITE") "Written status action is incorrect."
+  Assert-That ($written.humanActionRequired -eq $false) "Normal status unexpectedly requires human action."
+} finally {
+  if (Test-Path -LiteralPath $temporaryRoot) { Remove-Item -LiteralPath $temporaryRoot -Recurse -Force }
+}
+
 [pscustomobject]@{
   status = "PASS"
   fixtureCount = $fixtureCases.Count
@@ -80,4 +107,5 @@ Assert-That ($runnerResult.sandbox -eq "workspace-write") "Runner sandbox change
   zeroModelFixtures = @($results | Where-Object { -not $_.codexInvoked }).Count
   noStateChangeCodexInvocations = @($results | Where-Object { $_.detectedState -in @("CLAUDE_RUNNING", "NO_ACTION", "HUMAN_GATE") -and $_.codexInvoked }).Count
   runner = $runnerResult
+  watcherStatus = $statusResult.watcherStatus
 } | ConvertTo-Json -Compress

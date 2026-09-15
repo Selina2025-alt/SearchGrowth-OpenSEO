@@ -11,7 +11,8 @@
     "mutexName": "Local\\SearchGrowth-Controller-Watcher",
     "lockFile": ".ai-orchestrator\\controller-watcher.lock",
     "stateFile": ".ai-orchestrator\\controller-watcher.state.json",
-    "logDirectory": ".ai-orchestrator\\logs"
+    "logDirectory": ".ai-orchestrator\\logs",
+    "runtimeDirectory": ".ai-orchestrator\\runtime"
   },
   "codex": {
     "executablePath": "C:\\Users\\Administrator\\AppData\\Local\\OpenAI\\Codex\\bin\\1e3e57cdf0634c02\\codex.exe",

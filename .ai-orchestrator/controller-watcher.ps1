@@ -18,6 +18,7 @@ function Get-ControllerWatcherConfig {
     if ($null -eq $config.$name) { throw "Watcher config is missing '$name'." }
   }
   if ([string]::IsNullOrWhiteSpace($config.codex.executablePath)) { throw "Watcher config is missing codex.executablePath." }
+  if ([string]::IsNullOrWhiteSpace($config.watcher.runtimeDirectory)) { throw "Watcher config is missing watcher.runtimeDirectory." }
   if ($config.codex.controllerModel -match "(?i)sol") { throw "Watcher config must not default to a Sol model." }
   if ($config.codex.allowModelFallback -ne $false) { throw "Watcher config must disable automatic model fallback." }
   return $config
@@ -106,6 +107,7 @@ function Get-WatcherContext {
   return [pscustomobject]@{
     TaskId = $taskId
     Round = Get-RoundNumber (Get-ProjectStateValue $state "CURRENT ROUND")
+    ProjectState = $state
     ClaudeRunning = Get-ExecutorRunning $taskId
     DeliveryExists = $null -ne $deliveryItem
     DeliveryTicks = if ($null -ne $deliveryItem) { $deliveryItem.LastWriteTimeUtc.Ticks } else { 0 }
@@ -122,7 +124,7 @@ function Get-WatcherContext {
 function Get-FixtureContext {
   param([string]$Name)
   $base = [pscustomobject]@{
-    TaskId = "T-FIXTURE"; Round = 1; ClaudeRunning = $false; DeliveryExists = $false; DeliveryTicks = 0; ReviewExists = $false; ReviewTicks = 0; ReviewBlocked = $false; HumanGate = $false; GitLock = [pscustomobject]@{ Exists = $false; Active = $false; Path = "fixture.lock" }; Interruption = $null; PriorHandled = $false
+    TaskId = "T-FIXTURE"; Round = 1; ProjectState = "LATEST ACCEPTED COMMIT: fixture-pass"; ClaudeRunning = $false; DeliveryExists = $false; DeliveryTicks = 0; ReviewExists = $false; ReviewTicks = 0; ReviewBlocked = $false; HumanGate = $false; GitLock = [pscustomobject]@{ Exists = $false; Active = $false; Path = "fixture.lock" }; Interruption = $null; PriorHandled = $false
   }
   switch ($Name) {
     "ClaudeRunning" { $base.ClaudeRunning = $true }
@@ -175,6 +177,78 @@ function Write-WatcherLog {
   New-Item -ItemType Directory -Force -Path $logDir | Out-Null
   $path = Join-Path $logDir ("controller-watcher-{0}.jsonl" -f (Get-Date -Format "yyyyMMdd"))
   ($Entry | ConvertTo-Json -Compress -Depth 6) | Add-Content -LiteralPath $path -Encoding UTF8
+}
+
+function Get-StatusTimestamp {
+  param([long]$Ticks)
+  if ($Ticks -le 0) { return $null }
+  return ([datetime]::new($Ticks, [System.DateTimeKind]::Utc)).ToString("o")
+}
+
+function Get-NextActionText {
+  param([object]$Decision)
+  switch ($Decision.Action) {
+    "INVOKE_CONTROLLER" { return "Invoke the economy-tier Controller once for $($Decision.State)." }
+    "SUPPRESS_ALREADY_HANDLED" { return "Await a newer Delivery, Review, or executor state." }
+    "WRITE_HUMAN_GATE" { return "Await Product Owner action; automatic recovery is prohibited." }
+    default { return "Await a state change; no model invocation is needed." }
+  }
+}
+
+function Write-WatcherStatus {
+  param(
+    [object]$Config,
+    [object]$Context,
+    [object]$Decision,
+    [string]$LastControllerAction,
+    [int]$ControllerExitCode = 0,
+    [string]$WatcherStatus = "ACTIVE",
+    [string]$Failure = $null
+  )
+  $runtimeDirectory = Resolve-RepositoryPath $Config $Config.watcher.runtimeDirectory
+  New-Item -ItemType Directory -Force -Path $runtimeDirectory | Out-Null
+  $acceptedCommit = if ($null -ne $Context.ProjectState) { Get-ProjectStateValue $Context.ProjectState "LATEST ACCEPTED COMMIT" } else { $null }
+  $humanAction = [bool]$Context.HumanGate -or $Decision.Action -eq "WRITE_HUMAN_GATE" -or $WatcherStatus -eq "FAILED"
+  $status = [ordered]@{
+    watcherStatus = $WatcherStatus
+    schedule = "every $($Config.scheduler.intervalMinutes) minutes"
+    currentTask = $Context.TaskId
+    currentRound = $Context.Round
+    currentState = $Decision.State
+    claudeRunning = [bool]$Context.ClaudeRunning
+    lastWatcherCheck = (Get-Date).ToUniversalTime().ToString("o")
+    lastDelivery = Get-StatusTimestamp $Context.DeliveryTicks
+    lastReview = Get-StatusTimestamp $Context.ReviewTicks
+    lastPassMergeCommit = $acceptedCommit
+    lastControllerAction = $LastControllerAction
+    controllerExitCode = $ControllerExitCode
+    nextAction = Get-NextActionText $Decision
+    humanActionRequired = $humanAction
+    failure = $Failure
+  }
+  $jsonPath = Join-Path $runtimeDirectory "STATUS.json"
+  $textPath = Join-Path $runtimeDirectory "STATUS.txt"
+  $jsonTemp = "$jsonPath.tmp"
+  $textTemp = "$textPath.tmp"
+  $status | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $jsonTemp -Encoding UTF8
+  Move-Item -LiteralPath $jsonTemp -Destination $jsonPath -Force
+  @(
+    "WATCHER_STATUS: $($status.watcherStatus)",
+    "SCHEDULE: $($status.schedule)",
+    "CURRENT_TASK: $($status.currentTask)",
+    "CURRENT_ROUND: $($status.currentRound)",
+    "CURRENT_STATE: $($status.currentState)",
+    "CLAUDE_RUNNING: $($status.claudeRunning)",
+    "LAST_WATCHER_CHECK: $($status.lastWatcherCheck)",
+    "LAST_DELIVERY: $($status.lastDelivery)",
+    "LAST_REVIEW: $($status.lastReview)",
+    "LAST_PASS_MERGE_COMMIT: $($status.lastPassMergeCommit)",
+    "LAST_CONTROLLER_ACTION: $($status.lastControllerAction)",
+    "NEXT_ACTION: $($status.nextAction)",
+    "HUMAN_ACTION_REQUIRED: $($status.humanActionRequired)",
+    "FAILURE: $($status.failure)"
+  ) | Set-Content -LiteralPath $textTemp -Encoding UTF8
+  Move-Item -LiteralPath $textTemp -Destination $textPath -Force
 }
 
 function Write-DeterministicHumanGate {
@@ -244,6 +318,8 @@ function Invoke-ControllerWatcher {
   if (-not $DryRun) {
     if ($exitCode -ne 0 -and $decision.InvokeCodex) { Write-DeterministicHumanGate $Config $Context ([pscustomobject]@{ State = "CONTROLLER_EXECUTION_FAILED" }) }
     Write-WatcherState $Config ([pscustomobject]@{ lastInvocationFingerprint = $fingerprint; lastControllerExitCode = $exitCode; lastState = $decision.State; updatedAt = $result.timestamp })
+    $lastAction = if ($decision.InvokeCodex) { "CONTROLLER_INVOKED:$($decision.State)" } else { $decision.Action }
+    Write-WatcherStatus $Config $Context $decision $lastAction $exitCode
     Write-WatcherLog $Config $result
   }
   return $result
@@ -259,6 +335,7 @@ function Invoke-Main {
 }
 
 if ($MyInvocation.InvocationName -ne ".") {
+  $config = $null
   $mutex = New-Object System.Threading.Mutex($false, (Get-ControllerWatcherConfig $ConfigPath).watcher.mutexName)
   $hasMutex = $false
   try {
@@ -272,6 +349,23 @@ if ($MyInvocation.InvocationName -ne ".") {
     $lockPath = Resolve-RepositoryPath $config $config.watcher.lockFile
     if (-not $DryRun) { [pscustomobject]@{ pid = $PID; startedAt = (Get-Date).ToUniversalTime().ToString("o") } | ConvertTo-Json | Set-Content -LiteralPath $lockPath -Encoding UTF8 }
     Invoke-Main
+  } catch {
+    $failure = $_.Exception.Message
+    try {
+      if (-not $DryRun -and $null -ne $config) {
+        $statePath = Join-Path $config.repositoryRoot "control\PROJECT_STATE.md"
+        $state = if (Test-Path -LiteralPath $statePath) { Get-Content -LiteralPath $statePath -Raw } else { "" }
+        $failureContext = [pscustomobject]@{
+          TaskId = Get-ProjectStateValue $state "CURRENT TASK"; Round = Get-RoundNumber (Get-ProjectStateValue $state "CURRENT ROUND"); ProjectState = $state
+          ClaudeRunning = $false; DeliveryTicks = 0; ReviewTicks = 0; HumanGate = $false
+        }
+        $failureDecision = [pscustomobject]@{ State = "WATCHER_FAILURE"; Action = "WRITE_HUMAN_GATE"; InvokeCodex = $false }
+        Write-DeterministicHumanGate $config $failureContext $failureDecision
+        Write-WatcherStatus $config $failureContext $failureDecision "WATCHER_FAILURE" 1 "FAILED" $failure
+      }
+    } catch {}
+    [Console]::Error.WriteLine($failure)
+    exit 1
   } finally {
     if ($hasMutex) {
       try { if (-not $DryRun -and $null -ne $config) { Remove-Item -LiteralPath (Resolve-RepositoryPath $config $config.watcher.lockFile) -Force -ErrorAction SilentlyContinue } } catch {}
