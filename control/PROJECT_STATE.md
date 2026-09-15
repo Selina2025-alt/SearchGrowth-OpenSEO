@@ -9,7 +9,7 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 4cd2e37
 LAST REVIEW: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY ROUND 2 BLOCKED — JSON-safe boundary over/under-validation
 CURRENT ROUND: 3 / 3
-LAST COMPLETED ACTION: Deterministic Controller Watcher runtime observability is active; `watcher-status.ps1` reads ignored STATUS.json/STATUS.txt without any AI call.
+LAST COMPLETED ACTION: Watcher Windows PowerShell compatibility repaired; direct status command and a manually triggered no-op Scheduled Task both exited 0 and refreshed ignored runtime status.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
 NEXT EXACT ACTION: Watcher monitors the existing T139 checkpoint and invokes the economy-tier Controller only on a state change.
 

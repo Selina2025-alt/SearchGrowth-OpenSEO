@@ -86,4 +86,4 @@
 
 | T138-M2-GEO-FRESH-SAMPLING-CORE | PASS (round 3/3) | 2026-09-14 | control/tasks/T138-M2-GEO-FRESH-SAMPLING-CORE/REVIEW.md; cache-isolated fresh sampling, exact 3/5 provider-call invariant, usable immutable raw evidence, 19 focused and 1,943 full tests, all required gates PASS | 4cd2e37 |
 
-| CONTROLLER-WATCHER-RUNTIME-OBSERVABILITY | PASS | 2026-09-15 | control/CONTROLLER_WATCHER_ACCEPTANCE.md; ignored atomic runtime status, no-model status reader, 10 state-machine fixtures and isolated status write/read validation PASS | f568200 |
+| CONTROLLER-WATCHER-RUNTIME-OBSERVABILITY | PASS | 2026-09-15 | control/CONTROLLER_WATCHER_ACCEPTANCE.md; ignored atomic runtime status, no-model status reader, 10 state-machine fixtures, isolated status write/read, direct Windows PowerShell status command, and manually triggered no-op task PASS | 81e1984 |

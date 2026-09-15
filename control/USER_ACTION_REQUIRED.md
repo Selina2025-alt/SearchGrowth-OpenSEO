@@ -2,4 +2,4 @@
 
 NO_ACTIVE_HUMAN_GATE
 
-The approved temporary Sol escalation for Controller Watcher implementation has concluded. Daily Controller automation is pinned to the economy-tier Terra configuration; it has no automatic model fallback.
+The prior Watcher failure gate was caused by a repaired Windows PowerShell parameter-binding defect. T139 implementation remains unchanged; the deterministic watcher is being revalidated with a no-model no-op scheduled-task run.
