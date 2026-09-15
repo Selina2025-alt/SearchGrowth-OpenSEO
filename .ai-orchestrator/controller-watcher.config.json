@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "repositoryRoot": "D:\\company project\\SearchGrowth-OpenSEO",
+  "integrationBranch": "integration/ai-v1",
+  "scheduler": {
+    "taskName": "SearchGrowth-Controller-Watcher",
+    "intervalMinutes": 10,
+    "executionTimeoutSeconds": 1200
+  },
+  "watcher": {
+    "mutexName": "Local\\SearchGrowth-Controller-Watcher",
+    "lockFile": ".ai-orchestrator\\controller-watcher.lock",
+    "stateFile": ".ai-orchestrator\\controller-watcher.state.json",
+    "logDirectory": ".ai-orchestrator\\logs"
+  },
+  "codex": {
+    "executablePath": "C:\\Users\\Administrator\\AppData\\Local\\OpenAI\\Codex\\bin\\1e3e57cdf0634c02\\codex.exe",
+    "observedVersion": "codex-cli 0.153.1",
+    "controllerModel": "gpt-5.6-terra",
+    "reasoningEffort": "medium",
+    "sandbox": "workspace-write",
+    "invocationTimeoutSeconds": 1200,
+    "allowModelFallback": false
+  },
+  "safety": {
+    "allowMainMerge": false,
+    "allowProductionPublish": false,
+    "allowPaidSpend": false,
+    "allowDestructiveOperation": false
+  }
+}

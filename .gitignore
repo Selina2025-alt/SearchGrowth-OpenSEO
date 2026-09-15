@@ -49,3 +49,8 @@ dist-sourcemaps/
 control/AI_ENVIRONMENT_REPORT.md
 .ai-worktrees/
 control/tasks/*/runs/
+# Runtime artifacts for the deterministic local Controller Watcher
+.ai-orchestrator/controller-watcher.lock
+.ai-orchestrator/controller-watcher.state.json
+.ai-orchestrator/logs/*
+!.ai-orchestrator/logs/.gitkeep
