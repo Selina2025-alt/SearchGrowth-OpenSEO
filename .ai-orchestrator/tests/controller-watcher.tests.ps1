@@ -67,6 +67,12 @@ foreach ($case in $fixtureCases) {
   $results += $actual
 }
 
+$statusOnlyJson = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $watcher -ConfigPath $configForTests -DryRun -Fixture "DeliveryNewer" -StatusOnly -AsJson
+Assert-That ($LASTEXITCODE -eq 0) "Status-only watcher exited $LASTEXITCODE."
+$statusOnlyResult = $statusOnlyJson | ConvertFrom-Json
+Assert-That ($statusOnlyResult.action -eq "STATUS_ONLY") "Status-only watcher action is incorrect."
+Assert-That ($statusOnlyResult.codexInvoked -eq $false) "Status-only watcher must never invoke Codex."
+
 $runnerJson = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $runner -ConfigPath $configForTests -TaskId "T-FIXTURE" -DetectedState "NEEDS_FAST_REVIEW" -DryRun
 Assert-That ($LASTEXITCODE -eq 0) "Runner dry run exited $LASTEXITCODE."
 $runnerResult = $runnerJson | ConvertFrom-Json
