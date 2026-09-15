@@ -70,12 +70,35 @@ try {
 
   $powershellPath = (Get-Command powershell.exe -ErrorAction Stop).Source
   $arguments = ('-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "{0}" -ConfigPath "{1}"' -f $watcherPath, $ConfigPath)
-  $action = New-ScheduledTaskAction -Execute $powershellPath -Argument $arguments
-  $trigger = New-ScheduledTaskTrigger -Daily -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes ([int]$config.scheduler.intervalMinutes)) -RepetitionDuration (New-TimeSpan -Days 1)
-  $settings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Seconds ([int]$config.scheduler.executionTimeoutSeconds)) -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
   $user = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-  $principal = New-ScheduledTaskPrincipal -UserId $user -LogonType Interactive -RunLevel Limited
-  Register-ScheduledTask -TaskName $config.scheduler.taskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Force | Out-Null
+  # The ScheduledTasks cmdlet supports repetition only for a one-time trigger.
+  # Use the native task XML CalendarTrigger so every Windows version gets a
+  # daily trigger with a durable ten-minute repetition pattern.
+  $escape = { param([string]$Value) [System.Security.SecurityElement]::Escape($Value) }
+  $startBoundary = (Get-Date).AddMinutes(1).ToString("s")
+  $interval = "PT{0}M" -f [int]$config.scheduler.intervalMinutes
+  $timeout = "PT{0}S" -f [int]$config.scheduler.executionTimeoutSeconds
+  $taskXml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>$startBoundary</StartBoundary>
+      <Enabled>true</Enabled>
+      <Repetition><Interval>$interval</Interval><Duration>P1D</Duration><StopAtDurationEnd>false</StopAtDurationEnd></Repetition>
+      <ScheduleByDay><DaysInterval>1</DaysInterval></ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="WatcherUser"><UserId>$(& $escape $user)</UserId><LogonType>InteractiveToken</LogonType><RunLevel>LeastPrivilege</RunLevel></Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy><DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries><StopIfGoingOnBatteries>false</StopIfGoingOnBatteries><StartWhenAvailable>true</StartWhenAvailable><ExecutionTimeLimit>$timeout</ExecutionTimeLimit>
+  </Settings>
+  <Actions Context="WatcherUser"><Exec><Command>$(& $escape $powershellPath)</Command><Arguments>$(& $escape $arguments)</Arguments></Exec></Actions>
+</Task>
+"@
+  Register-ScheduledTask -TaskName $config.scheduler.taskName -Xml $taskXml -Force | Out-Null
   [pscustomobject]@{ watcherStatus = "ACTIVE"; taskScheduler = "INSTALLED"; taskName = $config.scheduler.taskName; intervalMinutes = $config.scheduler.intervalMinutes; codexPath = $config.codex.executablePath; controllerModel = $config.codex.controllerModel; cliVersion = $config.codex.observedVersion } | ConvertTo-Json -Compress
   exit 0
 } catch {
