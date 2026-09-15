@@ -7,11 +7,11 @@ CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
 CURRENT TASK: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 4cd2e37
-LAST REVIEW: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY ROUND 1 BLOCKED — lossy raw JSON serialization
-CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T139 Round 1 was independently reviewed and blocked only on lossy raw-evidence JSON serialization; bounded Round 2 was dispatched.
+LAST REVIEW: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY ROUND 2 BLOCKED — JSON-safe boundary over/under-validation
+CURRENT ROUND: 3 / 3
+LAST COMPLETED ACTION: T139 Round 2 fixed most lossy serialization cases but was blocked on valid nested empty strings and remaining array/accessor/-0 gaps; final Round 3 was dispatched.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T139 Round 2 DELIVERY, verify recursive JSON-safety validation; never merge to `main`.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T139 Round 3 DELIVERY, verify final JSON-safe boundary corrections; never merge to `main`.
 
 ## COMPLETED
 
@@ -61,7 +61,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T139 Round 2 DELIVERY, verify recurs
 
 ## IN PROGRESS
 
-- T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY Round 2 is executing in its isolated Claude worktree to reject lossy raw payload serialization.
+- T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY Round 3 is executing in its isolated Claude worktree for final JSON-safe boundary corrections.
 
 ## BLOCKED
 
@@ -69,4 +69,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T139 Round 2 DELIVERY, verify recurs
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR: on T139 Round 2 DELIVERY, perform Fast Review. Never merge to `main`.
+WAITING_FOR_EXECUTOR: on T139 Round 3 DELIVERY, perform Fast Review. Never merge to `main`.
