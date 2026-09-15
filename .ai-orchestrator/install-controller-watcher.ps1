@@ -1,11 +1,14 @@
 [CmdletBinding()]
 param(
-  [string]$ConfigPath = (Join-Path $PSScriptRoot "controller-watcher.config.json"),
+  [string]$ConfigPath,
   [switch]$SkipTests
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+$scriptDirectory = Split-Path -Parent $PSCommandPath
+if ([string]::IsNullOrWhiteSpace($scriptDirectory)) { throw "Unable to resolve the watcher installer script directory." }
+if ([string]::IsNullOrWhiteSpace($ConfigPath)) { $ConfigPath = Join-Path $scriptDirectory "controller-watcher.config.json" }
 
 function ConvertTo-WindowsCommandLineArgument {
   param([AllowEmptyString()][string]$Argument)
@@ -56,8 +59,8 @@ try {
   $resolvedConfigPath = (Resolve-Path -LiteralPath $ConfigPath).Path
   $configText = Get-Content -LiteralPath $resolvedConfigPath -Raw
   $config = $configText | ConvertFrom-Json
-  $watcherPath = Join-Path $PSScriptRoot "controller-watcher.ps1"
-  $testPath = Join-Path $PSScriptRoot "tests\controller-watcher.tests.ps1"
+  $watcherPath = Join-Path $scriptDirectory "controller-watcher.ps1"
+  $testPath = Join-Path $scriptDirectory "tests\controller-watcher.tests.ps1"
   if (-not (Test-Path -LiteralPath $watcherPath)) { throw "Watcher script is missing: $watcherPath" }
   $codexCommand = Get-Command codex.exe -ErrorAction Stop
   $codexPath = $codexCommand.Source

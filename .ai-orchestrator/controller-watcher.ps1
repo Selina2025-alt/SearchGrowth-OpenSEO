@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-  [string]$ConfigPath = (Join-Path $PSScriptRoot "controller-watcher.config.json"),
+  [string]$ConfigPath,
   [switch]$DryRun,
   [ValidateSet("ClaudeRunning", "DeliveryNewer", "DeliveryAlreadyHandled", "ReviewNewer", "NoDelivery429", "NoDeliveryMaxTurns", "BlockedRound1", "BlockedRound3", "HumanGate", "StaleGitLock")]
   [string]$Fixture,
@@ -10,6 +10,9 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+$scriptDirectory = Split-Path -Parent $PSCommandPath
+if ([string]::IsNullOrWhiteSpace($scriptDirectory)) { throw "Unable to resolve the watcher script directory." }
+if ([string]::IsNullOrWhiteSpace($ConfigPath)) { $ConfigPath = Join-Path $scriptDirectory "controller-watcher.config.json" }
 
 function Get-ControllerWatcherConfig {
   param([string]$Path)
@@ -284,10 +287,9 @@ function Write-WatcherState {
 
 function Invoke-ControllerProcess {
   param([object]$Config, [object]$Context, [object]$Decision)
-  $runner = Join-Path $PSScriptRoot "run-controller.ps1"
-  $arguments = @("-ConfigPath", (Join-Path $PSScriptRoot "controller-watcher.config.json"), "-TaskId", $Context.TaskId, "-DetectedState", $Decision.State)
+  $runner = Join-Path $scriptDirectory "run-controller.ps1"
   $exitCode = 1
-  & $runner @arguments
+  & $runner -ConfigPath (Join-Path $scriptDirectory "controller-watcher.config.json") -TaskId $Context.TaskId -DetectedState $Decision.State
   $exitCode = $LASTEXITCODE
   return $exitCode
 }

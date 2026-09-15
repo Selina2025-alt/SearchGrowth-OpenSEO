@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-  [string]$ConfigPath = (Join-Path $PSScriptRoot "controller-watcher.config.json"),
+  [string]$ConfigPath,
   [Parameter(Mandatory = $true)][string]$TaskId,
   [Parameter(Mandatory = $true)][ValidateSet("NEEDS_FAST_REVIEW", "NEEDS_EXECUTOR_RECOVERY", "NEEDS_FIX_ROUND")][string]$DetectedState,
   [switch]$DryRun
@@ -8,6 +8,9 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+$scriptDirectory = Split-Path -Parent $PSCommandPath
+if ([string]::IsNullOrWhiteSpace($scriptDirectory)) { throw "Unable to resolve the Controller runner script directory." }
+if ([string]::IsNullOrWhiteSpace($ConfigPath)) { $ConfigPath = Join-Path $scriptDirectory "controller-watcher.config.json" }
 
 function Get-RunnerConfig {
   param([string]$Path)
