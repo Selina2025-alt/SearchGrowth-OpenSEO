@@ -4,7 +4,8 @@ param(
   [switch]$DryRun,
   [ValidateSet("ClaudeRunning", "DeliveryNewer", "DeliveryAlreadyHandled", "ReviewNewer", "NoDelivery429", "NoDeliveryMaxTurns", "BlockedRound1", "BlockedRound3", "HumanGate", "StaleGitLock")]
   [string]$Fixture,
-  [switch]$AsJson
+  [switch]$AsJson,
+  [switch]$StatusOnly
 )
 
 Set-StrictMode -Version Latest
@@ -329,6 +330,13 @@ function Invoke-Main {
   $config = Get-ControllerWatcherConfig $ConfigPath
   if ($Fixture) { $context = Get-FixtureContext $Fixture } else { $context = Get-WatcherContext $config }
   if ($Fixture -eq "DeliveryAlreadyHandled") { $context.PriorHandled = $true }
+  if ($StatusOnly) {
+    $decision = Get-WatcherDecision $context
+    if (-not $DryRun) { Write-WatcherStatus $config $context $decision "STATUS_ONLY" 0 }
+    $result = [pscustomobject]@{ timestamp = (Get-Date).ToUniversalTime().ToString("o"); task = $context.TaskId; detectedState = $decision.State; action = "STATUS_ONLY"; codexInvoked = $false; exitCode = 0; nextState = Get-NextActionText $decision }
+    if ($AsJson) { $result | ConvertTo-Json -Compress } else { $result }
+    return
+  }
   $result = Invoke-ControllerWatcher $config $context
   if ($AsJson) { $result | ConvertTo-Json -Compress } else { $result }
   if ($result.exitCode -ne 0) { exit $result.exitCode }
