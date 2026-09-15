@@ -11,7 +11,7 @@ LAST REVIEW: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY ROUND 2 BLOCKED —
 CURRENT ROUND: 3 / 3
 LAST COMPLETED ACTION: T139 Round 2 fixed most lossy serialization cases but was blocked on valid nested empty strings and remaining array/accessor/-0 gaps; final Round 3 was dispatched.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T139 Round 3 DELIVERY, verify final JSON-safe boundary corrections; never merge to `main`.
+NEXT EXACT ACTION: MODEL ESCALATION REQUIRED before implementing the production-safe Controller Watcher maintenance worktree. Preserve T139 executor/worktree unchanged; after switch, inspect the current checkpoint and implement, dry-run, then install the watcher.
 
 ## COMPLETED
 
@@ -69,4 +69,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR. On T139 Round 3 DELIVERY, verify final 
 
 ## NEXT
 
-WAITING_FOR_EXECUTOR: on T139 Round 3 DELIVERY, perform Fast Review. Never merge to `main`.
+MODEL ESCALATION PENDING: production-safe Controller Watcher architecture requires Sol; T139 executor/worktree remains unchanged. Never merge to `main`.
