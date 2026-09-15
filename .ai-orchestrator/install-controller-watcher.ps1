@@ -53,7 +53,8 @@ function Invoke-ProcessWithEof {
 }
 
 try {
-  $configText = Get-Content -LiteralPath $ConfigPath -Raw
+  $resolvedConfigPath = (Resolve-Path -LiteralPath $ConfigPath).Path
+  $configText = Get-Content -LiteralPath $resolvedConfigPath -Raw
   $config = $configText | ConvertFrom-Json
   $watcherPath = Join-Path $PSScriptRoot "controller-watcher.ps1"
   $testPath = Join-Path $PSScriptRoot "tests\controller-watcher.tests.ps1"
@@ -70,12 +71,12 @@ try {
   if ($config.codex.executablePath -ne $codexPath -or $config.codex.observedVersion -ne $detectedVersion) {
     $config.codex.executablePath = $codexPath
     $config.codex.observedVersion = $detectedVersion
-    $config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ConfigPath -Encoding UTF8
+    $config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $resolvedConfigPath -Encoding UTF8
   }
-  if (-not $SkipTests) { & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $testPath -ConfigPath $ConfigPath; if ($LASTEXITCODE -ne 0) { throw "Watcher dry-run test suite failed." } }
+  if (-not $SkipTests) { & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $testPath -ConfigPath $resolvedConfigPath; if ($LASTEXITCODE -ne 0) { throw "Watcher dry-run test suite failed." } }
 
   $powershellPath = (Get-Command powershell.exe -ErrorAction Stop).Source
-  $arguments = ('-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "{0}" -ConfigPath "{1}"' -f $watcherPath, $ConfigPath)
+  $arguments = ('-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "{0}" -ConfigPath "{1}"' -f $watcherPath, $resolvedConfigPath)
   $user = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
   # The ScheduledTasks cmdlet supports repetition only for a one-time trigger.
   # Use the native task XML CalendarTrigger so every Windows version gets a
