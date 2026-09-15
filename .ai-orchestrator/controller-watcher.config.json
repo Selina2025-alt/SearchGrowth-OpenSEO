@@ -20,6 +20,7 @@
     "controllerModel": "gpt-5.6-terra",
     "reasoningEffort": "medium",
     "sandbox": "workspace-write",
+    "useApproveForMe": false,
     "invocationTimeoutSeconds": 1200,
     "allowModelFallback": false
   },

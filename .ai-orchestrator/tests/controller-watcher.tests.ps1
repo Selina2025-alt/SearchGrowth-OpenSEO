@@ -36,6 +36,7 @@ Assert-That (Test-Path -LiteralPath $config.codex.executablePath) "Configured Co
 Assert-That ([string]$config.codex.controllerModel -match "(?i)terra") "Daily controller model must be Terra."
 Assert-That ([string]$config.codex.controllerModel -notmatch "(?i)sol") "Watcher must not default to Sol."
 Assert-That ($config.codex.allowModelFallback -eq $false) "Automatic model fallback must be disabled."
+Assert-That ($config.codex.useApproveForMe -eq $false) "Sandboxed Controller must not use --approve-for-me."
 foreach ($safety in @("allowMainMerge", "allowProductionPublish", "allowPaidSpend", "allowDestructiveOperation")) {
   Assert-That ($config.safety.$safety -eq $false) "Safety flag '$safety' must remain false."
 }
@@ -108,6 +109,38 @@ $runnerResult = $runnerJson | ConvertFrom-Json
 Assert-That ($runnerResult.model -eq $config.codex.controllerModel) "Runner changed the configured controller model."
 Assert-That ($runnerResult.stdin -eq "explicit EOF") "Runner does not declare explicit stdin EOF."
 Assert-That ($runnerResult.sandbox -eq "workspace-write") "Runner sandbox changed."
+
+$invalidConfigPath = Join-Path ([System.IO.Path]::GetTempPath()) ("search-growth-watcher-invalid-cli-" + [guid]::NewGuid().ToString("N") + ".json")
+try {
+  $invalidConfig = ($config | ConvertTo-Json -Depth 8 | ConvertFrom-Json)
+  $invalidConfig.codex.useApproveForMe = $true
+  $invalidConfig | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $invalidConfigPath -Encoding UTF8
+  $null = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $runner -ConfigPath $invalidConfigPath -TaskId "T-FIXTURE" -DetectedState "NEEDS_FAST_REVIEW" -DryRun 2>&1
+  Assert-That ($LASTEXITCODE -ne 0) "Invalid sandbox/approve CLI configuration was not rejected by dry run."
+} finally {
+  Remove-Item -LiteralPath $invalidConfigPath -Force -ErrorAction SilentlyContinue
+}
+
+$failureRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("search-growth-watcher-failure-" + [guid]::NewGuid().ToString("N"))
+try {
+  New-Item -ItemType Directory -Force -Path $failureRoot | Out-Null
+  $failureConfig = ($config | ConvertTo-Json -Depth 8 | ConvertFrom-Json)
+  $failureConfig.repositoryRoot = $failureRoot
+  $failureContext = Get-FixtureContext "DeliveryNewer"
+  $failureDecision = Get-WatcherDecision $failureContext
+  $failureFingerprint = Get-DecisionFingerprint $failureContext $failureDecision
+  Write-WatcherState $failureConfig ([pscustomobject]@{ lastInvocationFingerprint = $failureFingerprint; lastControllerExitCode = 2; lastState = "NEEDS_FAST_REVIEW"; updatedAt = "fixture" })
+  $suppressed = Invoke-ControllerWatcher $failureConfig $failureContext
+  Assert-That ($suppressed.detectedState -eq "HUMAN_GATE_ON_CONTROLLER_FAILURE") "Failed Controller state was not promoted to a Human Gate."
+  Assert-That ($suppressed.action -eq "SUPPRESS_CONTROLLER_FAILURE") "Failed Controller state was not suppressed."
+  Assert-That ($suppressed.codexInvoked -eq $false) "Repeated failed Controller fingerprint invoked Codex."
+  $reset = Reset-FailedControllerInvocation $failureConfig
+  Assert-That ($reset.reset -eq $true) "Explicit failed Controller reset did not clear the fingerprint."
+  $afterReset = Get-WatcherDecision $failureContext
+  Assert-That ($afterReset.InvokeCodex -eq $true) "Explicit reset did not permit one new Controller invocation."
+} finally {
+  if (Test-Path -LiteralPath $failureRoot) { Remove-Item -LiteralPath $failureRoot -Recurse -Force }
+}
 
 $statusJson = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $statusScript -ConfigPath $configForTests -AsJson
 Assert-That ($LASTEXITCODE -eq 0) "Status command exited $LASTEXITCODE."

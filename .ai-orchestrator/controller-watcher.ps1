@@ -5,7 +5,8 @@ param(
   [ValidateSet("ClaudeRunning", "DeliveryNewer", "DeliveryAlreadyHandled", "ReviewNewer", "NoDelivery429", "NoDeliveryMaxTurns", "BlockedRound1", "BlockedRound3", "HumanGate", "StaleGitLock")]
   [string]$Fixture,
   [switch]$AsJson,
-  [switch]$StatusOnly
+  [switch]$StatusOnly,
+  [switch]$ResetFailedControllerInvocation
 )
 
 Set-StrictMode -Version Latest
@@ -194,6 +195,7 @@ function Get-NextActionText {
   switch ($Decision.Action) {
     "INVOKE_CONTROLLER" { return "Invoke the economy-tier Controller once for $($Decision.State)." }
     "SUPPRESS_ALREADY_HANDLED" { return "Await a newer Delivery, Review, or executor state." }
+    "SUPPRESS_CONTROLLER_FAILURE" { return "Await an explicit Human Gate recovery/reset or a new state fingerprint." }
     "WRITE_HUMAN_GATE" { return "Await Product Owner action; automatic recovery is prohibited." }
     default { return "Await a state change; no model invocation is needed." }
   }
@@ -212,7 +214,7 @@ function Write-WatcherStatus {
   $runtimeDirectory = Resolve-RepositoryPath $Config $Config.watcher.runtimeDirectory
   New-Item -ItemType Directory -Force -Path $runtimeDirectory | Out-Null
   $acceptedCommit = if ($null -ne $Context.ProjectState) { Get-ProjectStateValue $Context.ProjectState "LATEST ACCEPTED COMMIT" } else { $null }
-  $humanAction = [bool]$Context.HumanGate -or $Decision.Action -eq "WRITE_HUMAN_GATE" -or $WatcherStatus -eq "FAILED"
+  $humanAction = [bool]$Context.HumanGate -or $Decision.Action -eq "WRITE_HUMAN_GATE" -or $Decision.State -eq "HUMAN_GATE_ON_CONTROLLER_FAILURE" -or $WatcherStatus -eq "FAILED"
   $status = [ordered]@{
     watcherStatus = $WatcherStatus
     schedule = "every $($Config.scheduler.intervalMinutes) minutes"
@@ -285,6 +287,17 @@ function Write-WatcherState {
   $State | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $path -Encoding UTF8
 }
 
+function Reset-FailedControllerInvocation {
+  param([object]$Config)
+  $prior = Read-WatcherState $Config
+  if ($null -eq $prior -or $prior.lastControllerExitCode -eq 0) {
+    return [pscustomobject]@{ reset = $false; reason = "No failed Controller invocation is recorded." }
+  }
+  $path = Resolve-RepositoryPath $Config $Config.watcher.stateFile
+  Remove-Item -LiteralPath $path -Force
+  return [pscustomobject]@{ reset = $true; reason = "Failed Controller invocation reset; the next state change may invoke once." }
+}
+
 function Invoke-ControllerProcess {
   param([object]$Config, [object]$Context, [object]$Decision)
   $runner = Join-Path $scriptDirectory "run-controller.ps1"
@@ -299,8 +312,12 @@ function Invoke-ControllerWatcher {
   $decision = Get-WatcherDecision $Context
   $fingerprint = Get-DecisionFingerprint $Context $decision
   $prior = Read-WatcherState $Config
-  if ($null -ne $prior -and $prior.lastInvocationFingerprint -eq $fingerprint -and $prior.lastControllerExitCode -eq 0 -and $decision.InvokeCodex) {
-    $decision = [pscustomobject]@{ State = $decision.State; Action = "SUPPRESS_ALREADY_HANDLED"; InvokeCodex = $false }
+  if ($null -ne $prior -and $prior.lastInvocationFingerprint -eq $fingerprint -and $decision.InvokeCodex) {
+    if ($prior.lastControllerExitCode -eq 0) {
+      $decision = [pscustomobject]@{ State = $decision.State; Action = "SUPPRESS_ALREADY_HANDLED"; InvokeCodex = $false }
+    } else {
+      $decision = [pscustomobject]@{ State = "HUMAN_GATE_ON_CONTROLLER_FAILURE"; Action = "SUPPRESS_CONTROLLER_FAILURE"; InvokeCodex = $false }
+    }
   }
   $exitCode = 0
   if ($decision.Action -eq "WRITE_HUMAN_GATE") {
@@ -319,7 +336,10 @@ function Invoke-ControllerWatcher {
     fingerprint = $fingerprint
   }
   if (-not $DryRun) {
-    if ($exitCode -ne 0 -and $decision.InvokeCodex) { Write-DeterministicHumanGate $Config $Context ([pscustomobject]@{ State = "CONTROLLER_EXECUTION_FAILED" }) }
+    if ($exitCode -ne 0 -and $decision.InvokeCodex) {
+      $decision = [pscustomobject]@{ State = "HUMAN_GATE_ON_CONTROLLER_FAILURE"; Action = "CONTROLLER_EXECUTION_FAILED"; InvokeCodex = $false }
+      Write-DeterministicHumanGate $Config $Context $decision
+    }
     Write-WatcherState $Config ([pscustomobject]@{ lastInvocationFingerprint = $fingerprint; lastControllerExitCode = $exitCode; lastState = $decision.State; updatedAt = $result.timestamp })
     $lastAction = if ($decision.InvokeCodex) { "CONTROLLER_INVOKED:$($decision.State)" } else { $decision.Action }
     Write-WatcherStatus $Config $Context $decision $lastAction $exitCode
@@ -330,6 +350,11 @@ function Invoke-ControllerWatcher {
 
 function Invoke-Main {
   $config = Get-ControllerWatcherConfig $ConfigPath
+  if ($ResetFailedControllerInvocation) {
+    $result = Reset-FailedControllerInvocation $config
+    if ($AsJson) { $result | ConvertTo-Json -Compress } else { $result }
+    return
+  }
   if ($Fixture) { $context = Get-FixtureContext $Fixture } else { $context = Get-WatcherContext $config }
   if ($Fixture -eq "DeliveryAlreadyHandled") { $context.PriorHandled = $true }
   if ($StatusOnly) {
