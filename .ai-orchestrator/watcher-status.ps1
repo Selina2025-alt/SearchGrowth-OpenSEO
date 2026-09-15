@@ -1,11 +1,14 @@
 [CmdletBinding()]
 param(
-  [string]$ConfigPath = (Join-Path $PSScriptRoot "controller-watcher.config.json"),
+  [string]$ConfigPath,
   [switch]$AsJson
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+$scriptDirectory = Split-Path -Parent $PSCommandPath
+if ([string]::IsNullOrWhiteSpace($scriptDirectory)) { throw "Unable to resolve the watcher status script directory." }
+if ([string]::IsNullOrWhiteSpace($ConfigPath)) { $ConfigPath = Join-Path $scriptDirectory "controller-watcher.config.json" }
 
 try {
   $config = Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json

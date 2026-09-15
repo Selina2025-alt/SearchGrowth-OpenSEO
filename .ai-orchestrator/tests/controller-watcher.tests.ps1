@@ -18,6 +18,10 @@ $installer = Join-Path $orchestrator "install-controller-watcher.ps1"
 $statusScript = Join-Path $orchestrator "watcher-status.ps1"
 $configForTests = $ConfigPath
 $config = Get-Content -LiteralPath $configForTests -Raw | ConvertFrom-Json
+$fixtureConfigPath = Join-Path ([System.IO.Path]::GetTempPath()) ("search-growth-watcher-fixture-" + [guid]::NewGuid().ToString("N") + ".json")
+$fixtureConfig = ($config | ConvertTo-Json -Depth 8 | ConvertFrom-Json)
+$fixtureConfig.watcher.mutexName = "Local\SearchGrowth-Controller-Watcher-Test-$PID"
+$fixtureConfig | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $fixtureConfigPath -Encoding UTF8
 
 foreach ($path in @($watcher, $runner, $installer, $statusScript, $PSCommandPath)) {
   $tokens = $null
@@ -43,6 +47,31 @@ $liveContext = Get-WatcherContext $config
 Assert-That ($null -ne $liveContext.PSObject.Properties["PriorHandled"]) "Live watcher context must define PriorHandled."
 Assert-That ($liveContext.PriorHandled -eq $false) "Live watcher context must default PriorHandled to false."
 
+$runnerTestDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("search-growth-watcher-runner-" + [guid]::NewGuid().ToString("N"))
+$runnerCapture = Join-Path $runnerTestDirectory "capture.json"
+try {
+  New-Item -ItemType Directory -Force -Path $runnerTestDirectory | Out-Null
+  @'
+param([string]$ConfigPath, [string]$TaskId, [ValidateSet("NEEDS_FAST_REVIEW", "NEEDS_EXECUTOR_RECOVERY", "NEEDS_FIX_ROUND")][string]$DetectedState)
+[pscustomobject]@{ configPath = $ConfigPath; taskId = $TaskId; detectedState = $DetectedState } | ConvertTo-Json -Compress | Set-Content -LiteralPath $env:WATCHER_TEST_RUNNER_CAPTURE -Encoding UTF8
+exit 0
+'@ | Set-Content -LiteralPath (Join-Path $runnerTestDirectory "run-controller.ps1") -Encoding UTF8
+  $env:WATCHER_TEST_RUNNER_CAPTURE = $runnerCapture
+  $originalScriptDirectory = $scriptDirectory
+  $scriptDirectory = $runnerTestDirectory
+  $runnerContext = Get-FixtureContext "DeliveryNewer"
+  $runnerDecision = Get-WatcherDecision $runnerContext
+  $runnerExit = Invoke-ControllerProcess $config $runnerContext $runnerDecision
+  Assert-That ($runnerExit -eq 0) "Watcher runner invocation exited $runnerExit."
+  $runnerCaptureValue = Get-Content -LiteralPath $runnerCapture -Raw | ConvertFrom-Json
+  Assert-That ($runnerCaptureValue.taskId -eq "T-FIXTURE") "Watcher runner did not bind TaskId by name."
+  Assert-That ($runnerCaptureValue.detectedState -eq "NEEDS_FAST_REVIEW") "Watcher runner did not bind DetectedState by name."
+} finally {
+  $scriptDirectory = $originalScriptDirectory
+  Remove-Item Env:WATCHER_TEST_RUNNER_CAPTURE -ErrorAction SilentlyContinue
+  if (Test-Path -LiteralPath $runnerTestDirectory) { Remove-Item -LiteralPath $runnerTestDirectory -Recurse -Force }
+}
+
 $fixtureCases = @(
   @{ Name = "ClaudeRunning"; State = "CLAUDE_RUNNING"; Action = "EXIT"; Codex = $false },
   @{ Name = "DeliveryNewer"; State = "NEEDS_FAST_REVIEW"; Action = "INVOKE_CONTROLLER"; Codex = $true },
@@ -58,7 +87,7 @@ $fixtureCases = @(
 
 $results = @()
 foreach ($case in $fixtureCases) {
-  $json = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $watcher -ConfigPath $configForTests -DryRun -Fixture $case.Name -AsJson
+  $json = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $watcher -ConfigPath $fixtureConfigPath -DryRun -Fixture $case.Name -AsJson
   Assert-That ($LASTEXITCODE -eq 0) "Fixture '$($case.Name)' exited $LASTEXITCODE."
   $actual = $json | ConvertFrom-Json
   Assert-That ($actual.detectedState -eq $case.State) "Fixture '$($case.Name)' state '$($actual.detectedState)' expected '$($case.State)'."
@@ -67,7 +96,7 @@ foreach ($case in $fixtureCases) {
   $results += $actual
 }
 
-$statusOnlyJson = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $watcher -ConfigPath $configForTests -DryRun -Fixture "DeliveryNewer" -StatusOnly -AsJson
+$statusOnlyJson = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $watcher -ConfigPath $fixtureConfigPath -DryRun -Fixture "DeliveryNewer" -StatusOnly -AsJson
 Assert-That ($LASTEXITCODE -eq 0) "Status-only watcher exited $LASTEXITCODE."
 $statusOnlyResult = $statusOnlyJson | ConvertFrom-Json
 Assert-That ($statusOnlyResult.action -eq "STATUS_ONLY") "Status-only watcher action is incorrect."
@@ -85,6 +114,11 @@ Assert-That ($LASTEXITCODE -eq 0) "Status command exited $LASTEXITCODE."
 $statusResult = $statusJson | ConvertFrom-Json
 Assert-That ($null -ne $statusResult.watcherStatus) "Status command did not return WATCHER_STATUS."
 Assert-That ($statusResult.schedule -eq "every $($config.scheduler.intervalMinutes) minutes") "Status command schedule is incorrect."
+
+$statusDefaultJson = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $statusScript -AsJson
+Assert-That ($LASTEXITCODE -eq 0) "Default status command exited $LASTEXITCODE."
+$statusDefaultResult = $statusDefaultJson | ConvertFrom-Json
+Assert-That ($null -ne $statusDefaultResult.watcherStatus) "Default status command did not resolve its config path."
 
 $temporaryRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("search-growth-watcher-status-" + [guid]::NewGuid().ToString("N"))
 try {
@@ -115,3 +149,5 @@ try {
   runner = $runnerResult
   watcherStatus = $statusResult.watcherStatus
 } | ConvertTo-Json -Compress
+
+Remove-Item -LiteralPath $fixtureConfigPath -Force -ErrorAction SilentlyContinue
