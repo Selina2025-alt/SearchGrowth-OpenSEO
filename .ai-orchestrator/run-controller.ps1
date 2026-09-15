@@ -20,7 +20,14 @@ function Get-RunnerConfig {
   if (-not (Test-Path -LiteralPath $config.codex.executablePath)) { throw "Configured Codex executable is unavailable: $($config.codex.executablePath)" }
   if ($config.codex.controllerModel -notmatch "(?i)terra") { throw "Configured controller model is not the approved economy-tier Terra model." }
   if ($config.codex.allowModelFallback -ne $false) { throw "Automatic controller-model fallback is prohibited." }
+  if ($config.codex.useApproveForMe -ne $false) { throw "Controller approval bypass is prohibited when a sandbox is configured." }
   return $config
+}
+
+function Test-CodexArgumentCompatibility {
+  param([string]$Sandbox, [bool]$UseApproveForMe)
+  if ([string]::IsNullOrWhiteSpace($Sandbox)) { throw "Codex controller must use an explicit sandbox." }
+  if ($UseApproveForMe) { throw "Codex CLI cannot combine --sandbox with --approve-for-me." }
 }
 
 function Get-ControllerPrompt {
@@ -72,6 +79,7 @@ function ConvertTo-WindowsCommandLineArgument {
 
 function Invoke-CodexController {
   param([object]$Config, [string]$Prompt)
+  Test-CodexArgumentCompatibility $Config.codex.sandbox ([bool]$Config.codex.useApproveForMe)
   $logDirectory = Join-Path $Config.repositoryRoot $Config.watcher.logDirectory
   New-Item -ItemType Directory -Force -Path $logDirectory | Out-Null
   $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
@@ -81,7 +89,7 @@ function Invoke-CodexController {
 
   $arguments = @(
     "exec", "--ephemeral", "--color", "never", "--sandbox", [string]$Config.codex.sandbox,
-    "--approve-for-me", "--cd", [string]$Config.repositoryRoot,
+    "--cd", [string]$Config.repositoryRoot,
     "--model", [string]$Config.codex.controllerModel,
     "--config", ('model_reasoning_effort="{0}"' -f [string]$Config.codex.reasoningEffort),
     "--output-last-message", $lastMessagePath,
@@ -122,6 +130,7 @@ function Invoke-CodexController {
 try {
   $config = Get-RunnerConfig $ConfigPath
   $prompt = Get-ControllerPrompt $TaskId $DetectedState
+  Test-CodexArgumentCompatibility $config.codex.sandbox ([bool]$config.codex.useApproveForMe)
   if ($DryRun) {
     [pscustomobject]@{ executable = $config.codex.executablePath; model = $config.codex.controllerModel; reasoningEffort = $config.codex.reasoningEffort; sandbox = $config.codex.sandbox; stdin = "explicit EOF"; state = $DetectedState } | ConvertTo-Json -Compress
     exit 0
