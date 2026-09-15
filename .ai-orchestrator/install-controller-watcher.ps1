@@ -53,7 +53,8 @@ function Invoke-ProcessWithEof {
 }
 
 try {
-  $config = Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
+  $configText = Get-Content -LiteralPath $ConfigPath -Raw
+  $config = $configText | ConvertFrom-Json
   $watcherPath = Join-Path $PSScriptRoot "controller-watcher.ps1"
   $testPath = Join-Path $PSScriptRoot "tests\controller-watcher.tests.ps1"
   if (-not (Test-Path -LiteralPath $watcherPath)) { throw "Watcher script is missing: $watcherPath" }
@@ -63,9 +64,14 @@ try {
   if ($version.ExitCode -ne 0) { throw "Codex version probe failed: $($version.Stderr)" }
   $help = Invoke-ProcessWithEof $codexPath @("exec", "--help")
   if ($help.ExitCode -ne 0 -or $help.Stdout -notmatch "--model" -or $help.Stdout -notmatch "--cd" -or $help.Stdout -notmatch "--sandbox") { throw "Codex exec capability probe failed; required CLI parameters are unavailable." }
-  $config.codex.executablePath = $codexPath
-  $config.codex.observedVersion = $version.Stdout.Trim()
-  $config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ConfigPath -Encoding UTF8
+  $detectedVersion = $version.Stdout.Trim()
+  # Do not churn the tracked configuration on every scheduled-task refresh.
+  # A rewrite is needed only when discovery finds a different absolute binary/version.
+  if ($config.codex.executablePath -ne $codexPath -or $config.codex.observedVersion -ne $detectedVersion) {
+    $config.codex.executablePath = $codexPath
+    $config.codex.observedVersion = $detectedVersion
+    $config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ConfigPath -Encoding UTF8
+  }
   if (-not $SkipTests) { & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $testPath -ConfigPath $ConfigPath; if ($LASTEXITCODE -ne 0) { throw "Watcher dry-run test suite failed." } }
 
   $powershellPath = (Get-Command powershell.exe -ErrorAction Stop).Source
