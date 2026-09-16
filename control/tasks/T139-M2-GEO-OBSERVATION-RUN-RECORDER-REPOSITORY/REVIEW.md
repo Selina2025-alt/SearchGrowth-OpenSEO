@@ -2,28 +2,21 @@
 
 ## VERDICT
 
-**BLOCKED — Round 2 of 3.**
+**PASS — Round 3 of 3.**
 
 ## VERIFIED
 
-- Round 1's top-level and nested `NaN`/infinity/`undefined`/function/symbol/BigInt/cycle loss cases are now covered by a pre-serialization traversal and focused real-SQL tests. The repository remains one INSERT per accepted fact with no update, upsert, dedupe, provider, cache, workflow, or schema change.
-- Same-Project FK and duplicate-ID errors still surface; independent repeats persist separately; existing rows are not modified. Delivery records focused tests (431), full tests (205 files/1,974 tests), and all required quality gates at exit 0.
+- The recorder is a single append-only insert adapter for the accepted `GeoObservationRunRecorder` port. It neither updates nor deduplicates runs, and duplicate-ID and same-Project FK failures propagate from storage.
+- Raw evidence is now JSON-faithful before persistence. A root blank string, `null`, `undefined`, functions, symbols, BigInts, `NaN`, infinities, `-0`, cycles, custom objects, non-enumerable properties, sparse/extended arrays, array/object symbol keys, and accessors all reject before an INSERT. Nested `""` is correctly retained as valid JSON evidence.
+- The validator reads data descriptors rather than evaluating getters. Accepted structured evidence serializes without mutation; a repeated sibling reference remains valid while a cycle is rejected.
+- Focused real-SQL recorder tests: **36/36 passed** in an independent single-worker controller run. `format:check`, `types:check`, and `lint` were independently clean. The initial default-pool focused run completed all 36 assertions then hit a Vitest/Tinypool worker-termination error; the single-worker rerun isolates that runner cleanup issue and exits cleanly.
+- DELIVERY records final-code evidence for focused tests (436 assertions across four files), full tests (205 files / 1,979 tests), `format:check`, `types:check`, `lint`, `build`, and `ci:check`, all exit 0. No sandbox evidence exception was required.
+- Targeted worktree inspection confirms only the repository adapter, its focused tests, and task control artifacts are present. No schema, migration, dependency, provider, cache, workflow, credential, publishing, or production behavior changed. `git diff --check` is clean.
 
 ## FINDINGS
 
-### BLOCKER — JSON-safe traversal rejects valid evidence and still permits several lossy shapes
-
-- **Location:** `src/server/features/search-growth/geo/repositories/GeoObservationRunRecorderRepository.ts`, `assertJsonSafeRawResponse`, `assertJsonSafeArray`, and `assertJsonSafeObject`.
-- **Requirement:** Valid JSON payloads must retain their raw-evidence semantics, while values JSON cannot faithfully carry must be rejected before INSERT.
-- **Evidence:**
-  1. The traversal rejects a blank string at every nested path. `{ optionalAnswer: "" }` is valid JSON and faithfully serializes/restores; only the *root* raw capture needs to be nonempty. Rejecting nested blank strings invents a content policy and prevents valid provider evidence from being stored.
-  2. Arrays do not check `Object.getOwnPropertySymbols`, so an array with a symbol-keyed property passes validation while JSON silently drops that property.
-  3. Enumerable accessor properties pass the object/array checks and are read with `Reflect.get`; getters can produce a different value or side effect between validation and `JSON.stringify`, so the persisted text is not proven to be the validated raw evidence.
-  4. `-0` is finite but JSON serializes it as `0`, losing its value.
-- **Expected behavior:** root string evidence must remain nonblank. Nested JSON strings, including `""`, are valid JSON values and must be preserved. Before serialization, reject symbol-keyed properties on arrays, accessor properties, and `-0`, in addition to the already covered invalid values. Read only data-descriptor values during validation; keep all accepted payloads opaque.
-- **Reproduction:** `{ optionalAnswer: "" }` currently rejects despite round-tripping through JSON. Conversely, `Object.assign([1], { [Symbol("s")]: 1 })`, an enumerable getter property, and `-0` can pass the current validator while JSON drops or rewrites data.
-- **Fix acceptance:** add only these boundary corrections and focused tests: nested empty string round-trips; root blank string still rejects; array symbol, object/array accessor, and root/nested `-0` reject with zero rows. Do not change INSERT mapping, schema/migrations, sampling/cache/provider behavior, workflow/retry policy, or other scope.
+None.
 
 ## MERGE DECISION
 
-Do not merge. Dispatch the final bounded Round 3 fix.
+Approve the auditable T139 task commit and merge only `ai-task/T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY` into `integration/ai-v1`. Do not merge `main`.
