@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T145-M2-GEO-EXACT-ENTITY-MENTION-CANDIDATE-READER
+CURRENT TASK: T146-M2-GEO-EXACT-ENTITY-MENTION-DETECTION-SERVICE
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 469beba7c0a297af45428697b901e55486564bcf
-LAST REVIEW: T144-M2-GEO-EXACT-ENTITY-MENTION-MATCHER-CORE ROUND 1 PASS — strict literal matching, collision preservation, and evidence offsets verified
+LATEST ACCEPTED COMMIT: 961ae46ba4b9548ba7f05a6d3a50a4ad705b6812
+LAST REVIEW: T145-M2-GEO-EXACT-ENTITY-MENTION-CANDIDATE-READER ROUND 1 PASS — read-only Project-scoped exact candidate eligibility and deterministic collisions verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T145 Round 1 dispatched to Claude Code + deepseek-v4-Pro in its isolated task worktree.
+LAST COMPLETED ACTION: T145 Round 1 accepted and merged only to `integration/ai-v1` at `961ae46ba4b9548ba7f05a6d3a50a4ad705b6812`.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T145 DELIVERY.md, then perform Fast Review in the T145 task worktree.
+NEXT EXACT ACTION: Dispatch T146 Round 1 to Claude Code + deepseek-v4-Pro in its isolated task worktree, then wait for DELIVERY.
 
 ## COMPLETED
 
@@ -67,7 +67,8 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T145 DELIVERY.md, then perform
 - T142-M2-GEO-CITATION-RECORDER-REPOSITORY accepted in round 1 of 3 and merged to `integration/ai-v1`; citation facts bind concrete parses and optional receipts without changing evidence or performing attribution.
 - T143-M2-GEO-PARSE-OUTPUT-BUNDLE-CONSISTENCY accepted in round 1 of 3 and merged to `integration/ai-v1`; concrete parse Project/identity consistency is established before future recorder composition.
 - T144-M2-GEO-EXACT-ENTITY-MENTION-MATCHER-CORE accepted in round 1 of 3 and merged to `integration/ai-v1`; exact literal evidence spans are deterministic without entity storage lookup or persistence.
-- T145-M2-GEO-EXACT-ENTITY-MENTION-CANDIDATE-READER is authorized; it is a small read-only Project-scoped source for exact matcher candidates.
+- T145-M2-GEO-EXACT-ENTITY-MENTION-CANDIDATE-READER accepted in round 1 of 3 and merged to `integration/ai-v1`; active exact case-sensitive candidate eligibility is Project-scoped and read-only.
+- T146-M2-GEO-EXACT-ENTITY-MENTION-DETECTION-SERVICE is authorized; it composes the accepted reader and matcher without persistence or parser workflow.
 
 ## BLOCKED
 
@@ -75,4 +76,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T145 DELIVERY.md, then perform
 
 ## NEXT
 
-Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T145 is the next credential-free M2 task. Never merge to `main`.
+Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T146 is the next credential-free M2 task. Never merge to `main`.

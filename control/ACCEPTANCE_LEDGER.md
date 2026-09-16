@@ -99,3 +99,5 @@
 | `T143-M2-GEO-PARSE-OUTPUT-BUNDLE-CONSISTENCY` | PASS (round 1/3) | 2026-09-16 | control/tasks/T143-M2-GEO-PARSE-OUTPUT-BUNDLE-CONSISTENCY/REVIEW.md; pure concrete-parse Project/identity guard, no persistence or evidence transformation, 154 focused tests and full suite/build/ci evidence PASS | b217c3d95f7364f49a2969700a25661f30ae74ac |
 
 | `T144-M2-GEO-EXACT-ENTITY-MENTION-MATCHER-CORE` | PASS (round 1/3) | 2026-09-16 | control/tasks/T144-M2-GEO-EXACT-ENTITY-MENTION-MATCHER-CORE/REVIEW.md; strict case-sensitive literal match spans, project input guard, collision preservation, 97 focused tests and full suite/build/ci evidence PASS | 469beba7c0a297af45428697b901e55486564bcf |
+
+| `T145-M2-GEO-EXACT-ENTITY-MENTION-CANDIDATE-READER` | PASS (round 1/3) | 2026-09-16 | control/tasks/T145-M2-GEO-EXACT-ENTITY-MENTION-CANDIDATE-READER/REVIEW.md; read-only active exact-case candidate reader, deterministic collision-preserving ordering, 480 focused tests and full suite/build/ci evidence PASS | 961ae46ba4b9548ba7f05a6d3a50a4ad705b6812 |
