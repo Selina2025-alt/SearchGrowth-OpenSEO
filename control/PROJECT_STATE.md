@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 78295ff
 LAST REVIEW: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY ROUND 3 PASS — strict JSON-safe raw-evidence persistence verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T139 Round 3 accepted and merged to integration/ai-v1 at 78295ff; root watcher residue was excluded from the task merge.
+LAST COMPLETED ACTION: T140 Round 1 dispatched to Claude Code + deepseek-v4-Pro in its isolated task worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch Claude Code + deepseek-v4-Pro to implement the bounded T140 GeoObservationParse recorder/repository task in its isolated worktree.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T140 DELIVERY.md, then perform Fast Review in the T140 task worktree.
 
 ## COMPLETED
 
@@ -62,6 +62,7 @@ NEXT EXACT ACTION: Dispatch Claude Code + deepseek-v4-Pro to implement the bound
 ## IN PROGRESS
 
 - T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY accepted in round 3 of 3 and merged to `integration/ai-v1`; append-only run persistence preserves faithful raw evidence.
+- T140-M2-GEO-OBSERVATION-PARSE-RECORDER-REPOSITORY Round 1 is executing in an isolated Claude worktree.
 
 ## BLOCKED
 
