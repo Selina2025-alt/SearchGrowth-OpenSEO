@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T142-M2-GEO-CITATION-RECORDER-REPOSITORY
+CURRENT TASK: T143-M2-GEO-PARSE-OUTPUT-BUNDLE-CONSISTENCY
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 00d13ad
-LAST REVIEW: T141-M2-GEO-ENTITY-MENTION-RECORDER-REPOSITORY ROUND 1 PASS — append-only mention persistence and same-Project ownership verified
+LATEST ACCEPTED COMMIT: c0a38da24f9f071a70b7786ad767a428e12d1ee1
+LAST REVIEW: T142-M2-GEO-CITATION-RECORDER-REPOSITORY ROUND 1 PASS — append-only citation persistence, same-Project Parse/Receipt FKs, and opaque evidence boundaries verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T142 Round 1 dispatched to Claude Code + deepseek-v4-Pro in its isolated task worktree.
+LAST COMPLETED ACTION: T142 Round 1 accepted and merged only to `integration/ai-v1` at `c0a38da24f9f071a70b7786ad767a428e12d1ee1`.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T142 DELIVERY.md, then perform Fast Review in the T142 task worktree.
+NEXT EXACT ACTION: Dispatch T143 Round 1 to Claude Code + deepseek-v4-Pro in its isolated task worktree, then wait for DELIVERY.
 
 ## COMPLETED
 
@@ -64,7 +64,8 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T142 DELIVERY.md, then perform
 - T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY accepted in round 3 of 3 and merged to `integration/ai-v1`; append-only run persistence preserves faithful raw evidence.
 - T140-M2-GEO-OBSERVATION-PARSE-RECORDER-REPOSITORY accepted in round 1 of 3 and merged to `integration/ai-v1`; parser versions persist independently without touching raw observations.
 - T141-M2-GEO-ENTITY-MENTION-RECORDER-REPOSITORY accepted in round 1 of 3 and merged to `integration/ai-v1`; mention facts bind concrete parses and same-Project tracked entities without changing raw evidence.
-- T142-M2-GEO-CITATION-RECORDER-REPOSITORY Round 1 is executing in an isolated Claude worktree.
+- T142-M2-GEO-CITATION-RECORDER-REPOSITORY accepted in round 1 of 3 and merged to `integration/ai-v1`; citation facts bind concrete parses and optional receipts without changing evidence or performing attribution.
+- T143-M2-GEO-PARSE-OUTPUT-BUNDLE-CONSISTENCY is authorized; it is a small, credential-free pure-domain boundary before future parser/recorder composition.
 
 ## BLOCKED
 
@@ -72,4 +73,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T142 DELIVERY.md, then perform
 
 ## NEXT
 
-Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T142 is the next credential-free M2 task. Never merge to `main`.
+Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T143 is the next credential-free M2 task. Never merge to `main`.
