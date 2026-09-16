@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 06dfca3e04406f7726187fe203265d4944d28e29
 LAST REVIEW: T150-M2-GEO-CONFIDENCE-CLASSIFIER-CORE ROUND 1 PASS — frozen confidence thresholds and fail-closed input boundary verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T150 Round 1 accepted, committed, and merged to integration/ai-v1 at 06dfca3.
+LAST COMPLETED ACTION: T151 Round 1 task packet committed and queued for Claude Code + deepseek-v4-Pro dispatch.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T151 Round 1 to Claude Code + deepseek-v4-Pro in an isolated task worktree; then wait for DELIVERY.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T151 DELIVERY.md, then perform Fast Review in the T151 task worktree.
 
 ## COMPLETED
 
