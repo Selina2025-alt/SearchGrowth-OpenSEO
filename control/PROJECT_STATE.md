@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T141-M2-GEO-DETERMINISTIC-ENTITY-MENTION-PARSER-CORE
+CURRENT TASK: T141-M2-GEO-ENTITY-MENTION-RECORDER-REPOSITORY
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 6cf8863
 LAST REVIEW: T140-M2-GEO-OBSERVATION-PARSE-RECORDER-REPOSITORY ROUND 1 PASS — versioned append-only parse persistence verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T140 Round 1 accepted and merged to integration/ai-v1 at 6cf8863; only the task branch's implementation and control artifacts were merged.
+LAST COMPLETED ACTION: T141 Round 1 dispatched to Claude Code + deepseek-v4-Pro in its isolated task worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch Claude Code + deepseek-v4-Pro to implement the bounded T141 deterministic entity-mention parser core in its isolated worktree.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T141 DELIVERY.md, then perform Fast Review in the T141 task worktree.
 
 ## COMPLETED
 
@@ -63,6 +63,7 @@ NEXT EXACT ACTION: Dispatch Claude Code + deepseek-v4-Pro to implement the bound
 
 - T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY accepted in round 3 of 3 and merged to `integration/ai-v1`; append-only run persistence preserves faithful raw evidence.
 - T140-M2-GEO-OBSERVATION-PARSE-RECORDER-REPOSITORY accepted in round 1 of 3 and merged to `integration/ai-v1`; parser versions persist independently without touching raw observations.
+- T141-M2-GEO-ENTITY-MENTION-RECORDER-REPOSITORY Round 1 is executing in an isolated Claude worktree.
 
 ## BLOCKED
 
