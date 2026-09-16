@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: b217c3d95f7364f49a2969700a25661f30ae74ac
 LAST REVIEW: T143-M2-GEO-PARSE-OUTPUT-BUNDLE-CONSISTENCY ROUND 1 PASS — pure cross-fact Project/Parse identity guard and evidence preservation verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T143 Round 1 accepted and merged only to `integration/ai-v1` at `b217c3d95f7364f49a2969700a25661f30ae74ac`.
+LAST COMPLETED ACTION: T144 Round 1 dispatched to Claude Code + deepseek-v4-Pro in its isolated task worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T144 Round 1 to Claude Code + deepseek-v4-Pro in its isolated task worktree, then wait for DELIVERY.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T144 DELIVERY.md, then perform Fast Review in the T144 task worktree.
 
 ## COMPLETED
 
