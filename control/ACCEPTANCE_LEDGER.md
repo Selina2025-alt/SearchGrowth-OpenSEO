@@ -107,3 +107,5 @@
 | `T147-M2-GEO-EXACT-ENTITY-MENTION-FACT-ASSEMBLER` | PASS (round 1/3) | 2026-09-16 | control/tasks/T147-M2-GEO-EXACT-ENTITY-MENTION-FACT-ASSEMBLER/REVIEW.md; concrete parse-bound fact drafts with atomic context/id validation and collision provenance, 141 focused tests and full suite/build/ci evidence PASS | 2b97ead9bd859186982929a86496730e72763222 |
 
 | T148-M2-GEO-EXACT-ENTITY-MENTION-ASSEMBLY-SERVICE | PASS (round 1/3) | 2026-09-16 | control/tasks/T148-M2-GEO-EXACT-ENTITY-MENTION-ASSEMBLY-SERVICE/REVIEW.md; transparent single-parse T146/T147 composition, preserved exact-match provenance and error propagation; Controller 137 focused tests plus format/types/lint PASS; executor full suite/build/ci evidence PASS | 3efe6f11f48f429a745730c99525daf545f501e4 |
+
+| T149-M2-GEO-CITATION-FACT-ASSEMBLER | PASS (round 1/3) | 2026-09-16 | control/tasks/T149-M2-GEO-CITATION-FACT-ASSEMBLER/REVIEW.md; concrete parse-bound citation facts, opaque URL/domain preservation and typed atomic rejection; Controller 75 related tests plus format/types/lint/ci:check PASS; executor full suite/build evidence PASS | c56db23fc3c4f9f267773d6d44406081d5b95170 |

@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T149-M2-GEO-CITATION-FACT-ASSEMBLER
+CURRENT TASK: T150-M2-GEO-CONFIDENCE-CLASSIFIER-CORE
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 3efe6f11f48f429a745730c99525daf545f501e4
-LAST REVIEW: T148-M2-GEO-EXACT-ENTITY-MENTION-ASSEMBLY-SERVICE ROUND 1 PASS — transparent concrete-parse detection/assembly composition, provenance and error propagation verified
+LATEST ACCEPTED COMMIT: c56db23fc3c4f9f267773d6d44406081d5b95170
+LAST REVIEW: T149-M2-GEO-CITATION-FACT-ASSEMBLER ROUND 1 PASS — concrete-parse citation facts preserve opaque evidence and typed failure boundaries
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T149 Round 1 task packet committed and queued for Claude Code + deepseek-v4-Pro dispatch.
+LAST COMPLETED ACTION: T149 Round 1 accepted, committed, and merged to integration/ai-v1 at c56db23.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T149 DELIVERY.md, then perform Fast Review in the T149 task worktree.
+NEXT EXACT ACTION: Dispatch T150 Round 1 to Claude Code + deepseek-v4-Pro in an isolated task worktree; then wait for DELIVERY.
 
 ## COMPLETED
 
@@ -71,7 +71,8 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T149 DELIVERY.md, then perform
 - T146-M2-GEO-EXACT-ENTITY-MENTION-DETECTION-SERVICE accepted in round 1 of 3 and merged to `integration/ai-v1`; it transparently composes candidate read and exact matching with error propagation.
 - T147-M2-GEO-EXACT-ENTITY-MENTION-FACT-ASSEMBLER accepted in round 1 of 3 and merged to `integration/ai-v1`; exact spans are atomically bound to concrete parse facts while retaining traceability.
 - T148-M2-GEO-EXACT-ENTITY-MENTION-ASSEMBLY-SERVICE accepted in round 1 of 3 and merged to integration/ai-v1; it composes accepted detection and assembly for one parse without persistence.
-- T149-M2-GEO-CITATION-FACT-ASSEMBLER is authorized; it will bind caller-extracted citation evidence to one concrete parse without URL identity, matching, or persistence.
+- T149-M2-GEO-CITATION-FACT-ASSEMBLER accepted in round 1 of 3 and merged to integration/ai-v1; citation evidence is parse-bound without URL identity, matching, or persistence.
+- T150-M2-GEO-CONFIDENCE-CLASSIFIER-CORE is authorized; it will implement the frozen confidence thresholds as a pure classifier.
 
 ## BLOCKED
 
@@ -79,4 +80,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T149 DELIVERY.md, then perform
 
 ## NEXT
 
-Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T149 is the next credential-free M2 task. Never merge to `main`.
+Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T150 is the next credential-free M2 task. Never merge to `main`.
