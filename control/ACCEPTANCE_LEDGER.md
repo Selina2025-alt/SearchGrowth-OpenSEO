@@ -103,3 +103,5 @@
 | `T145-M2-GEO-EXACT-ENTITY-MENTION-CANDIDATE-READER` | PASS (round 1/3) | 2026-09-16 | control/tasks/T145-M2-GEO-EXACT-ENTITY-MENTION-CANDIDATE-READER/REVIEW.md; read-only active exact-case candidate reader, deterministic collision-preserving ordering, 480 focused tests and full suite/build/ci evidence PASS | 961ae46ba4b9548ba7f05a6d3a50a4ad705b6812 |
 
 | `T146-M2-GEO-EXACT-ENTITY-MENTION-DETECTION-SERVICE` | PASS (round 1/3) | 2026-09-16 | control/tasks/T146-M2-GEO-EXACT-ENTITY-MENTION-DETECTION-SERVICE/REVIEW.md; transparent reader/matcher composition with error propagation and collision preservation, 118 focused tests and full suite/build/ci evidence PASS | 6a48ff5171a554557790fff4b3f4835265675abe |
+
+| `T147-M2-GEO-EXACT-ENTITY-MENTION-FACT-ASSEMBLER` | PASS (round 1/3) | 2026-09-16 | control/tasks/T147-M2-GEO-EXACT-ENTITY-MENTION-FACT-ASSEMBLER/REVIEW.md; concrete parse-bound fact drafts with atomic context/id validation and collision provenance, 141 focused tests and full suite/build/ci evidence PASS | 2b97ead9bd859186982929a86496730e72763222 |
