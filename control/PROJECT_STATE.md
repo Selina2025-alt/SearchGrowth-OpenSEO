@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY
+CURRENT TASK: T140-M2-GEO-OBSERVATION-PARSE-RECORDER-REPOSITORY
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 4cd2e37
-LAST REVIEW: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY ROUND 2 BLOCKED — JSON-safe boundary over/under-validation
-CURRENT ROUND: 3 / 3
-LAST COMPLETED ACTION: Watcher Windows PowerShell compatibility repaired; direct status command and a manually triggered no-op Scheduled Task both exited 0 and refreshed ignored runtime status.
+LATEST ACCEPTED COMMIT: 78295ff
+LAST REVIEW: T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY ROUND 3 PASS — strict JSON-safe raw-evidence persistence verified
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: T139 Round 3 accepted and merged to integration/ai-v1 at 78295ff; root watcher residue was excluded from the task merge.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Watcher monitors the existing T139 checkpoint and invokes the economy-tier Controller only on a state change.
+NEXT EXACT ACTION: Dispatch Claude Code + deepseek-v4-Pro to implement the bounded T140 GeoObservationParse recorder/repository task in its isolated worktree.
 
 ## COMPLETED
 
@@ -61,7 +61,7 @@ NEXT EXACT ACTION: Watcher monitors the existing T139 checkpoint and invokes the
 
 ## IN PROGRESS
 
-- T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY Round 3 is executing in its isolated Claude worktree for final JSON-safe boundary corrections.
+- T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY accepted in round 3 of 3 and merged to `integration/ai-v1`; append-only run persistence preserves faithful raw evidence.
 
 ## BLOCKED
 
@@ -69,4 +69,4 @@ NEXT EXACT ACTION: Watcher monitors the existing T139 checkpoint and invokes the
 
 ## NEXT
 
-Controller Watcher implementation is merged. Daily automation uses the economy-tier Terra configuration with no automatic Sol fallback; T139 executor/worktree remains unchanged. Never merge to `main`.
+Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T140 is the next credential-free M2 task. Never merge to `main`.
