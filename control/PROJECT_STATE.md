@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 6a48ff5171a554557790fff4b3f4835265675abe
 LAST REVIEW: T146-M2-GEO-EXACT-ENTITY-MENTION-DETECTION-SERVICE ROUND 1 PASS — transparent candidate-reader/exact-matcher composition and error propagation verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T146 Round 1 accepted and merged only to `integration/ai-v1` at `6a48ff5171a554557790fff4b3f4835265675abe`.
+LAST COMPLETED ACTION: T147 Round 1 dispatched to Claude Code + deepseek-v4-Pro in its isolated task worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T147 Round 1 to Claude Code + deepseek-v4-Pro in its isolated task worktree, then wait for DELIVERY.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T147 DELIVERY.md, then perform Fast Review in the T147 task worktree.
 
 ## COMPLETED
 
