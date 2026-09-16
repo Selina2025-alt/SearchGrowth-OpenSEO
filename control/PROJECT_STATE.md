@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: c56db23fc3c4f9f267773d6d44406081d5b95170
 LAST REVIEW: T149-M2-GEO-CITATION-FACT-ASSEMBLER ROUND 1 PASS — concrete-parse citation facts preserve opaque evidence and typed failure boundaries
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T149 Round 1 accepted, committed, and merged to integration/ai-v1 at c56db23.
+LAST COMPLETED ACTION: T150 Round 1 task packet committed and queued for Claude Code + deepseek-v4-Pro dispatch.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T150 Round 1 to Claude Code + deepseek-v4-Pro in an isolated task worktree; then wait for DELIVERY.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T150 DELIVERY.md, then perform Fast Review in the T150 task worktree.
 
 ## COMPLETED
 
