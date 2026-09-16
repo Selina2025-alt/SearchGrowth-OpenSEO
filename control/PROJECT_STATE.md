@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 00d13ad
 LAST REVIEW: T141-M2-GEO-ENTITY-MENTION-RECORDER-REPOSITORY ROUND 1 PASS — append-only mention persistence and same-Project ownership verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T141 Round 1 accepted and merged to integration/ai-v1 at 00d13ad; only task implementation and control artifacts were merged.
+LAST COMPLETED ACTION: T142 Round 1 dispatched to Claude Code + deepseek-v4-Pro in its isolated task worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch Claude Code + deepseek-v4-Pro to implement the bounded T142 GeoCitation recorder/repository task in its isolated worktree.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T142 DELIVERY.md, then perform Fast Review in the T142 task worktree.
 
 ## COMPLETED
 
@@ -64,6 +64,7 @@ NEXT EXACT ACTION: Dispatch Claude Code + deepseek-v4-Pro to implement the bound
 - T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY accepted in round 3 of 3 and merged to `integration/ai-v1`; append-only run persistence preserves faithful raw evidence.
 - T140-M2-GEO-OBSERVATION-PARSE-RECORDER-REPOSITORY accepted in round 1 of 3 and merged to `integration/ai-v1`; parser versions persist independently without touching raw observations.
 - T141-M2-GEO-ENTITY-MENTION-RECORDER-REPOSITORY accepted in round 1 of 3 and merged to `integration/ai-v1`; mention facts bind concrete parses and same-Project tracked entities without changing raw evidence.
+- T142-M2-GEO-CITATION-RECORDER-REPOSITORY Round 1 is executing in an isolated Claude worktree.
 
 ## BLOCKED
 
