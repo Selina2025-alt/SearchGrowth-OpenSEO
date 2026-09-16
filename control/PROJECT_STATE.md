@@ -80,5 +80,3 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T149 DELIVERY.md, then perform
 ## NEXT
 
 Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T149 is the next credential-free M2 task. Never merge to `main`.
-
-
