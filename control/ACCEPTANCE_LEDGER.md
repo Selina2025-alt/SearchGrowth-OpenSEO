@@ -95,3 +95,5 @@
 | `T141-M2-GEO-ENTITY-MENTION-RECORDER-REPOSITORY` | PASS (round 1/3) | 2026-09-16 | control/tasks/T141-M2-GEO-ENTITY-MENTION-RECORDER-REPOSITORY/REVIEW.md; one append-only mention insert per fact, same-Project Parse/Entity FK propagation, no business uniqueness, 490 focused tests and full suite/build/ci evidence PASS | 00d13ad |
 
 | `T142-M2-GEO-CITATION-RECORDER-REPOSITORY` | PASS (round 1/3) | 2026-09-16 | control/tasks/T142-M2-GEO-CITATION-RECORDER-REPOSITORY/REVIEW.md; one append-only citation insert per fact, opaque URL/evidence boundary, same-Project Parse/Receipt FK propagation, 489 focused tests and full suite/build/ci evidence PASS | c0a38da24f9f071a70b7786ad767a428e12d1ee1 |
+
+| `T143-M2-GEO-PARSE-OUTPUT-BUNDLE-CONSISTENCY` | PASS (round 1/3) | 2026-09-16 | control/tasks/T143-M2-GEO-PARSE-OUTPUT-BUNDLE-CONSISTENCY/REVIEW.md; pure concrete-parse Project/identity guard, no persistence or evidence transformation, 154 focused tests and full suite/build/ci evidence PASS | b217c3d95f7364f49a2969700a25661f30ae74ac |
