@@ -91,3 +91,5 @@
 | `T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY` | PASS (round 3/3) | 2026-09-16 | control/tasks/T139-M2-GEO-OBSERVATION-RUN-RECORDER-REPOSITORY/REVIEW.md; one append-only run insert per fact, same-Project/FK failure propagation, JSON-faithful opaque raw evidence, 36 focused real-SQL tests and full suite/build/ci evidence PASS | 78295ff |
 
 | `T140-M2-GEO-OBSERVATION-PARSE-RECORDER-REPOSITORY` | PASS (round 1/3) | 2026-09-16 | control/tasks/T140-M2-GEO-OBSERVATION-PARSE-RECORDER-REPOSITORY/REVIEW.md; one append-only versioned parse insert per fact, canonical status boundary, same-Project/FK propagation, 466 focused tests and full suite/build/ci evidence PASS | 6cf8863 |
+
+| `T141-M2-GEO-ENTITY-MENTION-RECORDER-REPOSITORY` | PASS (round 1/3) | 2026-09-16 | control/tasks/T141-M2-GEO-ENTITY-MENTION-RECORDER-REPOSITORY/REVIEW.md; one append-only mention insert per fact, same-Project Parse/Entity FK propagation, no business uniqueness, 490 focused tests and full suite/build/ci evidence PASS | 00d13ad |
