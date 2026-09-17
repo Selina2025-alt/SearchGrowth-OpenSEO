@@ -11,7 +11,7 @@ LAST REVIEW: T158-M2-GEO-BATCH-REPEAT-FRACTION-CONTEXT-SERVICE ROUND 1 PASS — 
 CURRENT ROUND: 1 / 3
 LAST COMPLETED ACTION: T158 Round 1 accepted and merged to integration/ai-v1.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create the T159 worktree, dispatch Claude Round 1, then await DELIVERY.md for Fast Review.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T159 DELIVERY.md, then perform Fast Review in the T159 task worktree.
 
 ## COMPLETED
 
