@@ -117,3 +117,5 @@
 | T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP | PASS (round 1/3) | 2026-09-17 | control/tasks/T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP/REVIEW.md; structured five-field context copied from one accepted T151 cohort; Controller 70 related tests plus format/types/lint PASS; executor full suite/build/ci:check evidence PASS | d3fc15ee97fdd147145bd5b9d1242fef401401f5 |
 
 | T153-M2-GEO-REPEAT-FRACTION-PRESENTER | PASS (round 1/3) | 2026-09-17 | control/tasks/T153-M2-GEO-REPEAT-FRACTION-PRESENTER/REVIEW.md; exact default/high-value repeat fraction presentation with typed fail-closed input; Controller 71 related tests plus format/types/lint PASS; executor full suite/build/ci:check evidence PASS | 180444f53e5ab18968dde78a0bd6e6beed0d61a3 |
+
+| T154-M2-GEO-OBSERVATION-BATCH-READER | PASS (round 1/3) | 2026-09-17 | control/tasks/T154-M2-GEO-OBSERVATION-BATCH-READER/REVIEW.md; Project/batch-isolated immutable run reading with deterministic order; Controller 79 related tests plus format/types/lint PASS; executor full suite/build/ci:check evidence PASS | 01a406d465bd356cb5f1090e769ce8c8be4bf3d8 |

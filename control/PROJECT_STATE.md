@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T154-M2-GEO-OBSERVATION-BATCH-READER
+CURRENT TASK: T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 180444f53e5ab18968dde78a0bd6e6beed0d61a3
-LAST REVIEW: T153-M2-GEO-REPEAT-FRACTION-PRESENTER ROUND 1 PASS — exact 3/5 repeat display and fail-closed input boundary verified
+LATEST ACCEPTED COMMIT: 01a406d465bd356cb5f1090e769ce8c8be4bf3d8
+LAST REVIEW: T154-M2-GEO-OBSERVATION-BATCH-READER ROUND 1 PASS — Project/batch isolation, deterministic order, and raw-evidence preservation verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T153 Round 1 accepted and merged to integration/ai-v1.
+LAST COMPLETED ACTION: T154 Round 1 accepted and merged to integration/ai-v1.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T154 DELIVERY.md, then perform Fast Review in the T154 task worktree.
+NEXT EXACT ACTION: Create the isolated T155 worktree and dispatch Claude Code + deepseek-v4-Pro Round 1.
 
 ## COMPLETED
 
@@ -76,6 +76,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T154 DELIVERY.md, then perform
 - T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD accepted in round 2 of 3 and merged to integration/ai-v1; it rejects unsupported surfaces and cross-context measurement cohorts.
 - T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP accepted in round 1 of 3 and merged to integration/ai-v1; it preserves a structured five-field cohort context without creating a metric or identity key.
 - T153-M2-GEO-REPEAT-FRACTION-PRESENTER accepted in round 1 of 3 and merged to integration/ai-v1; it presents exact default/high-value repeat fractions without a percentage or metric.
+- T154-M2-GEO-OBSERVATION-BATCH-READER accepted in round 1 of 3 and merged to integration/ai-v1; it reads immutable Project-scoped run batches in deterministic order without cohort or metric meaning.
 
 ## BLOCKED
 
@@ -83,4 +84,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T154 DELIVERY.md, then perform
 
 ## NEXT
 
-Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T154 is the next credential-free M2 task. Never merge to `main`.
+Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T155 is the next credential-free M2 task. Never merge to `main`.
