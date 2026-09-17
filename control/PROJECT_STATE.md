@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T153-M2-GEO-REPEAT-FRACTION-PRESENTER
+CURRENT TASK: T154-M2-GEO-OBSERVATION-BATCH-READER
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: d3fc15ee97fdd147145bd5b9d1242fef401401f5
-LAST REVIEW: T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP ROUND 1 PASS — structured five-field cohort context and T151 error propagation verified
+LATEST ACCEPTED COMMIT: 180444f53e5ab18968dde78a0bd6e6beed0d61a3
+LAST REVIEW: T153-M2-GEO-REPEAT-FRACTION-PRESENTER ROUND 1 PASS — exact 3/5 repeat display and fail-closed input boundary verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T152 Round 1 accepted and merged to integration/ai-v1.
+LAST COMPLETED ACTION: T153 Round 1 accepted and merged to integration/ai-v1.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T153 DELIVERY.md, then perform Fast Review in the T153 task worktree.
+NEXT EXACT ACTION: Create the isolated T154 worktree and dispatch Claude Code + deepseek-v4-Pro Round 1.
 
 ## COMPLETED
 
@@ -75,6 +75,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T153 DELIVERY.md, then perform
 - T150-M2-GEO-CONFIDENCE-CLASSIFIER-CORE accepted in round 1 of 3 and merged to integration/ai-v1; the frozen confidence thresholds are a pure classifier.
 - T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD accepted in round 2 of 3 and merged to integration/ai-v1; it rejects unsupported surfaces and cross-context measurement cohorts.
 - T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP accepted in round 1 of 3 and merged to integration/ai-v1; it preserves a structured five-field cohort context without creating a metric or identity key.
+- T153-M2-GEO-REPEAT-FRACTION-PRESENTER accepted in round 1 of 3 and merged to integration/ai-v1; it presents exact default/high-value repeat fractions without a percentage or metric.
 
 ## BLOCKED
 
@@ -82,4 +83,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T153 DELIVERY.md, then perform
 
 ## NEXT
 
-Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T153 is the next credential-free M2 task. Never merge to `main`.
+Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T154 is the next credential-free M2 task. Never merge to `main`.
