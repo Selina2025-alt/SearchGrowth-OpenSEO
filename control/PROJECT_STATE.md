@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP
+CURRENT TASK: T153-M2-GEO-REPEAT-FRACTION-PRESENTER
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: bf09d06439435e298d256cae2f67715aa7747221
-LAST REVIEW: T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD ROUND 2 PASS — canonical surface runtime validation and cohort isolation verified
+LATEST ACCEPTED COMMIT: d3fc15ee97fdd147145bd5b9d1242fef401401f5
+LAST REVIEW: T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP ROUND 1 PASS — structured five-field cohort context and T151 error propagation verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T152 Round 1 task packet committed and queued for Claude Code + deepseek-v4-Pro dispatch.
+LAST COMPLETED ACTION: T152 Round 1 accepted and merged to integration/ai-v1.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T152 DELIVERY.md, then perform Fast Review in the T152 task worktree.
+NEXT EXACT ACTION: Create the isolated T153 worktree and dispatch Claude Code + deepseek-v4-Pro Round 1.
 
 ## COMPLETED
 
@@ -73,7 +73,8 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T152 DELIVERY.md, then perform
 - T148-M2-GEO-EXACT-ENTITY-MENTION-ASSEMBLY-SERVICE accepted in round 1 of 3 and merged to integration/ai-v1; it composes accepted detection and assembly for one parse without persistence.
 - T149-M2-GEO-CITATION-FACT-ASSEMBLER accepted in round 1 of 3 and merged to integration/ai-v1; citation evidence is parse-bound without URL identity, matching, or persistence.
 - T150-M2-GEO-CONFIDENCE-CLASSIFIER-CORE accepted in round 1 of 3 and merged to integration/ai-v1; the frozen confidence thresholds are a pure classifier.
-- T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD is authorized; it will prevent cross-context cohort mixing before metric aggregation.
+- T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD accepted in round 2 of 3 and merged to integration/ai-v1; it rejects unsupported surfaces and cross-context measurement cohorts.
+- T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP accepted in round 1 of 3 and merged to integration/ai-v1; it preserves a structured five-field cohort context without creating a metric or identity key.
 
 ## BLOCKED
 
@@ -81,4 +82,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T152 DELIVERY.md, then perform
 
 ## NEXT
 
-Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T151 is the next credential-free M2 task. Never merge to `main`.
+Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T153 is the next credential-free M2 task. Never merge to `main`.

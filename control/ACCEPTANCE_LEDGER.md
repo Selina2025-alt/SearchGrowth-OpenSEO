@@ -113,3 +113,5 @@
 | T150-M2-GEO-CONFIDENCE-CLASSIFIER-CORE | PASS (round 1/3) | 2026-09-16 | control/tasks/T150-M2-GEO-CONFIDENCE-CLASSIFIER-CORE/REVIEW.md; frozen 10/3/30/5 confidence thresholds and warning semantics, typed fail-closed input boundary; Controller 67 related tests plus format/types/lint PASS; executor full suite/build/ci:check evidence PASS | 06dfca3e04406f7726187fe203265d4944d28e29 |
 
 | T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD | PASS (round 2/3) | 2026-09-17 | control/tasks/T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD/REVIEW.md; explicit supported-surface guard, same-context isolation; Controller 63 related tests plus format/types/lint PASS; executor full suite/build/ci:check evidence PASS | bf09d06439435e298d256cae2f67715aa7747221 |
+
+| T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP | PASS (round 1/3) | 2026-09-17 | control/tasks/T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP/REVIEW.md; structured five-field context copied from one accepted T151 cohort; Controller 70 related tests plus format/types/lint PASS; executor full suite/build/ci:check evidence PASS | d3fc15ee97fdd147145bd5b9d1242fef401401f5 |
