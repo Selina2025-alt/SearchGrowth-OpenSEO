@@ -111,3 +111,5 @@
 | T149-M2-GEO-CITATION-FACT-ASSEMBLER | PASS (round 1/3) | 2026-09-16 | control/tasks/T149-M2-GEO-CITATION-FACT-ASSEMBLER/REVIEW.md; concrete parse-bound citation facts, opaque URL/domain preservation and typed atomic rejection; Controller 75 related tests plus format/types/lint/ci:check PASS; executor full suite/build evidence PASS | c56db23fc3c4f9f267773d6d44406081d5b95170 |
 
 | T150-M2-GEO-CONFIDENCE-CLASSIFIER-CORE | PASS (round 1/3) | 2026-09-16 | control/tasks/T150-M2-GEO-CONFIDENCE-CLASSIFIER-CORE/REVIEW.md; frozen 10/3/30/5 confidence thresholds and warning semantics, typed fail-closed input boundary; Controller 67 related tests plus format/types/lint PASS; executor full suite/build/ci:check evidence PASS | 06dfca3e04406f7726187fe203265d4944d28e29 |
+
+| T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD | PASS (round 2/3) | 2026-09-17 | control/tasks/T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD/REVIEW.md; explicit supported-surface guard, same-context isolation; Controller 63 related tests plus format/types/lint PASS; executor full suite/build/ci:check evidence PASS | bf09d06439435e298d256cae2f67715aa7747221 |
