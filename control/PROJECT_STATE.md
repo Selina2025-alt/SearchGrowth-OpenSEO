@@ -9,9 +9,9 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: bf09d06439435e298d256cae2f67715aa7747221
 LAST REVIEW: T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD ROUND 2 PASS — canonical surface runtime validation and cohort isolation verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T151 Round 2 accepted and merged to integration/ai-v1 at bf09d06.
+LAST COMPLETED ACTION: T152 Round 1 task packet committed and queued for Claude Code + deepseek-v4-Pro dispatch.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Dispatch T152 Round 1 to Claude Code + deepseek-v4-Pro, then wait for DELIVERY.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T152 DELIVERY.md, then perform Fast Review in the T152 task worktree.
 
 ## COMPLETED
 
