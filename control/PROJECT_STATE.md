@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T158-M2-GEO-BATCH-REPEAT-FRACTION-CONTEXT-SERVICE
+CURRENT TASK: T159-M2-GEO-ENTITY-MENTION-BATCH-READER
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 956e5d0aa77fd79c92c4768a086b049511d40dee
-LAST REVIEW: T157-M2-GEO-OBSERVATION-BATCH-COHORT-CONTEXT-SERVICE ROUND 1 PASS — Project/batch-isolated T154-to-T156 read composition verified
+LATEST ACCEPTED COMMIT: dfdd807b73e8e9b15cf0801e6b324a1f909b428d
+LAST REVIEW: T158-M2-GEO-BATCH-REPEAT-FRACTION-CONTEXT-SERVICE ROUND 1 PASS — T157 batch context and T153 exact success fraction composition verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T157 Round 1 accepted and merged to integration/ai-v1.
+LAST COMPLETED ACTION: T158 Round 1 accepted and merged to integration/ai-v1.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T158 DELIVERY.md, then perform Fast Review in the T158 task worktree.
+NEXT EXACT ACTION: Create the T159 worktree, dispatch Claude Round 1, then await DELIVERY.md for Fast Review.
 
 ## COMPLETED
 
@@ -78,7 +78,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T158 DELIVERY.md, then perform
 - T153-M2-GEO-REPEAT-FRACTION-PRESENTER accepted in round 1 of 3 and merged to integration/ai-v1; it presents exact default/high-value repeat fractions without a percentage or metric.
 - T154-M2-GEO-OBSERVATION-BATCH-READER accepted in round 1 of 3 and merged to integration/ai-v1; it reads immutable Project-scoped run batches in deterministic order without cohort or metric meaning.
 - T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR accepted in round 2 of 3 and merged to integration/ai-v1; it projects rows to a T151-validated cohort while preserving order and raw-evidence isolation.
-- T156-M2-GEO-OBSERVATION-COHORT-CONTEXT-ASSEMBLER accepted in round 1 of 3 and merged to integration/ai-v1; it composes T155 and T152 into an immutable ordered cohort context.`r`n- T157-M2-GEO-OBSERVATION-BATCH-COHORT-CONTEXT-SERVICE accepted in round 1 of 3 and merged to integration/ai-v1; it composes one Project/batch T154 read with T156 without metrics or evidence mutation.
+- T156-M2-GEO-OBSERVATION-COHORT-CONTEXT-ASSEMBLER accepted in round 1 of 3 and merged to integration/ai-v1; it composes T155 and T152 into an immutable ordered cohort context.`r`n- T157-M2-GEO-OBSERVATION-BATCH-COHORT-CONTEXT-SERVICE accepted in round 1 of 3 and merged to integration/ai-v1; it composes one Project/batch T154 read with T156 without metrics or evidence mutation.`r`n- T158-M2-GEO-BATCH-REPEAT-FRACTION-CONTEXT-SERVICE accepted in round 1 of 3 and merged to integration/ai-v1; it composes T157 with T153 to present stored-success samples against the supplied 3/5 request.
 
 ## BLOCKED
 
