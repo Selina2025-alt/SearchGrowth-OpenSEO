@@ -8,10 +8,10 @@ CURRENT TASK: T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 01a406d465bd356cb5f1090e769ce8c8be4bf3d8
 LAST REVIEW: T154-M2-GEO-OBSERVATION-BATCH-READER ROUND 1 PASS — Project/batch isolation, deterministic order, and raw-evidence preservation verified
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T154 Round 1 accepted and merged to integration/ai-v1.
-CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T155 DELIVERY.md, then perform Fast Review in the T155 task worktree.
+CURRENT ROUND: 2 / 3
+LAST COMPLETED ACTION: T155 Round 1 reviewed BLOCKED; Round 2 dispatched for minimal T151 error-propagation repair.
+CURRENT BLOCKER: T155 Round 1 projector-owned model validation bypassed required T151 error propagation; scoped Round 2 repair is in progress. M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T155 Round 2 DELIVERY.md, then verify T151 model-error propagation in the task worktree.
 
 ## COMPLETED
 
