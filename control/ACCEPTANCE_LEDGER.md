@@ -121,3 +121,5 @@
 | T154-M2-GEO-OBSERVATION-BATCH-READER | PASS (round 1/3) | 2026-09-17 | control/tasks/T154-M2-GEO-OBSERVATION-BATCH-READER/REVIEW.md; Project/batch-isolated immutable run reading with deterministic order; Controller 79 related tests plus format/types/lint PASS; executor full suite/build/ci:check evidence PASS | 01a406d465bd356cb5f1090e769ce8c8be4bf3d8 |
 
 | T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR | PASS (round 2/3) | 2026-09-17 | control/tasks/T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR/REVIEW.md; ordered immutable run projection with T151-owned model validation; Controller 75 related tests plus format/types/lint/ci:check PASS; executor full suite/build evidence PASS | 1c66bb5294f5d91c006e962535b3573e7acb59ef |
+
+| T156-M2-GEO-OBSERVATION-COHORT-CONTEXT-ASSEMBLER | PASS (round 1/3) | 2026-09-17 | control/tasks/T156-M2-GEO-OBSERVATION-COHORT-CONTEXT-ASSEMBLER/REVIEW.md; one-call T155/T152 composition into exact five-field context; Controller 76 related tests plus format/types/lint PASS; executor full suite/build/ci:check evidence PASS | 178b84537c545e2bfeadfa8ffca392b5e12b5318 |
