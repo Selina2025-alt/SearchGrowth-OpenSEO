@@ -1,25 +1,20 @@
 # T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR — REVIEW
 
-ROUND: 1 / 3
-VERDICT: BLOCKED
+ROUND: 2 / 3
+VERDICT: PASS
 
 ## VERIFIED
 
-- The implementation is storage-free and returns the original row list by identity.
-- It maps identity fields in input order and calls T151 once on the projected members.
-- Focused controller tests passed: 74 related tests. Formatting also passed. DELIVERY records passing full test, build, and ci:check evidence.
+- Round 1's blocker is fixed: projector-owned runtime validation now covers only marketProfileId and modelVersion. Stored model is copied as-is to the T151 member and invalid model values produce T151's unchanged GeoMeasurementCohortIdentityError.
+- The projector still preserves original row-list identity and order, projects one member per row including duplicates, rejects unusable projector-owned identity before a partial result, and calls T151 once for supported-surface and compatible-cohort validation.
+- It remains storage-free and never reads or changes raw evidence, queries a reader, filters, sorts, deduplicates, counts, aggregates, or computes a fraction, metric, or confidence.
+- Controller verification passed: 75 related focused tests, format check, type check, lint, and ci:check. The executor's transient ci:check OOM was an evidence-environment interruption; the same final worktree passed Controller ci:check without code modification.
+- Diff remains limited to the projector, its focused tests, and task control artifacts. No schema, migration, dependency, provider, credential, cache, publishing, or production change exists.
 
 ## FINDINGS
 
-### BLOCKER — projector revalidates model instead of propagating T151
-
-- Path: src/server/features/search-growth/geo/services/geoObservationCohortMemberProjector.ts
-- Location: sourceIdentitySchema and sourceRowSchema; projection path in projectGeoObservationCohortMembers.
-- Requirement violated: TASK item 2 limits the projector-owned nullable checks to marketProfileId and modelVersion. TASK item 3 requires the projected members to be handed to T151 once and its typed rejection propagated unchanged, with no duplicate revalidation.
-- Evidence: sourceRowSchema includes model: sourceIdentitySchema. A blank, null, or malformed model therefore raises GeoObservationCohortMemberProjectionError before T151 sees the member.
-- Expected behavior: validate only marketProfileId and modelVersion in the projector. Copy model directly into the member and let T151 reject malformed model values with its unchanged GeoMeasurementCohortIdentityError.
-- Fix acceptance: remove the projector-owned model check and revise focused tests so malformed model input demonstrates unchanged T151 error propagation; retain explicit projector errors for marketProfileId and modelVersion. No schema, storage, ordering, aggregation, or unrelated changes.
+None.
 
 ## MERGE DECISION
 
-Do not merge. Dispatch the scoped Round 2 repair.
+PASS. Merge ai-task/T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR into integration/ai-v1 only.
