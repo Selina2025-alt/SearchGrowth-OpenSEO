@@ -11,7 +11,7 @@ LAST REVIEW: T154-M2-GEO-OBSERVATION-BATCH-READER ROUND 1 PASS — Project/batch
 CURRENT ROUND: 1 / 3
 LAST COMPLETED ACTION: T154 Round 1 accepted and merged to integration/ai-v1.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create the isolated T155 worktree and dispatch Claude Code + deepseek-v4-Pro Round 1.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T155 DELIVERY.md, then perform Fast Review in the T155 task worktree.
 
 ## COMPLETED
 
