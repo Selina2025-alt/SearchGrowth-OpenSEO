@@ -2,27 +2,25 @@
 
 ## ROUND
 
-1 / 3
+2 / 3
 
 ## VERDICT
 
-BLOCKED
+PASS
 
 ## VERIFIED
 
-- The implementation is pure, preserves the original ordered member list by identity, validates six present identifiers, and rejects exact cross-Project, market, surface, model, and model-version differences without normalization or partial return.
-- The focused tests and the executor's full test, build, and CI evidence are coherent. No storage, provider, cache, parser, aggregation, schema, or production behavior was added.
+- Round 1 blocker is closed. The storage-free runtime enum admits exactly AGGREGATED_SEARCH_DATA, MODEL_API_SEARCH, CONSUMER_PRODUCT_OBSERVED, and MANUAL_CONSUMER_OBSERVATION.
+- Unsupported, mis-cased, and whitespace-padded surfaces reject at the correct member index and surfaceType field; no normalization or default cohort exists. Each legal surface remains distinct.
+- Original T151 behavior remains intact: non-empty ordered member references return by identity; Project, market profile, surface, model, and model-version mismatches reject; run identity can vary for repeats; malformed input rejects with no partial return.
+- T151 deliberately does not claim prompt, language, time-window, timezone, data-lag, parser-version, or experiment identity coverage. Those fields were outside this task and were not added implicitly.
+- Controller verification: 4 suites / 63 tests passed, including the canonical GEO observation schema suite; Prettier, TypeScript, and oxlint passed. DELIVERY records full test (219 files / 2260 tests), build, and ci:check as exit 0.
+- Diff remains limited to the pure guard, its tests, and task control artifacts. No storage, provider, parser, aggregation, schema, dependency, credential, publishing, or production behavior is present.
 
 ## FINDINGS
 
-### BLOCKER — unsupported observation surfaces are accepted as a valid cohort
-
-- **Location:** src/server/features/search-growth/geo/services/geoMeasurementCohortIdentityGuard.ts, cohortMemberSchema, surfaceType: identifierSchema.
-- **Requirement:** GEO Measurement Spec §1 defines the permitted observation surfaces. The task and review acceptance require missing or unsupported identity dimensions to fail explicitly; an identity guard cannot accept an invented surface simply because every member repeats the same string.
-- **Evidence:** identifierSchema only requires a nonblank string. A list whose members all use surfaceType: UNSUPPORTED_SURFACE passes the guard, even though it has no accepted measurement surface.
-- **Expected behavior:** reject an unsupported surface at its member index with field: surfaceType before establishing or returning a cohort. The four Spec surfaces remain distinguishable and are not normalized or folded.
-- **Fix acceptance:** add a storage-free runtime enum validation for exactly AGGREGATED_SEARCH_DATA, MODEL_API_SEARCH, CONSUMER_PRODUCT_OBSERVED, and MANUAL_CONSUMER_OBSERVATION; add first- and later-member unsupported-surface negative tests. Preserve the existing exact comparison, member identity return, and all task boundaries. Do not add prompt/language/window/parser/aggregation behavior.
+None.
 
 ## MERGE DECISION
 
-Do not merge. Dispatch Round 2 for the narrowly scoped blocker only.
+PASS. Commit and merge ai-task/T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD to integration/ai-v1 only.
