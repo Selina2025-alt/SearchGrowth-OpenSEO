@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR
+CURRENT TASK: T156-M2-GEO-OBSERVATION-COHORT-CONTEXT-ASSEMBLER
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: 01a406d465bd356cb5f1090e769ce8c8be4bf3d8
-LAST REVIEW: T154-M2-GEO-OBSERVATION-BATCH-READER ROUND 1 PASS — Project/batch isolation, deterministic order, and raw-evidence preservation verified
-CURRENT ROUND: 2 / 3
-LAST COMPLETED ACTION: T155 Round 1 reviewed BLOCKED; Round 2 dispatched for minimal T151 error-propagation repair.
-CURRENT BLOCKER: T155 Round 1 projector-owned model validation bypassed required T151 error propagation; scoped Round 2 repair is in progress. M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T155 Round 2 DELIVERY.md, then verify T151 model-error propagation in the task worktree.
+LATEST ACCEPTED COMMIT: 1c66bb5294f5d91c006e962535b3573e7acb59ef
+LAST REVIEW: T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR ROUND 2 PASS — T151-owned model validation and projection identity isolation verified
+CURRENT ROUND: 1 / 3
+LAST COMPLETED ACTION: T155 Round 2 accepted and merged to integration/ai-v1.
+CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
+NEXT EXACT ACTION: Create the isolated T156 worktree and dispatch Claude Code + deepseek-v4-Pro Round 1.
 
 ## COMPLETED
 
@@ -77,6 +77,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T155 Round 2 DELIVERY.md, then
 - T152-M2-GEO-MEASUREMENT-COHORT-CONTEXT-STAMP accepted in round 1 of 3 and merged to integration/ai-v1; it preserves a structured five-field cohort context without creating a metric or identity key.
 - T153-M2-GEO-REPEAT-FRACTION-PRESENTER accepted in round 1 of 3 and merged to integration/ai-v1; it presents exact default/high-value repeat fractions without a percentage or metric.
 - T154-M2-GEO-OBSERVATION-BATCH-READER accepted in round 1 of 3 and merged to integration/ai-v1; it reads immutable Project-scoped run batches in deterministic order without cohort or metric meaning.
+- T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR accepted in round 2 of 3 and merged to integration/ai-v1; it projects rows to a T151-validated cohort while preserving order and raw-evidence isolation.
 
 ## BLOCKED
 
@@ -84,4 +85,4 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T155 Round 2 DELIVERY.md, then
 
 ## NEXT
 
-Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T155 is the next credential-free M2 task. Never merge to `main`.
+Automation watcher is paused by Product Owner direction. Manual Controller flow is active; T156 is the next credential-free M2 task. Never merge to `main`.
