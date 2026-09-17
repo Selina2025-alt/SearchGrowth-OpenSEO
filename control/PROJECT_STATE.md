@@ -11,7 +11,7 @@ LAST REVIEW: T157-M2-GEO-OBSERVATION-BATCH-COHORT-CONTEXT-SERVICE ROUND 1 PASS â
 CURRENT ROUND: 1 / 3
 LAST COMPLETED ACTION: T157 Round 1 accepted and merged to integration/ai-v1.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create the T158 worktree, dispatch Claude Round 1, then await DELIVERY.md for Fast Review.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR â€” await T158 DELIVERY.md, then perform Fast Review in the T158 task worktree.
 
 ## COMPLETED
 
