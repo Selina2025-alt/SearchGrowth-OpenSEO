@@ -8,10 +8,10 @@ CURRENT TASK: T151-M2-GEO-MEASUREMENT-COHORT-IDENTITY-GUARD
 INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: 06dfca3e04406f7726187fe203265d4944d28e29
 LAST REVIEW: T150-M2-GEO-CONFIDENCE-CLASSIFIER-CORE ROUND 1 PASS — frozen confidence thresholds and fail-closed input boundary verified
-CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T151 Round 1 task packet committed and queued for Claude Code + deepseek-v4-Pro dispatch.
+CURRENT ROUND: 2 / 3
+LAST COMPLETED ACTION: T151 Round 1 reviewed BLOCKED: unsupported surfaceType is accepted as a cohort identity.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T151 DELIVERY.md, then perform Fast Review in the T151 task worktree.
+NEXT EXACT ACTION: Dispatch T151 Round 2 to add only the explicit GEO surface enum validation and its negative tests; then await DELIVERY.
 
 ## COMPLETED
 
