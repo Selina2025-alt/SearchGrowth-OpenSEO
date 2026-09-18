@@ -11,7 +11,7 @@ LAST REVIEW: T160-M2-GEO-CITATION-BATCH-READER ROUND 1 PASS — three-selector v
 CURRENT ROUND: 1 / 3
 LAST COMPLETED ACTION: T160 Round 1 accepted and merged to integration/ai-v1.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create the T161 worktree, dispatch Claude Round 1, then await DELIVERY.md for Fast Review.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T161 DELIVERY.md, then perform Fast Review in the T161 task worktree.
 
 ## COMPLETED
 
