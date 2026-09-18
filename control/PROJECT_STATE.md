@@ -9,7 +9,7 @@ INTEGRATION BRANCH: integration/ai-v1
 LATEST ACCEPTED COMMIT: dfdd807b73e8e9b15cf0801e6b324a1f909b428d
 LAST REVIEW: T158-M2-GEO-BATCH-REPEAT-FRACTION-CONTEXT-SERVICE ROUND 1 PASS — T157 batch context and T153 exact success fraction composition verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T158 Round 1 accepted and merged to integration/ai-v1.
+LAST COMPLETED ACTION: T159 Round 1 dispatcher interrupted before executor work: Claude session-title helper submitted malformed deepseek-v4-Pro[1m]; recovery keeps Round 1 and preserves the task worktree.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
 NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T159 DELIVERY.md, then perform Fast Review in the T159 task worktree.
 

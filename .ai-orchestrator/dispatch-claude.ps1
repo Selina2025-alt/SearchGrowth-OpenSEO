@@ -68,7 +68,12 @@ Push-Location $worktree
 try{
   # Avoid PowerShell's automatic `$args` variable; using it as a mutable
   # command array can silently discard appended permission grants.
-  [string[]]$claudeArgs = @("-p",$instruction,"--output-format",[string]$config.claude.outputFormat,"--max-turns",[string]$config.claude.maxTurns)
+  # A named print session must not invoke Claude Code's automatic session-title
+  # helper. The DeepSeek route can render that helper's model label with an ANSI
+  # style suffix (for example, `deepseek-v4-Pro[1m]`), which the provider then
+  # rejects before executor work starts. The explicit task name is display-only;
+  # the configured `--model` argument remains the authoritative executor model.
+  [string[]]$claudeArgs = @("-p",$instruction,"--name","SearchGrowth $TaskId Round $Round","--output-format",[string]$config.claude.outputFormat,"--max-turns",[string]$config.claude.maxTurns)
   foreach($extraArg in $config.claude.extraArgs){
     $claudeArgs += [string]$extraArg
   }
