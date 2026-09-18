@@ -11,7 +11,7 @@ LAST REVIEW: T159-M2-GEO-ENTITY-MENTION-BATCH-READER ROUND 1 PASS — four-selec
 CURRENT ROUND: 1 / 3
 LAST COMPLETED ACTION: T159 Round 1 accepted and merged to integration/ai-v1 after its same-round executor recovery.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: Create the T160 worktree, dispatch Claude Round 1, then await DELIVERY.md for Fast Review.
+NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T160 DELIVERY.md, then perform Fast Review in the T160 task worktree.
 
 ## COMPLETED
 
