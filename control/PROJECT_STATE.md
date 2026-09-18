@@ -4,14 +4,14 @@ PROJECT: Search Growth SEO/GEO MVP V1.0
 CONTROL LAYER: Dual-Agent Orchestration V1.1
 OVERALL STATUS: IN_PROGRESS
 CURRENT MILESTONE: M2 GEO (M0.5 external feasibility remains gated)
-CURRENT TASK: T160-M2-GEO-CITATION-BATCH-READER
+CURRENT TASK: T161-M2-GEO-ENTITY-MENTION-BATCH-CONTEXT-SERVICE
 INTEGRATION BRANCH: integration/ai-v1
-LATEST ACCEPTED COMMIT: a0ae42726bf29f24b61cc4027a7a2d6165e4b829
-LAST REVIEW: T159-M2-GEO-ENTITY-MENTION-BATCH-READER ROUND 1 PASS — four-selector version-explicit persisted mention evidence read verified
+LATEST ACCEPTED COMMIT: 1dd170d7329d6a012a7fa4085b203a4bf1271603
+LAST REVIEW: T160-M2-GEO-CITATION-BATCH-READER ROUND 1 PASS — three-selector version-explicit persisted citation evidence read verified
 CURRENT ROUND: 1 / 3
-LAST COMPLETED ACTION: T159 Round 1 accepted and merged to integration/ai-v1 after its same-round executor recovery.
+LAST COMPLETED ACTION: T160 Round 1 accepted and merged to integration/ai-v1.
 CURRENT BLOCKER: M0.5 external accounts/publishing Human Gates H1/H2 remain closed.
-NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T160 DELIVERY.md, then perform Fast Review in the T160 task worktree.
+NEXT EXACT ACTION: Create the T161 worktree, dispatch Claude Round 1, then await DELIVERY.md for Fast Review.
 
 ## COMPLETED
 
@@ -78,7 +78,7 @@ NEXT EXACT ACTION: WAITING_FOR_EXECUTOR — await T160 DELIVERY.md, then perform
 - T153-M2-GEO-REPEAT-FRACTION-PRESENTER accepted in round 1 of 3 and merged to integration/ai-v1; it presents exact default/high-value repeat fractions without a percentage or metric.
 - T154-M2-GEO-OBSERVATION-BATCH-READER accepted in round 1 of 3 and merged to integration/ai-v1; it reads immutable Project-scoped run batches in deterministic order without cohort or metric meaning.
 - T155-M2-GEO-OBSERVATION-COHORT-MEMBER-PROJECTOR accepted in round 2 of 3 and merged to integration/ai-v1; it projects rows to a T151-validated cohort while preserving order and raw-evidence isolation.
-- T156-M2-GEO-OBSERVATION-COHORT-CONTEXT-ASSEMBLER accepted in round 1 of 3 and merged to integration/ai-v1; it composes T155 and T152 into an immutable ordered cohort context.`r`n- T157-M2-GEO-OBSERVATION-BATCH-COHORT-CONTEXT-SERVICE accepted in round 1 of 3 and merged to integration/ai-v1; it composes one Project/batch T154 read with T156 without metrics or evidence mutation.`r`n- T158-M2-GEO-BATCH-REPEAT-FRACTION-CONTEXT-SERVICE accepted in round 1 of 3 and merged to integration/ai-v1; it composes T157 with T153 to present stored-success samples against the supplied 3/5 request.`r`n- T159-M2-GEO-ENTITY-MENTION-BATCH-READER accepted in round 1 of 3 and merged to integration/ai-v1; it reads version-explicit Project/batch/entity mentions without matching or metric semantics.
+- T156-M2-GEO-OBSERVATION-COHORT-CONTEXT-ASSEMBLER accepted in round 1 of 3 and merged to integration/ai-v1; it composes T155 and T152 into an immutable ordered cohort context.`r`n- T157-M2-GEO-OBSERVATION-BATCH-COHORT-CONTEXT-SERVICE accepted in round 1 of 3 and merged to integration/ai-v1; it composes one Project/batch T154 read with T156 without metrics or evidence mutation.`r`n- T158-M2-GEO-BATCH-REPEAT-FRACTION-CONTEXT-SERVICE accepted in round 1 of 3 and merged to integration/ai-v1; it composes T157 with T153 to present stored-success samples against the supplied 3/5 request.`r`n- T159-M2-GEO-ENTITY-MENTION-BATCH-READER accepted in round 1 of 3 and merged to integration/ai-v1; it reads version-explicit Project/batch/entity mentions without matching or metric semantics.`r`n- T160-M2-GEO-CITATION-BATCH-READER accepted in round 1 of 3 and merged to integration/ai-v1; it reads version-explicit Project/batch citation evidence without URL or publication interpretation.
 
 ## BLOCKED
 
